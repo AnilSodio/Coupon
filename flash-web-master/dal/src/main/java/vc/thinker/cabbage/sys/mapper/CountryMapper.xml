@@ -1,0 +1,335 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="vc.thinker.cabbage.sys.mapper.CountryMapper">
+  <resultMap id="BaseResultMap" type="vc.thinker.cabbage.sys.model.Country">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="nation_code" jdbcType="VARCHAR" property="nationCode" />
+    <result column="chinese_name" jdbcType="VARCHAR" property="chineseName" />
+    <result column="english_name" jdbcType="VARCHAR" property="englishName" />
+    <result column="default_language" jdbcType="VARCHAR" property="defaultLanguage" />
+    <result column="is_default" jdbcType="BIT" property="isDefault" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="language_desc" jdbcType="VARCHAR" property="languageDesc" />
+    <result column="currency" jdbcType="VARCHAR" property="currency" />
+    <result column="deposit" jdbcType="DECIMAL" property="deposit" />
+    <result column="call_center" jdbcType="VARCHAR" property="callCenter" />
+  </resultMap>
+  <resultMap extends="BaseResultMap" id="BOResultMap" type="vc.thinker.cabbage.sys.bo.CountryBO" />
+  
+  <select id="groupByLanguage" resultMap="BOResultMap">
+  		select * from sys_country group by default_language
+  </select>
+  
+  <update id="updateFalseDefault">
+  		update sys_country set is_default = 0
+  </update>
+  	
+  <select id="findListByPageAndVO" resultMap="BOResultMap">
+    select *
+    from sys_country
+    <where>
+      <if test="vo.chineseName !=null and vo.chineseName != ''">
+        and chinese_name like concat("%",#{vo.chineseName},"%")
+      </if>
+      <if test="vo.englishName !=null and vo.englishName != ''">
+        and english_name like concat("%",#{vo.englishName},"%")
+      </if>
+      <if test="vo.defaultLanguage !=null and vo.defaultLanguage != ''">
+        and default_language like concat("%",#{vo.defaultLanguage},"%")
+      </if>
+    </where>
+    order by create_time desc
+  </select>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    id, nation_code, chinese_name, english_name, default_language, is_default, create_time, language_desc, 
+    currency, deposit, call_center
+  </sql>
+  <select id="selectByExample" parameterType="vc.thinker.cabbage.sys.model.CountryExample" resultMap="BOResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from sys_country
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+    <if test="limit != null">
+      limit ${limit}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BOResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from sys_country
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from sys_country
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteByExample" parameterType="vc.thinker.cabbage.sys.model.CountryExample">
+    delete from sys_country
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" keyProperty="id" parameterType="vc.thinker.cabbage.sys.model.Country" useGeneratedKeys="true">
+    insert into sys_country (id, nation_code, chinese_name, english_name, 
+      default_language, is_default, create_time, 
+      language_desc, currency, deposit, 
+      call_center)
+    values (#{id,jdbcType=BIGINT}, #{nationCode,jdbcType=VARCHAR}, #{chineseName,jdbcType=VARCHAR}, #{englishName,jdbcType=VARCHAR}, 
+      #{defaultLanguage,jdbcType=VARCHAR}, #{isDefault,jdbcType=BIT}, #{createTime,jdbcType=TIMESTAMP}, 
+      #{languageDesc,jdbcType=VARCHAR}, #{currency,jdbcType=VARCHAR}, #{deposit,jdbcType=DECIMAL}, 
+      #{callCenter,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" keyProperty="id" parameterType="vc.thinker.cabbage.sys.model.Country" useGeneratedKeys="true">
+    insert into sys_country
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="nationCode != null">
+        nation_code,
+      </if>      
+      <if test="chineseName != null">
+        chinese_name,
+      </if>
+      <if test="englishName != null">
+        english_name,
+      </if>
+      <if test="defaultLanguage != null">
+        default_language,
+      </if>
+      <if test="isDefault != null">
+        is_default,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="languageDesc != null">
+        language_desc,
+      </if>
+      <if test="currency != null">
+        currency,
+      </if>
+      <if test="deposit != null">
+        deposit,
+      </if>
+      <if test="callCenter != null">
+        call_center,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="nationCode != null">
+         #{nationCode,jdbcType=VARCHAR},
+      </if>      
+      <if test="chineseName != null">
+        #{chineseName,jdbcType=VARCHAR},
+      </if>
+      <if test="englishName != null">
+        #{englishName,jdbcType=VARCHAR},
+      </if>
+      <if test="defaultLanguage != null">
+        #{defaultLanguage,jdbcType=VARCHAR},
+      </if>
+      <if test="isDefault != null">
+        #{isDefault,jdbcType=BIT},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="languageDesc != null">
+        #{languageDesc,jdbcType=VARCHAR},
+      </if>
+      <if test="currency != null">
+        #{currency,jdbcType=VARCHAR},
+      </if>
+      <if test="deposit != null">
+        #{deposit,jdbcType=DECIMAL},
+      </if>
+      <if test="callCenter != null">
+        #{callCenter,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="vc.thinker.cabbage.sys.model.CountryExample" resultType="java.lang.Integer">
+    select count(*) from sys_country
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update sys_country
+    <set>
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=BIGINT},
+      </if>
+      <if test="record.nationCode != null">
+        nation_code  = #{record.nationCode ,jdbcType=VARCHAR},
+      </if>      
+      <if test="record.chineseName != null">
+        chinese_name = #{record.chineseName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.englishName != null">
+        english_name = #{record.englishName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.defaultLanguage != null">
+        default_language = #{record.defaultLanguage,jdbcType=VARCHAR},
+      </if>
+      <if test="record.isDefault != null">
+        is_default = #{record.isDefault,jdbcType=BIT},
+      </if>
+      <if test="record.createTime != null">
+        create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.languageDesc != null">
+        language_desc = #{record.languageDesc,jdbcType=VARCHAR},
+      </if>
+      <if test="record.currency != null">
+        currency = #{record.currency,jdbcType=VARCHAR},
+      </if>
+      <if test="record.deposit != null">
+        deposit = #{record.deposit,jdbcType=DECIMAL},
+      </if>
+      <if test="record.callCenter != null">
+        call_center = #{record.callCenter,jdbcType=VARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update sys_country
+    set id = #{record.id,jdbcType=BIGINT},
+      nation_code = #{record.nationCode,jdbcType=VARCHAR},
+      chinese_name = #{record.chineseName,jdbcType=VARCHAR},
+      english_name = #{record.englishName,jdbcType=VARCHAR},
+      default_language = #{record.defaultLanguage,jdbcType=VARCHAR},
+      is_default = #{record.isDefault,jdbcType=BIT},
+      create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      language_desc = #{record.languageDesc,jdbcType=VARCHAR},
+      currency = #{record.currency,jdbcType=VARCHAR},
+      deposit = #{record.deposit,jdbcType=DECIMAL},
+      call_center = #{record.callCenter,jdbcType=VARCHAR}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="vc.thinker.cabbage.sys.model.Country">
+    update sys_country
+    <set>
+      <if test="nationCode != null">
+        nation_code = #{nationCode,jdbcType=VARCHAR},
+      </if>
+      <if test="chineseName != null">
+        chinese_name = #{chineseName,jdbcType=VARCHAR},
+      </if>
+      <if test="englishName != null">
+        english_name = #{englishName,jdbcType=VARCHAR},
+      </if>
+      <if test="defaultLanguage != null">
+        default_language = #{defaultLanguage,jdbcType=VARCHAR},
+      </if>
+      <if test="isDefault != null">
+        is_default = #{isDefault,jdbcType=BIT},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="languageDesc != null">
+        language_desc = #{languageDesc,jdbcType=VARCHAR},
+      </if>
+      <if test="currency != null">
+        currency = #{currency,jdbcType=VARCHAR},
+      </if>
+      <if test="deposit != null">
+        deposit = #{deposit,jdbcType=DECIMAL},
+      </if>
+      <if test="callCenter != null">
+        call_center = #{callCenter,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="vc.thinker.cabbage.sys.model.Country">
+    update sys_country
+    set nation_code = #{nationCode,jdbcType=VARCHAR},
+      chinese_name = #{chineseName,jdbcType=VARCHAR},
+      english_name = #{englishName,jdbcType=VARCHAR},
+      default_language = #{defaultLanguage,jdbcType=VARCHAR},
+      is_default = #{isDefault,jdbcType=BIT},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      language_desc = #{languageDesc,jdbcType=VARCHAR},
+      currency = #{currency,jdbcType=VARCHAR},
+      deposit = #{deposit,jdbcType=DECIMAL},
+      call_center = #{callCenter,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

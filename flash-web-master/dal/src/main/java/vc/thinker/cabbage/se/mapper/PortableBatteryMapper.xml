@@ -1,0 +1,642 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="vc.thinker.cabbage.se.mapper.PortableBatteryMapper">
+  <resultMap id="BaseResultMap" type="vc.thinker.cabbage.se.model.PortableBattery">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="portable_battery_code" jdbcType="VARCHAR" property="portableBatteryCode" />
+    <result column="status" jdbcType="INTEGER" property="status" />
+    <result column="location_type" jdbcType="INTEGER" property="locationType" />
+    <result column="cabinet_id" jdbcType="BIGINT" property="cabinetId" />
+    <result column="cabinet_channel" jdbcType="INTEGER" property="cabinetChannel" />
+    <result column="electricity" jdbcType="INTEGER" property="electricity" />
+    <result column="voltage" jdbcType="INTEGER" property="voltage" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    <result column="cable" jdbcType="VARCHAR" property="cable" />
+    <result column="adapter" jdbcType="BIT" property="adapter" />
+    <result column="isdamage" jdbcType="VARCHAR" property="isdamage" />
+    <result column="color_Id" jdbcType="VARCHAR" property="colorId" />
+    <result column="temperature" jdbcType="VARCHAR" property="temperature" />
+    <result column="batt_type" jdbcType="VARCHAR" property="battType" />
+    <result column="member_id" jdbcType="BIGINT" property="memberId" />
+    <result column="last_location_time" jdbcType="TIMESTAMP" property="lastLocationTime" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+  </resultMap>
+  <resultMap extends="BaseResultMap" id="BOResultMap" type="vc.thinker.cabbage.se.bo.PortableBatteryBO" />
+  <resultMap id="CountStatsMap" type="vc.thinker.cabbage.stats.bo.CountStatsBO" />
+  <select id="statsPb" resultMap="CountStatsMap">
+  		select
+			<if test="vo.statsType!=null and vo.statsType==&quot;1&quot; ">
+				DATE_FORMAT(create_time, '%m') AS statsTime,
+			</if>
+			<if test="vo.statsType!=null and vo.statsType==&quot;2&quot; ">
+				DATE_FORMAT(create_time, '%d') AS statsTime,
+			</if>
+			count(1) sum
+		FROM
+			se_portable_battery
+		WHERE
+			<if test="vo.statsType!=null and vo.statsType==&quot;1&quot; ">
+				DATE_FORMAT(create_time, '%Y') = #{vo.time}
+			</if>
+			<if test="vo.statsType!=null and vo.statsType==&quot;2&quot; ">
+				DATE_FORMAT(create_time, '%Y-%m') = #{vo.time}
+			</if>
+		 
+		 group by statsTime 
+  </select>
+  
+  <select id="findPageByVo" resultMap="BOResultMap">
+	  	select 
+			pb.*,c.cabinet_code cabinetCode ,c.sys_code sysCode,
+			m.nickname,m.mobile
+		from 
+			se_portable_battery pb 
+			left join se_cabinet c on pb.cabinet_id = c.id and pb.location_type = 2 
+			left join user_member m on pb.member_id = m.uid and pb.location_type = 1
+		<where>
+			<if test="null != vo.cabinetId and '' != vo.cabinetId">
+				and pb.cabinet_id = #{vo.cabinetId}
+				and pb.location_type = 2
+			</if>
+			<if test="null != vo.portableBatteryCode and '' != vo.portableBatteryCode">
+				and pb.portable_battery_code like concat ('%', #{vo.portableBatteryCode},'%') 
+				and pb.location_type = 2
+			</if>
+			<if test="null != vo.status and '' != vo.status">
+				and pb.status = #{vo.status}
+			</if>
+			<if test="null != vo.locationType and '' != vo.locationType">
+				and pb.location_type = #{vo.locationType}
+			</if>
+			<if test="null != vo.cabinetCode and '' != vo.cabinetCode">
+				and c.cabinet_code like concat ('%', #{vo.cabinetCode},'%') 
+			</if>
+			<if test="null != vo.sysCode and '' != vo.sysCode">
+				and c.sys_code like concat ('%', #{vo.sysCode},'%') 
+			</if>
+			<if test="null != vo.battType and '' != vo.battType">
+				and pb.batt_type = #{vo.battType}
+			</if>
+			<if test="null != vo.cable and '' != vo.cable">
+				and pb.cable = #{vo.cable}
+			</if>
+			 
+		</where>
+		order by pb.portable_battery_code desc
+  </select>
+  
+  <insert id="insertUpdateSelective" keyProperty="id" parameterType="vc.thinker.cabbage.se.model.PortableBattery" useGeneratedKeys="true">
+    insert into se_portable_battery
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="portableBatteryCode != null">
+        portable_battery_code,
+      </if>
+      <if test="status != null">
+        status,
+      </if>
+      <if test="locationType != null">
+        location_type,
+      </if>
+      <if test="cabinetId != null">
+        cabinet_id,
+      </if>
+      <if test="cabinetChannel != null">
+        cabinet_channel,
+      </if>
+      <if test="electricity != null">
+        electricity,
+      </if>
+      <if test="voltage != null">
+        voltage,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="updateTime != null">
+        update_time,
+      </if>
+      <if test="cable != null">
+        cable,
+      </if>
+      <if test="adapter != null">
+        adapter,
+      </if>
+      <if test="isdamage != null">
+        isdamage,
+      </if>
+      <if test="colorId != null">
+        color_Id,
+      </if>
+      <if test="temperature != null">
+        temperature,
+      </if>
+      <if test="battType != null">
+        batt_type,
+      </if>
+      <if test="memberId != null">
+        member_id,
+      </if>
+      <if test="lastLocationTime != null">
+        last_location_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="portableBatteryCode != null">
+        #{portableBatteryCode,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=INTEGER},
+      </if>
+      <if test="locationType != null">
+        #{locationType,jdbcType=INTEGER},
+      </if>
+      <if test="cabinetId != null">
+        #{cabinetId,jdbcType=BIGINT},
+      </if>
+      <if test="cabinetChannel != null">
+        #{cabinetChannel,jdbcType=INTEGER},
+      </if>
+      <if test="electricity != null">
+        #{electricity,jdbcType=INTEGER},
+      </if>
+      <if test="voltage != null">
+        #{voltage,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null">
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="cable != null">
+        #{cable,jdbcType=VARCHAR},
+      </if>
+      <if test="adapter != null">
+        #{adapter,jdbcType=BIT},
+      </if>
+      <if test="isdamage != null">
+        #{isdamage,jdbcType=BIT},
+      </if>
+      <if test="colorId != null">
+        #{colorId,jdbcType=VARCHAR},
+      </if>
+      <if test="temperature != null">
+        #{temperature,jdbcType=VARCHAR},
+      </if>
+      <if test="battType != null">
+        #{battType,jdbcType=VARCHAR},
+      </if>
+      <if test="memberId != null">
+        #{memberId,jdbcType=BIGINT},
+      </if>
+      <if test="lastLocationTime != null">
+        #{lastLocationTime},
+      </if>
+    </trim>
+    ON DUPLICATE KEY UPDATE 
+    <trim suffixOverrides=",">
+      <if test="locationType != null">
+        location_type=#{locationType},
+      </if>
+      <if test="cabinetChannel != null">
+        cabinet_channel = #{cabinetChannel},
+      </if>
+      <if test="electricity != null">
+        electricity = #{electricity},
+      </if>
+      <if test="voltage != null">
+        voltage=#{voltage},
+      </if>
+      <if test="cable != null">
+        cable=#{cable},
+      </if>
+      <if test="adapter != null">
+        adapter=#{adapter},
+      </if>
+      <if test="isdamage != null">
+        isdamage=#{isdamage},
+      </if>
+      <if test="colorId != null">
+        color_Id=#{colorId},
+      </if>
+      <if test="temperature != null">
+        temperature=#{temperature},
+      </if>
+      <if test="battType != null">
+        batt_type=#{battType},
+      </if>
+      <if test="memberId != null">
+        member_id,
+      </if>
+       <if test="updateTime != null">
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="lastLocationTime != null">
+        last_location_time = #{lastLocationTime},
+      </if>
+    </trim>
+  </insert>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    id, portable_battery_code, status, location_type, cabinet_id, cabinet_channel, electricity, 
+    voltage, update_time, cable, adapter, isdamage, color_Id, temperature, batt_type, 
+    member_id, last_location_time, create_time
+  </sql>
+  <select id="selectByExample" parameterType="vc.thinker.cabbage.se.model.PortableBatteryExample" resultMap="BOResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from se_portable_battery
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+    <if test="limit != null">
+      limit ${limit}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BOResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from se_portable_battery
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from se_portable_battery
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteByExample" parameterType="vc.thinker.cabbage.se.model.PortableBatteryExample">
+    delete from se_portable_battery
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" keyProperty="id" parameterType="vc.thinker.cabbage.se.model.PortableBattery" useGeneratedKeys="true">
+    insert into se_portable_battery (id, portable_battery_code, status, 
+      location_type, cabinet_id, cabinet_channel, 
+      electricity, voltage, update_time, 
+      cable, adapter, isdamage, 
+      color_Id, temperature, batt_type, 
+      member_id, last_location_time, create_time
+      )
+    values (#{id,jdbcType=BIGINT}, #{portableBatteryCode,jdbcType=VARCHAR}, #{status,jdbcType=INTEGER}, 
+      #{locationType,jdbcType=INTEGER}, #{cabinetId,jdbcType=BIGINT}, #{cabinetChannel,jdbcType=INTEGER}, 
+      #{electricity,jdbcType=INTEGER}, #{voltage,jdbcType=INTEGER}, #{updateTime,jdbcType=TIMESTAMP}, 
+      #{cable,jdbcType=VARCHAR}, #{adapter,jdbcType=BIT}, #{isdamage,jdbcType=VARCHAR}, 
+      #{colorId,jdbcType=VARCHAR}, #{temperature,jdbcType=VARCHAR}, #{battType,jdbcType=VARCHAR}, 
+      #{memberId,jdbcType=BIGINT}, #{lastLocationTime,jdbcType=TIMESTAMP}, #{createTime,jdbcType=TIMESTAMP}
+      )
+  </insert>
+  <insert id="insertSelective" keyProperty="id" parameterType="vc.thinker.cabbage.se.model.PortableBattery" useGeneratedKeys="true">
+    insert into se_portable_battery
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="portableBatteryCode != null">
+        portable_battery_code,
+      </if>
+      <if test="status != null">
+        status,
+      </if>
+      <if test="locationType != null">
+        location_type,
+      </if>
+      <if test="cabinetId != null">
+        cabinet_id,
+      </if>
+      <if test="cabinetChannel != null">
+        cabinet_channel,
+      </if>
+      <if test="electricity != null">
+        electricity,
+      </if>
+      <if test="voltage != null">
+        voltage,
+      </if>
+      <if test="updateTime != null">
+        update_time,
+      </if>
+      <if test="cable != null">
+        cable,
+      </if>
+      <if test="adapter != null">
+        adapter,
+      </if>
+      <if test="isdamage != null">
+        isdamage,
+      </if>
+      <if test="colorId != null">
+        color_Id,
+      </if>
+      <if test="temperature != null">
+        temperature,
+      </if>
+      <if test="battType != null">
+        batt_type,
+      </if>
+      <if test="memberId != null">
+        member_id,
+      </if>
+      <if test="lastLocationTime != null">
+        last_location_time,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="portableBatteryCode != null">
+        #{portableBatteryCode,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=INTEGER},
+      </if>
+      <if test="locationType != null">
+        #{locationType,jdbcType=INTEGER},
+      </if>
+      <if test="cabinetId != null">
+        #{cabinetId,jdbcType=BIGINT},
+      </if>
+      <if test="cabinetChannel != null">
+        #{cabinetChannel,jdbcType=INTEGER},
+      </if>
+      <if test="electricity != null">
+        #{electricity,jdbcType=INTEGER},
+      </if>
+      <if test="voltage != null">
+        #{voltage,jdbcType=INTEGER},
+      </if>
+      <if test="updateTime != null">
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="cable != null">
+        #{cable,jdbcType=VARCHAR},
+      </if>
+      <if test="adapter != null">
+        #{adapter,jdbcType=BIT},
+      </if>
+      <if test="isdamage != null">
+        #{isdamage,jdbcType=VARCHAR},
+      </if>
+      <if test="colorId != null">
+        #{colorId,jdbcType=VARCHAR},
+      </if>
+      <if test="temperature != null">
+        #{temperature,jdbcType=VARCHAR},
+      </if>
+      <if test="battType != null">
+        #{battType,jdbcType=VARCHAR},
+      </if>
+      <if test="memberId != null">
+        #{memberId,jdbcType=BIGINT},
+      </if>
+      <if test="lastLocationTime != null">
+        #{lastLocationTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="vc.thinker.cabbage.se.model.PortableBatteryExample" resultType="java.lang.Integer">
+    select count(*) from se_portable_battery
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update se_portable_battery
+    <set>
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=BIGINT},
+      </if>
+      <if test="record.portableBatteryCode != null">
+        portable_battery_code = #{record.portableBatteryCode,jdbcType=VARCHAR},
+      </if>
+      <if test="record.status != null">
+        status = #{record.status,jdbcType=INTEGER},
+      </if>
+      <if test="record.locationType != null">
+        location_type = #{record.locationType,jdbcType=INTEGER},
+      </if>
+      <if test="record.cabinetId != null">
+        cabinet_id = #{record.cabinetId,jdbcType=BIGINT},
+      </if>
+      <if test="record.cabinetChannel != null">
+        cabinet_channel = #{record.cabinetChannel,jdbcType=INTEGER},
+      </if>
+      <if test="record.electricity != null">
+        electricity = #{record.electricity,jdbcType=INTEGER},
+      </if>
+      <if test="record.voltage != null">
+        voltage = #{record.voltage,jdbcType=INTEGER},
+      </if>
+      <if test="record.updateTime != null">
+        update_time = #{record.updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.cable != null">
+        cable = #{record.cable,jdbcType=VARCHAR},
+      </if>
+      <if test="record.adapter != null">
+        adapter = #{record.adapter,jdbcType=BIT},
+      </if>
+      <if test="record.isdamage != null">
+        isdamage = #{record.isdamage,jdbcType=VARCHAR},
+      </if>
+      <if test="record.colorId != null">
+        color_Id = #{record.colorId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.temperature != null">
+        temperature = #{record.temperature,jdbcType=VARCHAR},
+      </if>
+      <if test="record.battType != null">
+        batt_type = #{record.battType,jdbcType=VARCHAR},
+      </if>
+      <if test="record.memberId != null">
+        member_id = #{record.memberId,jdbcType=BIGINT},
+      </if>
+      <if test="record.lastLocationTime != null">
+        last_location_time = #{record.lastLocationTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.createTime != null">
+        create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update se_portable_battery
+    set id = #{record.id,jdbcType=BIGINT},
+      portable_battery_code = #{record.portableBatteryCode,jdbcType=VARCHAR},
+      status = #{record.status,jdbcType=INTEGER},
+      location_type = #{record.locationType,jdbcType=INTEGER},
+      cabinet_id = #{record.cabinetId,jdbcType=BIGINT},
+      cabinet_channel = #{record.cabinetChannel,jdbcType=INTEGER},
+      electricity = #{record.electricity,jdbcType=INTEGER},
+      voltage = #{record.voltage,jdbcType=INTEGER},
+      update_time = #{record.updateTime,jdbcType=TIMESTAMP},
+      cable = #{record.cable,jdbcType=VARCHAR},
+      adapter = #{record.adapter,jdbcType=BIT},
+      isdamage = #{record.isdamage,jdbcType=VARCHAR},
+      color_Id = #{record.colorId,jdbcType=VARCHAR},
+      temperature = #{record.temperature,jdbcType=VARCHAR},
+      batt_type = #{record.battType,jdbcType=VARCHAR},
+      member_id = #{record.memberId,jdbcType=BIGINT},
+      last_location_time = #{record.lastLocationTime,jdbcType=TIMESTAMP},
+      create_time = #{record.createTime,jdbcType=TIMESTAMP}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="vc.thinker.cabbage.se.model.PortableBattery">
+    update se_portable_battery
+    <set>
+      <if test="portableBatteryCode != null">
+        portable_battery_code = #{portableBatteryCode,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        status = #{status,jdbcType=INTEGER},
+      </if>
+      <if test="locationType != null">
+        location_type = #{locationType,jdbcType=INTEGER},
+      </if>
+      <if test="cabinetId != null">
+        cabinet_id = #{cabinetId,jdbcType=BIGINT},
+      </if>
+      <if test="cabinetChannel != null">
+        cabinet_channel = #{cabinetChannel,jdbcType=INTEGER},
+      </if>
+      <if test="electricity != null">
+        electricity = #{electricity,jdbcType=INTEGER},
+      </if>
+      <if test="voltage != null">
+        voltage = #{voltage,jdbcType=INTEGER},
+      </if>
+      <if test="updateTime != null">
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="cable != null">
+        cable = #{cable,jdbcType=VARCHAR},
+      </if>
+      <if test="adapter != null">
+        adapter = #{adapter,jdbcType=BIT},
+      </if>
+      <if test="isdamage != null">
+        isdamage = #{isdamage,jdbcType=VARCHAR},
+      </if>
+      <if test="colorId != null">
+        color_Id = #{colorId,jdbcType=VARCHAR},
+      </if>
+      <if test="temperature != null">
+        temperature = #{temperature,jdbcType=VARCHAR},
+      </if>
+      <if test="battType != null">
+        batt_type = #{battType,jdbcType=VARCHAR},
+      </if>
+      <if test="memberId != null">
+        member_id = #{memberId,jdbcType=BIGINT},
+      </if>
+      <if test="lastLocationTime != null">
+        last_location_time = #{lastLocationTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="vc.thinker.cabbage.se.model.PortableBattery">
+    update se_portable_battery
+    set portable_battery_code = #{portableBatteryCode,jdbcType=VARCHAR},
+      status = #{status,jdbcType=INTEGER},
+      location_type = #{locationType,jdbcType=INTEGER},
+      cabinet_id = #{cabinetId,jdbcType=BIGINT},
+      cabinet_channel = #{cabinetChannel,jdbcType=INTEGER},
+      electricity = #{electricity,jdbcType=INTEGER},
+      voltage = #{voltage,jdbcType=INTEGER},
+      update_time = #{updateTime,jdbcType=TIMESTAMP},
+      cable = #{cable,jdbcType=VARCHAR},
+      adapter = #{adapter,jdbcType=BIT},
+      isdamage = #{isdamage,jdbcType=VARCHAR},
+      color_Id = #{colorId,jdbcType=VARCHAR},
+      temperature = #{temperature,jdbcType=VARCHAR},
+      batt_type = #{battType,jdbcType=VARCHAR},
+      member_id = #{memberId,jdbcType=BIGINT},
+      last_location_time = #{lastLocationTime,jdbcType=TIMESTAMP},
+      create_time = #{createTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

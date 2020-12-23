@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="vc.thinker.cabbage.user.mapper.UniqueRadomCodeMapper" >
+  <resultMap id="BaseResultMap" type="vc.thinker.cabbage.user.model.UniqueRadomCode" >
+    <id column="code" property="code" jdbcType="BIGINT" />
+    <result column="is_use" property="isUse" jdbcType="CHAR" />
+  </resultMap>
+  <resultMap id="BOResultMap" type="vc.thinker.cabbage.user.bo.UniqueRadomCodeBO" extends="BaseResultMap" />
+	<select id="getCode"  statementType="STATEMENT" resultMap="BOResultMap">
+	SELECT * FROM code_${type}  
+	 where is_use=1
+	ORDER BY RAND() LIMIT 1
+	</select>
+	<select id="getListCode"  statementType="STATEMENT" resultType="java.lang.String">
+	SELECT code FROM code_${type}  
+	 where is_use=1
+	ORDER BY code LIMIT ${num}
+	</select>
+	<insert id="addNewCode" statementType="STATEMENT"> 
+	insert into code_${type} ( is_use)
+    values 
+     ${insertValues}
+	</insert>
+	
+	<update id="update"  statementType="STATEMENT">
+    update code_${type}
+    <set >
+        is_use = '2',
+    </set>
+    where code = ${code}
+  </update>
+</mapper>

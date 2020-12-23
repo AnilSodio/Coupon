@@ -1,0 +1,471 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="vc.thinker.cabbage.stats.mapper.VipStatsMapper">
+    <resultMap id="BaseResultMap" type="vc.thinker.cabbage.stats.model.VipStats">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="uid" jdbcType="BIGINT" property="uid" />
+    <result column="stats_date" jdbcType="TIMESTAMP" property="statsDate" />
+    <result column="vip_days" jdbcType="INTEGER" property="vipDays" />
+    <result column="pay" jdbcType="DECIMAL" property="pay" />
+    <result column="area" jdbcType="VARCHAR" property="area" />
+    <result column="age" jdbcType="INTEGER" property="age" />
+    <result column="client_type" jdbcType="VARCHAR" property="clientType" />
+    <result column="sex" jdbcType="INTEGER" property="sex" />
+    <result column="vip_type" jdbcType="VARCHAR" property="vipType" />
+    <result column="vip_card_unit" jdbcType="VARCHAR" property="vipCardUnit" />
+    <result column="currency" jdbcType="VARCHAR" property="currency" />
+  </resultMap>
+    <resultMap extends="BaseResultMap" id="BOResultMap" type="vc.thinker.cabbage.stats.bo.VipStatsBO" />
+    
+     <select id="sumByTimeGroupByCurrency" resultMap="BOResultMap">
+        select sum(pay) pay,currency from st_vip_stats
+        <where>
+	        <if test="year!=null and year!=''">
+	            AND DATE_FORMAT(stats_date,'%Y') <![CDATA[ = ]]> #{year}
+	        </if>
+	        <if test="month!=null and month!=''">
+	            AND DATE_FORMAT(stats_date,'%m') <![CDATA[ = ]]> #{month}
+	        </if>
+        </where>
+        group by currency
+    </select>
+    
+    <select id="sumAvgByDateGroupByCurrency" resultMap="BOResultMap">
+    	select
+        ROUND(sum(pay)/(to_days(#{endDate}) - to_days(#{beginDate})+1), 2)
+        from st_vip_stats
+        <where>
+	        <if test="beginDate != null and beginDate != ''">
+	            AND DATE_FORMAT(stats_date,'%Y-%m-%d') <![CDATA[ >= ]]> DATE_FORMAT(#{beginDate},'%Y-%m-%d')
+	        </if>
+	        <if test="endDate != null and endDate != ''">
+	            AND DATE_FORMAT(stats_date,'%Y-%m-%d') <![CDATA[ <= ]]> DATE_FORMAT(#{endDate},'%Y-%m-%d')
+	        </if>
+        </where>
+        group by currency
+    </select>
+    
+    <select id="sumByDateGouupByCurrency" resultMap="BOResultMap">
+        select sum(pay) pay ,currency from st_vip_stats
+        <where>
+	        <if test="date != null and date != ''">
+	            AND DATE_FORMAT(stats_date,'%Y-%m-%d') <![CDATA[ = ]]> DATE_FORMAT(#{date},'%Y-%m-%d')
+	        </if>
+        </where>
+        group by currency
+    </select>
+    
+    <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+    <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+    <sql id="Base_Column_List">
+    id, uid, stats_date, vip_days, pay, area, age, client_type, sex, vip_type, vip_card_unit, 
+    currency
+  </sql>
+    <select id="selectByExample" parameterType="vc.thinker.cabbage.stats.model.VipStatsExample" resultMap="BOResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from st_vip_stats
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+    <if test="limit != null">
+      limit ${limit}
+    </if>
+  </select>
+
+
+    <select id="sumByTime" resultType="java.math.BigDecimal">
+        select sum(pay) from st_vip_stats
+        where 1=1
+        <if test="year!=null and year!=''">
+            AND DATE_FORMAT(stats_date,'%Y') <![CDATA[ = ]]> #{year}
+        </if>
+        <if test="month!=null and month!=''">
+            AND DATE_FORMAT(stats_date,'%m') <![CDATA[ = ]]> #{month}
+        </if>
+    </select>
+
+	
+    <select id="sumByDate" resultType="java.math.BigDecimal">
+        select sum(pay) from st_vip_stats
+        where 1=1
+        <if test="date != null and date != ''">
+            AND DATE_FORMAT(stats_date,'%Y-%m-%d') <![CDATA[ = ]]> DATE_FORMAT(#{date},'%Y-%m-%d')
+        </if>
+    </select>
+
+
+    <select id="sumAvgByDate" resultType="java.math.BigDecimal">
+        select
+        ROUND(sum(pay)/(to_days(#{endDate}) - to_days(#{beginDate})+1), 2)
+        from st_vip_stats
+        where 1=1
+        <if test="beginDate != null and beginDate != ''">
+            AND DATE_FORMAT(stats_date,'%Y-%m-%d') <![CDATA[ >= ]]> DATE_FORMAT(#{beginDate},'%Y-%m-%d')
+        </if>
+        <if test="endDate != null and endDate != ''">
+            AND DATE_FORMAT(stats_date,'%Y-%m-%d') <![CDATA[ <= ]]> DATE_FORMAT(#{endDate},'%Y-%m-%d')
+        </if>
+    </select>
+
+    <select id="findVipPayByGroupType" resultType="vc.thinker.cabbage.stats.bo.RealTimeGroupStatsBO" statementType="STATEMENT">
+        select
+        ${groupType} groupName,
+        sum(pay) value
+        from st_vip_stats
+        where 1=1
+        <if test="date != null and date != ''">
+            AND DATE_FORMAT(stats_date,'%Y-%m-%d') <![CDATA[ = ]]> DATE_FORMAT('${date}','%Y-%m-%d')
+        </if>
+        group by
+        ${groupType}
+    </select>
+
+    <select id="findVipPayByTimeRange" resultType="java.math.BigDecimal">
+        select sum(pay) from st_vip_stats
+        where 1=1
+       <choose>
+        	<when test="day=='total'">
+        		<if test="time1 != null and time1 != ''">
+		            AND DATE_FORMAT(stats_date,'%H:%i:%s') <![CDATA[ >= ]]> #{time1}
+		        </if>
+		        <if test="time2 != null and time2 != ''">
+		            AND DATE_FORMAT(stats_date,'%H:%i:%s') <![CDATA[ <= ]]> #{time2}
+		        </if>
+        	</when>
+        	<otherwise>
+        		<if test="time1 != null and time1 != ''">
+		            AND DATE_FORMAT(stats_date,'%Y-%m-%d%H%i%s') <![CDATA[ >= ]]> DATE_FORMAT(#{time1},'%Y-%m-%d%H%i%s')
+		        </if>
+		        <if test="time2 != null and time2 != ''">
+		            AND DATE_FORMAT(stats_date,'%Y-%m-%d%H%i%s') <![CDATA[ <= ]]> DATE_FORMAT(#{time2},'%Y-%m-%d%H%i%s')
+		        </if>        	
+        	</otherwise>
+        </choose>
+    </select>
+
+    <select id="findVipPayByAgeRange" resultType="java.math.BigDecimal">
+        select COALESCE(sum(pay),0)  from st_vip_stats
+        where 1=1
+        <if test="date != null and date != ''">
+            AND DATE_FORMAT(stats_date,'%Y-%m-%d') <![CDATA[ = ]]> DATE_FORMAT('${date}','%Y-%m-%d')
+        </if>
+        <if test="age1 != null ">
+            AND age <![CDATA[ >= ]]>#{age1}
+        </if>
+        <if test="age2 != null ">
+            AND age <![CDATA[ <= ]]>#{age2}
+        </if>
+    </select>
+	 <delete id="deleteByDate">
+        delete
+        from st_vip_stats
+        where 1=1
+        <if test="beginDate != null and beginDate != ''">
+            AND DATE_FORMAT(stats_date,'%Y-%m-%d') <![CDATA[ >= ]]> DATE_FORMAT(#{beginDate},'%Y-%m-%d')
+        </if>
+         <if test="endDate != null and endDate != ''">
+            AND DATE_FORMAT(stats_date,'%Y-%m-%d') <![CDATA[ <= ]]> DATE_FORMAT(#{endDate},'%Y-%m-%d')
+        </if>
+    </delete>
+
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BOResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from st_vip_stats
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from st_vip_stats
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+    <delete id="deleteByExample" parameterType="vc.thinker.cabbage.stats.model.VipStatsExample">
+    delete from st_vip_stats
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+    <insert id="insert" keyProperty="id" parameterType="vc.thinker.cabbage.stats.model.VipStats" useGeneratedKeys="true">
+    insert into st_vip_stats (id, uid, stats_date, 
+      vip_days, pay, area, 
+      age, client_type, sex, 
+      vip_type, vip_card_unit, currency
+      )
+    values (#{id,jdbcType=BIGINT}, #{uid,jdbcType=BIGINT}, #{statsDate,jdbcType=TIMESTAMP}, 
+      #{vipDays,jdbcType=INTEGER}, #{pay,jdbcType=DECIMAL}, #{area,jdbcType=VARCHAR}, 
+      #{age,jdbcType=INTEGER}, #{clientType,jdbcType=VARCHAR}, #{sex,jdbcType=INTEGER}, 
+      #{vipType,jdbcType=VARCHAR}, #{vipCardUnit,jdbcType=VARCHAR}, #{currency,jdbcType=VARCHAR}
+      )
+  </insert>
+    <insert id="insertSelective" keyProperty="id" parameterType="vc.thinker.cabbage.stats.model.VipStats" useGeneratedKeys="true">
+    insert into st_vip_stats
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="uid != null">
+        uid,
+      </if>
+      <if test="statsDate != null">
+        stats_date,
+      </if>
+      <if test="vipDays != null">
+        vip_days,
+      </if>
+      <if test="pay != null">
+        pay,
+      </if>
+      <if test="area != null">
+        area,
+      </if>
+      <if test="age != null">
+        age,
+      </if>
+      <if test="clientType != null">
+        client_type,
+      </if>
+      <if test="sex != null">
+        sex,
+      </if>
+      <if test="vipType != null">
+        vip_type,
+      </if>
+      <if test="vipCardUnit != null">
+        vip_card_unit,
+      </if>
+      <if test="currency != null">
+        currency,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="uid != null">
+        #{uid,jdbcType=BIGINT},
+      </if>
+      <if test="statsDate != null">
+        #{statsDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="vipDays != null">
+        #{vipDays,jdbcType=INTEGER},
+      </if>
+      <if test="pay != null">
+        #{pay,jdbcType=DECIMAL},
+      </if>
+      <if test="area != null">
+        #{area,jdbcType=VARCHAR},
+      </if>
+      <if test="age != null">
+        #{age,jdbcType=INTEGER},
+      </if>
+      <if test="clientType != null">
+        #{clientType,jdbcType=VARCHAR},
+      </if>
+      <if test="sex != null">
+        #{sex,jdbcType=INTEGER},
+      </if>
+      <if test="vipType != null">
+        #{vipType,jdbcType=VARCHAR},
+      </if>
+      <if test="vipCardUnit != null">
+        #{vipCardUnit,jdbcType=VARCHAR},
+      </if>
+      <if test="currency != null">
+        #{currency,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+    <select id="countByExample" parameterType="vc.thinker.cabbage.stats.model.VipStatsExample" resultType="java.lang.Integer">
+    select count(*) from st_vip_stats
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+    <update id="updateByExampleSelective" parameterType="map">
+    update st_vip_stats
+    <set>
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=BIGINT},
+      </if>
+      <if test="record.uid != null">
+        uid = #{record.uid,jdbcType=BIGINT},
+      </if>
+      <if test="record.statsDate != null">
+        stats_date = #{record.statsDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.vipDays != null">
+        vip_days = #{record.vipDays,jdbcType=INTEGER},
+      </if>
+      <if test="record.pay != null">
+        pay = #{record.pay,jdbcType=DECIMAL},
+      </if>
+      <if test="record.area != null">
+        area = #{record.area,jdbcType=VARCHAR},
+      </if>
+      <if test="record.age != null">
+        age = #{record.age,jdbcType=INTEGER},
+      </if>
+      <if test="record.clientType != null">
+        client_type = #{record.clientType,jdbcType=VARCHAR},
+      </if>
+      <if test="record.sex != null">
+        sex = #{record.sex,jdbcType=INTEGER},
+      </if>
+      <if test="record.vipType != null">
+        vip_type = #{record.vipType,jdbcType=VARCHAR},
+      </if>
+      <if test="record.vipCardUnit != null">
+        vip_card_unit = #{record.vipCardUnit,jdbcType=VARCHAR},
+      </if>
+      <if test="record.currency != null">
+        currency = #{record.currency,jdbcType=VARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+    <update id="updateByExample" parameterType="map">
+    update st_vip_stats
+    set id = #{record.id,jdbcType=BIGINT},
+      uid = #{record.uid,jdbcType=BIGINT},
+      stats_date = #{record.statsDate,jdbcType=TIMESTAMP},
+      vip_days = #{record.vipDays,jdbcType=INTEGER},
+      pay = #{record.pay,jdbcType=DECIMAL},
+      area = #{record.area,jdbcType=VARCHAR},
+      age = #{record.age,jdbcType=INTEGER},
+      client_type = #{record.clientType,jdbcType=VARCHAR},
+      sex = #{record.sex,jdbcType=INTEGER},
+      vip_type = #{record.vipType,jdbcType=VARCHAR},
+      vip_card_unit = #{record.vipCardUnit,jdbcType=VARCHAR},
+      currency = #{record.currency,jdbcType=VARCHAR}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+    <update id="updateByPrimaryKeySelective" parameterType="vc.thinker.cabbage.stats.model.VipStats">
+    update st_vip_stats
+    <set>
+      <if test="uid != null">
+        uid = #{uid,jdbcType=BIGINT},
+      </if>
+      <if test="statsDate != null">
+        stats_date = #{statsDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="vipDays != null">
+        vip_days = #{vipDays,jdbcType=INTEGER},
+      </if>
+      <if test="pay != null">
+        pay = #{pay,jdbcType=DECIMAL},
+      </if>
+      <if test="area != null">
+        area = #{area,jdbcType=VARCHAR},
+      </if>
+      <if test="age != null">
+        age = #{age,jdbcType=INTEGER},
+      </if>
+      <if test="clientType != null">
+        client_type = #{clientType,jdbcType=VARCHAR},
+      </if>
+      <if test="sex != null">
+        sex = #{sex,jdbcType=INTEGER},
+      </if>
+      <if test="vipType != null">
+        vip_type = #{vipType,jdbcType=VARCHAR},
+      </if>
+      <if test="vipCardUnit != null">
+        vip_card_unit = #{vipCardUnit,jdbcType=VARCHAR},
+      </if>
+      <if test="currency != null">
+        currency = #{currency,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+    <update id="updateByPrimaryKey" parameterType="vc.thinker.cabbage.stats.model.VipStats">
+    update st_vip_stats
+    set uid = #{uid,jdbcType=BIGINT},
+      stats_date = #{statsDate,jdbcType=TIMESTAMP},
+      vip_days = #{vipDays,jdbcType=INTEGER},
+      pay = #{pay,jdbcType=DECIMAL},
+      area = #{area,jdbcType=VARCHAR},
+      age = #{age,jdbcType=INTEGER},
+      client_type = #{clientType,jdbcType=VARCHAR},
+      sex = #{sex,jdbcType=INTEGER},
+      vip_type = #{vipType,jdbcType=VARCHAR},
+      vip_card_unit = #{vipCardUnit,jdbcType=VARCHAR},
+      currency = #{currency,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+    
+    <select id="getTotalVipRecharge" resultType="java.lang.Double">
+        select sum(pay) from st_vip_stats;
+    </select>
+    
+    <select id="totalVips" resultType="java.lang.Integer">
+     select count(1) from ( select uid from st_vip_stats GROUP BY uid ) as tmp
+    </select>
+</mapper>

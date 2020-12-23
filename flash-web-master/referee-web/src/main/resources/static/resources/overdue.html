@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>服务已过期</title>
+        <script src="/resources/js/jquery-1.8.2.js" type="text/javascript"></script>
+        <script src="/resources/js/common.js" type="text/javascript"></script>
+    <style>
+        html,body { margin: 0; padding: 0; height: 100%;}
+        body { background: #b4e9fd url("/resources/images/overdue-bg.png") left bottom no-repeat; background-size: auto 80%;}
+
+        .overdue-box { position: fixed; top: 50%; left: 50%; margin: -150px 0 0 0; padding: 20px; width: 300px; line-height: 1.6; border: 5px #9edbf2 solid; background-color: #fff; color: #e75556;}
+        .overdue-box .cont { font-size: 28px;}
+        .overdue-box .bot { margin-top: 20px; padding-top: 20px; color: #00a0dc; font-size: 18px; text-align: center; border-top: 1px #00a0dc dashed;}
+        .c-red { color: #e75556;}
+    </style>
+
+</head>
+<body>
+
+<div class="overdue-box">
+    <div class="cont">非常遗憾的告诉您，您的试用版已到期，请购买套餐后再使用感谢继续使用我们的平台。</div>
+    <div class="bot">页面自动  <a href="#" class="c-red">跳转</a>  等待 <span id="timer">3</span> 秒</div>
+</div>
+
+
+<script>
+    $("#timer").countdown({time: 3000, text: "", callback: function() {
+        //
+    }});
+
+</script>
+</body>
+</html>

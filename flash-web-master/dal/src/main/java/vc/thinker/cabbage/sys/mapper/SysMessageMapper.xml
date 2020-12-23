@@ -1,0 +1,430 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="vc.thinker.cabbage.sys.mapper.SysMessageMapper" >
+  <resultMap id="BaseResultMap" type="vc.thinker.cabbage.sys.model.SysMessage" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="content" property="content" jdbcType="VARCHAR" />
+    <result column="is_image_text" property="isImageText" jdbcType="BIT" />
+    <result column="image_text_id" property="imageTextId" jdbcType="BIGINT" />
+    <result column="to_user_id" property="toUserId" jdbcType="BIGINT" />
+    <result column="send_time" property="sendTime" jdbcType="TIMESTAMP" />
+    <result column="from_user_id" property="fromUserId" jdbcType="BIGINT" />
+    <result column="is_platform" property="isPlatform" jdbcType="BIT" />
+    <result column="to_user_type" property="toUserType" jdbcType="CHAR" />
+    <result column="is_read" property="isRead" jdbcType="BIT" />
+    <result column="biz_type" property="bizType" jdbcType="INTEGER" />
+    <result column="biz_id" property="bizId" jdbcType="VARCHAR" />
+    <result column="log_id" property="logId" jdbcType="BIGINT" />
+  </resultMap>
+  <resultMap id="BOResultMap" type="vc.thinker.cabbage.sys.bo.SysMessageBO" extends="BaseResultMap" />
+  
+  <insert id="insertByList" parameterType="java.util.List" useGeneratedKeys="true">
+  		insert into sys_message (content,is_image_text,image_text_id,to_user_id,send_time,from_user_id,is_platform,to_user_type,is_read,log_id)
+  		values
+  		<foreach collection="listMessage" index="index" item="item" separator=",">  
+        (
+	        #{item.content},
+	        #{item.isImageText},
+	        #{item.imageTextId},
+	        #{item.toUserId},
+	        #{item.sendTime},
+	        #{item.fromUserId},
+	        #{item.isPlatform},
+	        #{item.toUserType},
+	        #{item.isRead},
+	        #{item.logId}
+        )  
+    </foreach>
+  </insert>
+  
+  <select id="findPageByVO" resultMap="BOResultMap">
+  	select 
+  	s.* ,
+  	i.cover,m.nickname nickname ,m.mobile userMobile
+  	from 
+  	sys_message s 
+  		left join sys_image_text i on s.image_text_id = i.id and s.is_image_text = 1 
+  		left join user_member m on s.to_user_id = m.uid and s.to_user_type = 2
+  	where 1=1
+  	<if test="vo.toUserId!=null">
+  	and s.to_user_id = #{vo.toUserId}
+  	</if>
+  	<if test="vo.bizType!=null">
+  	and s.biz_type = #{vo.bizType}
+  	</if>
+  	<if test="vo.toUserType!=null and vo.toUserType!=''">
+  	and s.to_user_type=#{vo.toUserType}
+  	</if>
+  	<if test="null != vo.logIdIsNull and vo.logIdIsNull">
+  	and s.log_id is null
+  	</if>
+  	<if test="null != vo.logIdIsNull and !vo.logIdIsNull">
+  	and s.log_id is not null
+  	</if>
+  	<if test="vo.beginDate != null and vo.beginDate != ''">
+ 		and DATE_FORMAT(s.send_time ,'%Y-%m-%d') <![CDATA[ >= ]]> DATE_FORMAT(#{vo.beginDate} ,'%Y-%m-%d')
+ 	</if>
+ 	<if test="vo.endDate != null and vo.endDate != ''">
+ 		and DATE_FORMAT(s.send_time ,'%Y-%m-%d') <![CDATA[ <= ]]> DATE_FORMAT(#{vo.endDate} ,'%Y-%m-%d')
+ 	</if>
+ 	<if test="vo.gtTime != null">
+ 		and s.send_time <![CDATA[ > ]]> #{vo.gtTime}
+ 	</if>
+ 	<if test="vo.ltTime != null">
+ 		and s.send_time <![CDATA[ < ]]> #{vo.ltTime}
+ 	</if>
+  	order by s.send_time desc
+  </select>
+  
+  <select id="findPageByToUser" resultMap="BOResultMap">
+  	select 
+    sm.*,it.cover,it.remark,it.title
+    from sys_message sm
+    left join sys_image_text it on it.id = sm.image_text_id
+    where sm.to_user_id = #{vo.toUserId}
+    and sm.to_user_type = #{vo.toUserType}
+  	<if test="vo.beginDate != null and vo.beginDate != ''">
+ 		and DATE_FORMAT(sm.send_time ,'%Y-%m-%d') <![CDATA[ >= ]]> DATE_FORMAT(#{vo.beginDate} ,'%Y-%m-%d')
+ 	</if>
+ 	<if test="vo.endDate != null and vo.endDate != ''">
+ 		and DATE_FORMAT(sm.send_time ,'%Y-%m-%d') <![CDATA[ <= ]]> DATE_FORMAT(#{vo.endDate} ,'%Y-%m-%d')
+ 	</if>
+    <if test="vo.ltTime != null">
+ 	 <![CDATA[ and sm.send_time < #{vo.ltTime} ]]>
+ 	</if>
+	<if test="page != null and page.orderBy != null and page.orderBy != ''">
+		order by ${page.orderBy}
+	</if>
+  </select>
+  
+  <select id="findDetails" resultMap="BOResultMap">
+  	select 
+    sm.*,it.cover,it.remark,it.title,it.ad_cover as adCover,it.start_date as startDate
+    from sys_message sm
+    left join sys_image_text it on it.id = sm.image_text_id
+    where sm.id = #{id}
+  </select>
+  
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    id, content, is_image_text, image_text_id, to_user_id, send_time, from_user_id, is_platform, 
+    to_user_type, is_read, biz_type, biz_id, log_id
+  </sql>
+  <select id="selectByExample" parameterType="vc.thinker.cabbage.sys.model.SysMessageExample" resultMap="BOResultMap" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from sys_message
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+    <if test="limit != null" >
+      limit ${limit}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BOResultMap" >
+    select 
+    <include refid="Base_Column_List" />
+    from sys_message
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from sys_message
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteByExample" parameterType="vc.thinker.cabbage.sys.model.SysMessageExample" >
+    delete from sys_message
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="vc.thinker.cabbage.sys.model.SysMessage" useGeneratedKeys="true" keyProperty="id" >
+    insert into sys_message (id, content, is_image_text, 
+      image_text_id, to_user_id, send_time, 
+      from_user_id, is_platform, to_user_type, 
+      is_read, biz_type, biz_id, 
+      log_id)
+    values (#{id,jdbcType=BIGINT}, #{content,jdbcType=VARCHAR}, #{isImageText,jdbcType=BIT}, 
+      #{imageTextId,jdbcType=BIGINT}, #{toUserId,jdbcType=BIGINT}, #{sendTime,jdbcType=TIMESTAMP}, 
+      #{fromUserId,jdbcType=BIGINT}, #{isPlatform,jdbcType=BIT}, #{toUserType,jdbcType=CHAR}, 
+      #{isRead,jdbcType=BIT}, #{bizType,jdbcType=INTEGER}, #{bizId,jdbcType=VARCHAR}, 
+      #{logId,jdbcType=BIGINT})
+  </insert>
+  <insert id="insertSelective" parameterType="vc.thinker.cabbage.sys.model.SysMessage" useGeneratedKeys="true" keyProperty="id" >
+    insert into sys_message
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="content != null" >
+        content,
+      </if>
+      <if test="isImageText != null" >
+        is_image_text,
+      </if>
+      <if test="imageTextId != null" >
+        image_text_id,
+      </if>
+      <if test="toUserId != null" >
+        to_user_id,
+      </if>
+      <if test="sendTime != null" >
+        send_time,
+      </if>
+      <if test="fromUserId != null" >
+        from_user_id,
+      </if>
+      <if test="isPlatform != null" >
+        is_platform,
+      </if>
+      <if test="toUserType != null" >
+        to_user_type,
+      </if>
+      <if test="isRead != null" >
+        is_read,
+      </if>
+      <if test="bizType != null" >
+        biz_type,
+      </if>
+      <if test="bizId != null" >
+        biz_id,
+      </if>
+      <if test="logId != null" >
+        log_id,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="content != null" >
+        #{content,jdbcType=VARCHAR},
+      </if>
+      <if test="isImageText != null" >
+        #{isImageText,jdbcType=BIT},
+      </if>
+      <if test="imageTextId != null" >
+        #{imageTextId,jdbcType=BIGINT},
+      </if>
+      <if test="toUserId != null" >
+        #{toUserId,jdbcType=BIGINT},
+      </if>
+      <if test="sendTime != null" >
+        #{sendTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="fromUserId != null" >
+        #{fromUserId,jdbcType=BIGINT},
+      </if>
+      <if test="isPlatform != null" >
+        #{isPlatform,jdbcType=BIT},
+      </if>
+      <if test="toUserType != null" >
+        #{toUserType,jdbcType=CHAR},
+      </if>
+      <if test="isRead != null" >
+        #{isRead,jdbcType=BIT},
+      </if>
+      <if test="bizType != null" >
+        #{bizType,jdbcType=INTEGER},
+      </if>
+      <if test="bizId != null" >
+        #{bizId,jdbcType=VARCHAR},
+      </if>
+      <if test="logId != null" >
+        #{logId,jdbcType=BIGINT},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="vc.thinker.cabbage.sys.model.SysMessageExample" resultType="java.lang.Integer" >
+    select count(*) from sys_message
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map" >
+    update sys_message
+    <set >
+      <if test="record.id != null" >
+        id = #{record.id,jdbcType=BIGINT},
+      </if>
+      <if test="record.content != null" >
+        content = #{record.content,jdbcType=VARCHAR},
+      </if>
+      <if test="record.isImageText != null" >
+        is_image_text = #{record.isImageText,jdbcType=BIT},
+      </if>
+      <if test="record.imageTextId != null" >
+        image_text_id = #{record.imageTextId,jdbcType=BIGINT},
+      </if>
+      <if test="record.toUserId != null" >
+        to_user_id = #{record.toUserId,jdbcType=BIGINT},
+      </if>
+      <if test="record.sendTime != null" >
+        send_time = #{record.sendTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.fromUserId != null" >
+        from_user_id = #{record.fromUserId,jdbcType=BIGINT},
+      </if>
+      <if test="record.isPlatform != null" >
+        is_platform = #{record.isPlatform,jdbcType=BIT},
+      </if>
+      <if test="record.toUserType != null" >
+        to_user_type = #{record.toUserType,jdbcType=CHAR},
+      </if>
+      <if test="record.isRead != null" >
+        is_read = #{record.isRead,jdbcType=BIT},
+      </if>
+      <if test="record.bizType != null" >
+        biz_type = #{record.bizType,jdbcType=INTEGER},
+      </if>
+      <if test="record.bizId != null" >
+        biz_id = #{record.bizId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.logId != null" >
+        log_id = #{record.logId,jdbcType=BIGINT},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+    update sys_message
+    set id = #{record.id,jdbcType=BIGINT},
+      content = #{record.content,jdbcType=VARCHAR},
+      is_image_text = #{record.isImageText,jdbcType=BIT},
+      image_text_id = #{record.imageTextId,jdbcType=BIGINT},
+      to_user_id = #{record.toUserId,jdbcType=BIGINT},
+      send_time = #{record.sendTime,jdbcType=TIMESTAMP},
+      from_user_id = #{record.fromUserId,jdbcType=BIGINT},
+      is_platform = #{record.isPlatform,jdbcType=BIT},
+      to_user_type = #{record.toUserType,jdbcType=CHAR},
+      is_read = #{record.isRead,jdbcType=BIT},
+      biz_type = #{record.bizType,jdbcType=INTEGER},
+      biz_id = #{record.bizId,jdbcType=VARCHAR},
+      log_id = #{record.logId,jdbcType=BIGINT}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="vc.thinker.cabbage.sys.model.SysMessage" >
+    update sys_message
+    <set >
+      <if test="content != null" >
+        content = #{content,jdbcType=VARCHAR},
+      </if>
+      <if test="isImageText != null" >
+        is_image_text = #{isImageText,jdbcType=BIT},
+      </if>
+      <if test="imageTextId != null" >
+        image_text_id = #{imageTextId,jdbcType=BIGINT},
+      </if>
+      <if test="toUserId != null" >
+        to_user_id = #{toUserId,jdbcType=BIGINT},
+      </if>
+      <if test="sendTime != null" >
+        send_time = #{sendTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="fromUserId != null" >
+        from_user_id = #{fromUserId,jdbcType=BIGINT},
+      </if>
+      <if test="isPlatform != null" >
+        is_platform = #{isPlatform,jdbcType=BIT},
+      </if>
+      <if test="toUserType != null" >
+        to_user_type = #{toUserType,jdbcType=CHAR},
+      </if>
+      <if test="isRead != null" >
+        is_read = #{isRead,jdbcType=BIT},
+      </if>
+      <if test="bizType != null" >
+        biz_type = #{bizType,jdbcType=INTEGER},
+      </if>
+      <if test="bizId != null" >
+        biz_id = #{bizId,jdbcType=VARCHAR},
+      </if>
+      <if test="logId != null" >
+        log_id = #{logId,jdbcType=BIGINT},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="vc.thinker.cabbage.sys.model.SysMessage" >
+    update sys_message
+    set content = #{content,jdbcType=VARCHAR},
+      is_image_text = #{isImageText,jdbcType=BIT},
+      image_text_id = #{imageTextId,jdbcType=BIGINT},
+      to_user_id = #{toUserId,jdbcType=BIGINT},
+      send_time = #{sendTime,jdbcType=TIMESTAMP},
+      from_user_id = #{fromUserId,jdbcType=BIGINT},
+      is_platform = #{isPlatform,jdbcType=BIT},
+      to_user_type = #{toUserType,jdbcType=CHAR},
+      is_read = #{isRead,jdbcType=BIT},
+      biz_type = #{bizType,jdbcType=INTEGER},
+      biz_id = #{bizId,jdbcType=VARCHAR},
+      log_id = #{logId,jdbcType=BIGINT}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

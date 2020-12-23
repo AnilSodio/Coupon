@@ -1,0 +1,135 @@
+#============================#
+#===== Database sttings =====#
+#============================#
+jdbc:
+    type: mysql
+    driver: com.mysql.jdbc.Driver
+    url: ${jdbc_url:jdbc:mysql://192.168.1.250:3306/nomo-saas-1.0.x?autoReconnect=true&useUnicode=true&characterEncoding=utf-8&allowMultiQueries=true}
+    username: ${jdbc_username:root}
+    password: ${jdbc_password:admin123}
+    pool:
+        initialSize: 10
+        maxActive: 20
+        minIdle: 3
+        
+mybatis:
+    configLocation: ''
+    typeAliasesPackage: vc.thinker.**.model
+    
+web:
+    #max upload size. 10M=10*1024*1024(B)=10485760 bytes
+    maxUploadSize: 10240
+    view:
+        index: /referee
+        prefix: /WEB-INF/views/
+        suffix: .jsp
+        
+        
+productName: ${product_name:GoPower Management Platform}
+copyrightYear: ${copyright_year:2019}
+version: ${VERSION:V1.0.0}
+
+applet_redirect_url: https://192.168.1.34:13210/wx?bike=
+
+adminPath: /referee
+
+static:
+    public:
+        path: ${ static_public_path:https://static.thinker.vc/static} 
+      
+page:
+    pageSize: 10
+    
+auth:
+  check:
+    ip: ${auth_check_ip:false}
+
+#短信    
+sms:
+    handler:
+        accountSid: ${sms_handler_accountSid:23830729}
+        accountToken: ${sms_handler_accountToken:2456e82477e06bcaae4c567df085df9c}
+
+# redis        
+redis:
+    host: ${ redis_host:localhost}
+    port: ${ redis_port:6379}
+    password: ${ redis_password:root123}
+    timeout: 7000
+    database: 1
+    message:
+        database: 1
+    namespace: flash
+    oauth2:
+        database: 3
+
+#文件服务器   
+fs:
+  server:
+    ip: ${fs_server_ip:192.168.1.250}
+    port: ${fs_server_port:9333}
+    file: 
+      port: 9335
+      
+ #http    
+server:
+    port: ${server_port:13010}
+    
+spring:
+    profiles:
+        active: ${ spring_profiles_active:dev}
+    data:
+        mongodb:
+            database: flash
+            host: ${spring_data_mongodb_host:192.168.1.250}
+            port: ${spring_data_mongodb_port:10001}
+    redis:
+        database: 2
+        host: ${ spring_redis_host:localhost}
+        port: ${spring_redis_port:6379}
+        password: ${ spring_redis_password:root123}
+    messages:
+        basename: messages/messages
+        cache-seconds: 3600
+        encoding: UTF-8
+
+
+app:
+    isProduct: ${app_isProduct:false}
+    member:
+        appkey: ${app_member_appkey:d668c04f9a51e5d4cd50a39f}
+        master:
+            secret: ${app_member_master_secret:b3b884255d047f1a329bea4a}
+    repairer:
+        appkey: ${app_repairer_appkey:69726184968d153d5efbd475}
+        master:
+            secret: ${app_repairer_master_secret:b23923964590f5c3f36de780}
+            
+            
+lbs:
+    baidu:
+        ak: ${lbs_baidu_ak:joiYACL3gPYaWC9r71mNoxlEtyPUMb2g}
+baidu:
+    js:
+        key: ${baidu_js_key:O06WxYdjZx9HwCKGgkx28XmjHza3mbuP}
+google:
+    js:
+        key: ${googel_js_key:AIzaSyAYhtwPe4npVce2oYYGVZiJryPpY2AyVlc}
+
+        #spring actuator
+management:
+    security:
+        enabled: false
+    endpoints:
+        web:
+          exposure:
+              include: "*"
+    server:
+        port: ${management_server_port:8081}
+        
+        
+#iot paas platform
+iot:
+  paas:
+    id: ${iot_paas_id:1}
+    url: ${iot_paas_url:http://gopower.tcp.thinker.vc:8888/}

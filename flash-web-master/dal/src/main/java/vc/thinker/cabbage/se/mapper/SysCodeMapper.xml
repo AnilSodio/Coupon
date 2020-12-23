@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="vc.thinker.cabbage.se.mapper.SysCodeMapper" >
+  <resultMap id="BaseResultMap" type="vc.thinker.cabbage.se.model.SysCode" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="sys_code" property="sysCode" jdbcType="VARCHAR" />
+    <result column="is_print" property="isPrint" jdbcType="BIT" />
+    <result column="is_binding" property="isBinding" jdbcType="BIT" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="print_time" property="printTime" jdbcType="TIMESTAMP" />
+    <result column="bind_time" property="bindTime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <resultMap id="BOResultMap" type="vc.thinker.cabbage.se.bo.SysCodeBO" extends="BaseResultMap" />
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    id, sys_code, is_print, is_binding, create_time, print_time, bind_time
+  </sql>
+  <select id="selectByExample" parameterType="vc.thinker.cabbage.se.model.SysCodeExample" resultMap="BOResultMap" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from se_sys_code
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+    <if test="limit != null" >
+      limit ${limit}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BOResultMap" >
+    select 
+    <include refid="Base_Column_List" />
+    from se_sys_code
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from se_sys_code
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteByExample" parameterType="vc.thinker.cabbage.se.model.SysCodeExample" >
+    delete from se_sys_code
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="vc.thinker.cabbage.se.model.SysCode" useGeneratedKeys="true" keyProperty="id" >
+    insert into se_sys_code (id, sys_code, is_print, 
+      is_binding, create_time, print_time, 
+      bind_time)
+    values (#{id,jdbcType=BIGINT}, #{sysCode,jdbcType=VARCHAR}, #{isPrint,jdbcType=BIT}, 
+      #{isBinding,jdbcType=BIT}, #{createTime,jdbcType=TIMESTAMP}, #{printTime,jdbcType=TIMESTAMP}, 
+      #{bindTime,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="vc.thinker.cabbage.se.model.SysCode" useGeneratedKeys="true" keyProperty="id" >
+    insert into se_sys_code
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="sysCode != null" >
+        sys_code,
+      </if>
+      <if test="isPrint != null" >
+        is_print,
+      </if>
+      <if test="isBinding != null" >
+        is_binding,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="printTime != null" >
+        print_time,
+      </if>
+      <if test="bindTime != null" >
+        bind_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="sysCode != null" >
+        #{sysCode,jdbcType=VARCHAR},
+      </if>
+      <if test="isPrint != null" >
+        #{isPrint,jdbcType=BIT},
+      </if>
+      <if test="isBinding != null" >
+        #{isBinding,jdbcType=BIT},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="printTime != null" >
+        #{printTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="bindTime != null" >
+        #{bindTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="vc.thinker.cabbage.se.model.SysCodeExample" resultType="java.lang.Integer" >
+    select count(*) from se_sys_code
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map" >
+    update se_sys_code
+    <set >
+      <if test="record.id != null" >
+        id = #{record.id,jdbcType=BIGINT},
+      </if>
+      <if test="record.sysCode != null" >
+        sys_code = #{record.sysCode,jdbcType=VARCHAR},
+      </if>
+      <if test="record.isPrint != null" >
+        is_print = #{record.isPrint,jdbcType=BIT},
+      </if>
+      <if test="record.isBinding != null" >
+        is_binding = #{record.isBinding,jdbcType=BIT},
+      </if>
+      <if test="record.createTime != null" >
+        create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.printTime != null" >
+        print_time = #{record.printTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.bindTime != null" >
+        bind_time = #{record.bindTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+    update se_sys_code
+    set id = #{record.id,jdbcType=BIGINT},
+      sys_code = #{record.sysCode,jdbcType=VARCHAR},
+      is_print = #{record.isPrint,jdbcType=BIT},
+      is_binding = #{record.isBinding,jdbcType=BIT},
+      create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      print_time = #{record.printTime,jdbcType=TIMESTAMP},
+      bind_time = #{record.bindTime,jdbcType=TIMESTAMP}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="vc.thinker.cabbage.se.model.SysCode" >
+    update se_sys_code
+    <set >
+      <if test="sysCode != null" >
+        sys_code = #{sysCode,jdbcType=VARCHAR},
+      </if>
+      <if test="isPrint != null" >
+        is_print = #{isPrint,jdbcType=BIT},
+      </if>
+      <if test="isBinding != null" >
+        is_binding = #{isBinding,jdbcType=BIT},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="printTime != null" >
+        print_time = #{printTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="bindTime != null" >
+        bind_time = #{bindTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="vc.thinker.cabbage.se.model.SysCode" >
+    update se_sys_code
+    set sys_code = #{sysCode,jdbcType=VARCHAR},
+      is_print = #{isPrint,jdbcType=BIT},
+      is_binding = #{isBinding,jdbcType=BIT},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      print_time = #{printTime,jdbcType=TIMESTAMP},
+      bind_time = #{bindTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

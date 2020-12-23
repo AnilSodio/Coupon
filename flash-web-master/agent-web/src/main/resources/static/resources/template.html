@@ -1,0 +1,73 @@
+<div>
+    <div>
+        <div class="static-search-box dialog-search-box">
+            <i class="ico-search"></i>
+            <input type="text" id="filterUser" class="inp-text" placeholder="请输入客服姓名" />
+            <input type="button" class="btn btn-blue btn-medium" value="搜索" />
+        </div>
+    </div>
+    <div class="select-cover-box">
+        <ul id="coverList" class="select-cover-list clearfix">
+            <li class="selected" id="112233">
+                <div class="cover">
+                    <img src="/resources/images/cover.jpg">
+                </div>
+                <p class="title">新年新聚惠</p>
+                <i class="ico-sel-arrow"></i>
+            </li>
+            <li id="445566">
+                <div class="cover">
+                    <img src="/resources/images/cover.jpg">
+                </div>
+                <p class="title">新年新聚惠</p>
+                <i class="ico-sel-arrow"></i>
+            </li>
+            <li id="111">
+                <div class="cover">
+                    <img src="/resources/images/cover.jpg">
+                </div>
+                <p class="title">新年新聚惠</p>
+                <i class="ico-sel-arrow"></i>
+            </li>
+            <li id="2222">
+                <div class="cover">
+                    <img src="/resources/images/cover.jpg">
+                </div>
+                <p class="title">新年新聚惠</p>
+                <i class="ico-sel-arrow"></i>
+            </li>
+            <li id="333">
+                <div class="cover">
+                    <img src="/resources/images/cover.jpg">
+                </div>
+                <p class="title">新年新聚惠</p>
+                <i class="ico-sel-arrow"></i>
+            </li>
+            <li id="444">
+                <div class="cover">
+                    <img src="/resources/images/cover.jpg">
+                </div>
+                <p class="title">新年新聚惠</p>
+                <i class="ico-sel-arrow"></i>
+            </li>
+        </ul>
+        <div class="fenye">
+            <ul>
+                <li class="disabled"><a href="javascript:">« 上一页</a></li>
+                <li class="active"><a href="javascript:">1</a></li>
+                <li class="disabled"><a href="javascript:">下一页 »</a></li>
+                <li class="disabled controls"><span>当前 <input type="text" onclick="this.select();" onkeypress="var e=window.event||this;var c=e.keyCode||e.which;if(c==13)page(this.value,20);" value="1"> / <input type="text" onclick="this.select();" onkeypress="var e=window.event||this;var c=e.keyCode||e.which;if(c==13)page(1,this.value);" value="20"> 条，共 1 条</span></li><li>
+            </li></ul>
+            <div style="clear:both;"></div>
+        </div>
+    </div>
+
+</div>
+
+
+
+        <script>
+            $("#coverList>li").click(function() {
+                $(this).addClass("selected").siblings().removeClass("selected");
+            });
+        </script>

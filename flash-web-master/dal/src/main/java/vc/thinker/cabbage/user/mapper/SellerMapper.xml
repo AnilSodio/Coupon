@@ -1,0 +1,531 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="vc.thinker.cabbage.user.mapper.SellerMapper">
+  <resultMap id="BaseResultMap" type="vc.thinker.cabbage.user.model.Seller">
+    <id column="uid" jdbcType="BIGINT" property="uid" />
+    <result column="seller_name" jdbcType="VARCHAR" property="sellerName" />
+    <result column="seller_logo" jdbcType="VARCHAR" property="sellerLogo" />
+    <result column="seller_cover" jdbcType="VARCHAR" property="sellerCover" />
+    <result column="email" jdbcType="VARCHAR" property="email" />
+    <result column="invite_code" jdbcType="VARCHAR" property="inviteCode" />
+    <result column="country" jdbcType="VARCHAR" property="country" />
+    <result column="contact_user_name" jdbcType="VARCHAR" property="contactUserName" />
+    <result column="contact_mobile" jdbcType="VARCHAR" property="contactMobile" />
+    <result column="contact_telephone" jdbcType="VARCHAR" property="contactTelephone" />
+    <result column="location_lon" jdbcType="DECIMAL" property="locationLon" />
+    <result column="location_lat" jdbcType="DECIMAL" property="locationLat" />
+    <result column="location_address" jdbcType="VARCHAR" property="locationAddress" />
+    <result column="location_desc" jdbcType="VARCHAR" property="locationDesc" />
+    <result column="rebate_rate" jdbcType="DECIMAL" property="rebateRate" />
+    <result column="status" jdbcType="INTEGER" property="status" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    <result column="service_time" jdbcType="VARCHAR" property="serviceTime" />
+    <result column="referee_uid" jdbcType="BIGINT" property="refereeUid" />
+  </resultMap>
+  
+  <resultMap extends="BaseResultMap" id="BOResultMap" type="vc.thinker.cabbage.user.bo.SellerBO" />
+  	
+  	<select id="findOnlyUidAndNameByUid" resultMap="BOResultMap">
+  			selec,seller_named,seller_name
+		    from user_seller
+		    where uid = #{uid,jdbcType=BIGINT}
+  	</select>
+  	
+	<select id="findNormalByLocation" resultMap="BOResultMap">
+		select agent.*,(SELECT
+			count(1)
+		FROM
+			se_cabinet c 
+		WHERE
+			c.seller_id = agent.uid) as existCabinetNum
+		from (
+		select a.*,ROUND(
+			6378.138 * 2 * ASIN(
+			    SQRT(
+				POW(
+				    SIN(
+					(
+					    ${p.y} * PI() / 180 - a.location_lat * PI() / 180
+					) / 2
+				    ),
+				    2
+				) + COS(${p.y} * PI() / 180) * COS(a.location_lat * PI() / 180) * POW(
+				    SIN(
+					(
+					    ${p.x} * PI() / 180 - a.location_lon * PI() / 180
+					) / 2
+				    ),
+				    2
+				)
+			    )
+			) * 1000
+		    ) AS distance 
+		  from user_seller a WHERE a.`status` = 1
+		) as agent 
+		<where>
+			<if test="distance != null">
+				<![CDATA[agent.distance  <= #{distance} ]]>
+			</if>
+		</where>
+		order by agent.distance
+  </select>
+  
+  <select id="findPageByVo" resultMap="BOResultMap">
+  		select 
+  			s.*,r.referee_name refereeName
+  		from 
+	  		user_seller s 
+	  		left join user_referee r on s.referee_uid = r.uid 
+  		<where>
+  			<if test="null != vo.sellerName and '' != vo.sellerName">
+  				and s.seller_name like concat ('%', #{vo.sellerName}, '%')
+  			</if>
+  			<if test="null != vo.contactUserName and '' != vo.contactUserName">
+  				and s.contact_user_name like concat ('%', #{vo.contactUserName}, '%') 
+  			</if>
+  			<if test="null != vo.contactMobile and '' != vo.contactMobile">
+  				and s.contact_mobile like concat ('%', #{vo.contactMobile}, '%') 
+  			</if>
+  			<if test="null != vo.email and '' != vo.email">
+  				and s.email like concat ('%', #{vo.email}, '%') 
+  			</if>
+  			<if test="null != vo.refereeUid and '' != vo.refereeUid">
+  				and s.referee_Uid = #{vo.refereeUid} 
+  			</if>
+  			<if test="null != vo.uid and '' != vo.uid">
+  				and s.uid = #{vo.uid}
+  			</if>
+  			<if test="null != vo.country and '' != vo.country">
+  				and s.country = #{vo.country}
+  			</if>
+  		</where>
+  		order by s.create_time desc 
+  </select>
+  
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    uid, seller_name, seller_logo, seller_cover, email, invite_code, country, contact_user_name, 
+    contact_mobile, contact_telephone, location_lon, location_lat, location_address, 
+    location_desc, rebate_rate, status, create_time, update_time, service_time, referee_uid
+  </sql>
+  <select id="selectByExample" parameterType="vc.thinker.cabbage.user.model.SellerExample" resultMap="BOResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from user_seller
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+    <if test="limit != null">
+      limit ${limit}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BOResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from user_seller
+    where uid = #{uid,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from user_seller
+    where uid = #{uid,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteByExample" parameterType="vc.thinker.cabbage.user.model.SellerExample">
+    delete from user_seller
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="vc.thinker.cabbage.user.model.Seller">
+    insert into user_seller (uid, seller_name, seller_logo, 
+      seller_cover, email, invite_code, 
+      country, contact_user_name, contact_mobile, 
+      contact_telephone, location_lon, location_lat, 
+      location_address, location_desc, rebate_rate, 
+      status, create_time, update_time, 
+      service_time, referee_uid)
+    values (#{uid,jdbcType=BIGINT}, #{sellerName,jdbcType=VARCHAR}, #{sellerLogo,jdbcType=VARCHAR}, 
+      #{sellerCover,jdbcType=VARCHAR}, #{email,jdbcType=VARCHAR}, #{inviteCode,jdbcType=VARCHAR}, 
+      #{country,jdbcType=VARCHAR}, #{contactUserName,jdbcType=VARCHAR}, #{contactMobile,jdbcType=VARCHAR}, 
+      #{contactTelephone,jdbcType=VARCHAR}, #{locationLon,jdbcType=DECIMAL}, #{locationLat,jdbcType=DECIMAL}, 
+      #{locationAddress,jdbcType=VARCHAR}, #{locationDesc,jdbcType=VARCHAR}, #{rebateRate,jdbcType=DECIMAL}, 
+      #{status,jdbcType=INTEGER}, #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}, 
+      #{serviceTime,jdbcType=VARCHAR}, #{refereeUid,jdbcType=BIGINT})
+  </insert>
+  <insert id="insertSelective" parameterType="vc.thinker.cabbage.user.model.Seller">
+    insert into user_seller
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="uid != null">
+        uid,
+      </if>
+      <if test="sellerName != null">
+        seller_name,
+      </if>
+      <if test="sellerLogo != null">
+        seller_logo,
+      </if>
+      <if test="sellerCover != null">
+        seller_cover,
+      </if>
+      <if test="email != null">
+        email,
+      </if>
+      <if test="inviteCode != null">
+        invite_code,
+      </if>
+      <if test="country != null">
+        country,
+      </if>
+      <if test="contactUserName != null">
+        contact_user_name,
+      </if>
+      <if test="contactMobile != null">
+        contact_mobile,
+      </if>
+      <if test="contactTelephone != null">
+        contact_telephone,
+      </if>
+      <if test="locationLon != null">
+        location_lon,
+      </if>
+      <if test="locationLat != null">
+        location_lat,
+      </if>
+      <if test="locationAddress != null">
+        location_address,
+      </if>
+      <if test="locationDesc != null">
+        location_desc,
+      </if>
+      <if test="rebateRate != null">
+        rebate_rate,
+      </if>
+      <if test="status != null">
+        status,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="updateTime != null">
+        update_time,
+      </if>
+      <if test="serviceTime != null">
+        service_time,
+      </if>
+      <if test="refereeUid != null">
+        referee_uid,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="uid != null">
+        #{uid,jdbcType=BIGINT},
+      </if>
+      <if test="sellerName != null">
+        #{sellerName,jdbcType=VARCHAR},
+      </if>
+      <if test="sellerLogo != null">
+        #{sellerLogo,jdbcType=VARCHAR},
+      </if>
+      <if test="sellerCover != null">
+        #{sellerCover,jdbcType=VARCHAR},
+      </if>
+      <if test="email != null">
+        #{email,jdbcType=VARCHAR},
+      </if>
+      <if test="inviteCode != null">
+        #{inviteCode,jdbcType=VARCHAR},
+      </if>
+      <if test="country != null">
+        #{country,jdbcType=VARCHAR},
+      </if>
+      <if test="contactUserName != null">
+        #{contactUserName,jdbcType=VARCHAR},
+      </if>
+      <if test="contactMobile != null">
+        #{contactMobile,jdbcType=VARCHAR},
+      </if>
+      <if test="contactTelephone != null">
+        #{contactTelephone,jdbcType=VARCHAR},
+      </if>
+      <if test="locationLon != null">
+        #{locationLon,jdbcType=DECIMAL},
+      </if>
+      <if test="locationLat != null">
+        #{locationLat,jdbcType=DECIMAL},
+      </if>
+      <if test="locationAddress != null">
+        #{locationAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="locationDesc != null">
+        #{locationDesc,jdbcType=VARCHAR},
+      </if>
+      <if test="rebateRate != null">
+        #{rebateRate,jdbcType=DECIMAL},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null">
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="serviceTime != null">
+        #{serviceTime,jdbcType=VARCHAR},
+      </if>
+      <if test="refereeUid != null">
+        #{refereeUid,jdbcType=BIGINT},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="vc.thinker.cabbage.user.model.SellerExample" resultType="java.lang.Integer">
+    select count(*) from user_seller
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update user_seller
+    <set>
+      <if test="record.uid != null">
+        uid = #{record.uid,jdbcType=BIGINT},
+      </if>
+      <if test="record.sellerName != null">
+        seller_name = #{record.sellerName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.sellerLogo != null">
+        seller_logo = #{record.sellerLogo,jdbcType=VARCHAR},
+      </if>
+      <if test="record.sellerCover != null">
+        seller_cover = #{record.sellerCover,jdbcType=VARCHAR},
+      </if>
+      <if test="record.email != null">
+        email = #{record.email,jdbcType=VARCHAR},
+      </if>
+      <if test="record.inviteCode != null">
+        invite_code = #{record.inviteCode,jdbcType=VARCHAR},
+      </if>
+      <if test="record.country != null">
+        country = #{record.country,jdbcType=VARCHAR},
+      </if>
+      <if test="record.contactUserName != null">
+        contact_user_name = #{record.contactUserName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.contactMobile != null">
+        contact_mobile = #{record.contactMobile,jdbcType=VARCHAR},
+      </if>
+      <if test="record.contactTelephone != null">
+        contact_telephone = #{record.contactTelephone,jdbcType=VARCHAR},
+      </if>
+      <if test="record.locationLon != null">
+        location_lon = #{record.locationLon,jdbcType=DECIMAL},
+      </if>
+      <if test="record.locationLat != null">
+        location_lat = #{record.locationLat,jdbcType=DECIMAL},
+      </if>
+      <if test="record.locationAddress != null">
+        location_address = #{record.locationAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="record.locationDesc != null">
+        location_desc = #{record.locationDesc,jdbcType=VARCHAR},
+      </if>
+      <if test="record.rebateRate != null">
+        rebate_rate = #{record.rebateRate,jdbcType=DECIMAL},
+      </if>
+      <if test="record.status != null">
+        status = #{record.status,jdbcType=INTEGER},
+      </if>
+      <if test="record.createTime != null">
+        create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.updateTime != null">
+        update_time = #{record.updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.serviceTime != null">
+        service_time = #{record.serviceTime,jdbcType=VARCHAR},
+      </if>
+      <if test="record.refereeUid != null">
+        referee_uid = #{record.refereeUid,jdbcType=BIGINT},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update user_seller
+    set uid = #{record.uid,jdbcType=BIGINT},
+      seller_name = #{record.sellerName,jdbcType=VARCHAR},
+      seller_logo = #{record.sellerLogo,jdbcType=VARCHAR},
+      seller_cover = #{record.sellerCover,jdbcType=VARCHAR},
+      email = #{record.email,jdbcType=VARCHAR},
+      invite_code = #{record.inviteCode,jdbcType=VARCHAR},
+      country = #{record.country,jdbcType=VARCHAR},
+      contact_user_name = #{record.contactUserName,jdbcType=VARCHAR},
+      contact_mobile = #{record.contactMobile,jdbcType=VARCHAR},
+      contact_telephone = #{record.contactTelephone,jdbcType=VARCHAR},
+      location_lon = #{record.locationLon,jdbcType=DECIMAL},
+      location_lat = #{record.locationLat,jdbcType=DECIMAL},
+      location_address = #{record.locationAddress,jdbcType=VARCHAR},
+      location_desc = #{record.locationDesc,jdbcType=VARCHAR},
+      rebate_rate = #{record.rebateRate,jdbcType=DECIMAL},
+      status = #{record.status,jdbcType=INTEGER},
+      create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      update_time = #{record.updateTime,jdbcType=TIMESTAMP},
+      service_time = #{record.serviceTime,jdbcType=VARCHAR},
+      referee_uid = #{record.refereeUid,jdbcType=BIGINT}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="vc.thinker.cabbage.user.model.Seller">
+    update user_seller
+    <set>
+      <if test="sellerName != null">
+        seller_name = #{sellerName,jdbcType=VARCHAR},
+      </if>
+      <if test="sellerLogo != null">
+        seller_logo = #{sellerLogo,jdbcType=VARCHAR},
+      </if>
+      <if test="sellerCover != null">
+        seller_cover = #{sellerCover,jdbcType=VARCHAR},
+      </if>
+      <if test="email != null">
+        email = #{email,jdbcType=VARCHAR},
+      </if>
+      <if test="inviteCode != null">
+        invite_code = #{inviteCode,jdbcType=VARCHAR},
+      </if>
+      <if test="country != null">
+        country = #{country,jdbcType=VARCHAR},
+      </if>
+      <if test="contactUserName != null">
+        contact_user_name = #{contactUserName,jdbcType=VARCHAR},
+      </if>
+      <if test="contactMobile != null">
+        contact_mobile = #{contactMobile,jdbcType=VARCHAR},
+      </if>
+      <if test="contactTelephone != null">
+        contact_telephone = #{contactTelephone,jdbcType=VARCHAR},
+      </if>
+      <if test="locationLon != null">
+        location_lon = #{locationLon,jdbcType=DECIMAL},
+      </if>
+      <if test="locationLat != null">
+        location_lat = #{locationLat,jdbcType=DECIMAL},
+      </if>
+      <if test="locationAddress != null">
+        location_address = #{locationAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="locationDesc != null">
+        location_desc = #{locationDesc,jdbcType=VARCHAR},
+      </if>
+      <if test="rebateRate != null">
+        rebate_rate = #{rebateRate,jdbcType=DECIMAL},
+      </if>
+      <if test="status != null">
+        status = #{status,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null">
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="serviceTime != null">
+        service_time = #{serviceTime,jdbcType=VARCHAR},
+      </if>
+      <if test="refereeUid != null">
+        referee_uid = #{refereeUid,jdbcType=BIGINT},
+      </if>
+    </set>
+    where uid = #{uid,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="vc.thinker.cabbage.user.model.Seller">
+    update user_seller
+    set seller_name = #{sellerName,jdbcType=VARCHAR},
+      seller_logo = #{sellerLogo,jdbcType=VARCHAR},
+      seller_cover = #{sellerCover,jdbcType=VARCHAR},
+      email = #{email,jdbcType=VARCHAR},
+      invite_code = #{inviteCode,jdbcType=VARCHAR},
+      country = #{country,jdbcType=VARCHAR},
+      contact_user_name = #{contactUserName,jdbcType=VARCHAR},
+      contact_mobile = #{contactMobile,jdbcType=VARCHAR},
+      contact_telephone = #{contactTelephone,jdbcType=VARCHAR},
+      location_lon = #{locationLon,jdbcType=DECIMAL},
+      location_lat = #{locationLat,jdbcType=DECIMAL},
+      location_address = #{locationAddress,jdbcType=VARCHAR},
+      location_desc = #{locationDesc,jdbcType=VARCHAR},
+      rebate_rate = #{rebateRate,jdbcType=DECIMAL},
+      status = #{status,jdbcType=INTEGER},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      update_time = #{updateTime,jdbcType=TIMESTAMP},
+      service_time = #{serviceTime,jdbcType=VARCHAR},
+      referee_uid = #{refereeUid,jdbcType=BIGINT}
+    where uid = #{uid,jdbcType=BIGINT}
+  </update>
+</mapper>

@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="vc.thinker.cabbage.sys.mapper.ExchangeRateMapper">
+  <resultMap id="BaseResultMap" type="vc.thinker.cabbage.sys.model.ExchangeRate">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="currency_to" jdbcType="VARCHAR" property="currencyTo" />
+    <result column="currency_from" jdbcType="VARCHAR" property="currencyFrom" />
+    <result column="exchange_rate" jdbcType="DECIMAL" property="exchangeRate" />
+  </resultMap>
+  <resultMap extends="BaseResultMap" id="BOResultMap" type="vc.thinker.cabbage.sys.bo.ExchangeRateBO" />
+  
+  <select id="findPageByVo" resultMap="BOResultMap">
+		select * from  sys_exchange_rate order by currency_from 
+  </select>
+  
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    id, currency_to, currency_from, exchange_rate
+  </sql>
+  <select id="selectByExample" parameterType="vc.thinker.cabbage.sys.model.ExchangeRateExample" resultMap="BOResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from sys_exchange_rate
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+    <if test="limit != null">
+      limit ${limit}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BOResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from sys_exchange_rate
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from sys_exchange_rate
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteByExample" parameterType="vc.thinker.cabbage.sys.model.ExchangeRateExample">
+    delete from sys_exchange_rate
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" keyProperty="id" parameterType="vc.thinker.cabbage.sys.model.ExchangeRate" useGeneratedKeys="true">
+    insert into sys_exchange_rate (id, currency_to, currency_from, 
+      exchange_rate)
+    values (#{id,jdbcType=BIGINT}, #{currencyTo,jdbcType=VARCHAR}, #{currencyFrom,jdbcType=VARCHAR}, 
+      #{exchangeRate,jdbcType=DECIMAL})
+  </insert>
+  <insert id="insertSelective" keyProperty="id" parameterType="vc.thinker.cabbage.sys.model.ExchangeRate" useGeneratedKeys="true">
+    insert into sys_exchange_rate
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="currencyTo != null">
+        currency_to,
+      </if>
+      <if test="currencyFrom != null">
+        currency_from,
+      </if>
+      <if test="exchangeRate != null">
+        exchange_rate,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="currencyTo != null">
+        #{currencyTo,jdbcType=VARCHAR},
+      </if>
+      <if test="currencyFrom != null">
+        #{currencyFrom,jdbcType=VARCHAR},
+      </if>
+      <if test="exchangeRate != null">
+        #{exchangeRate,jdbcType=DECIMAL},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="vc.thinker.cabbage.sys.model.ExchangeRateExample" resultType="java.lang.Integer">
+    select count(*) from sys_exchange_rate
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update sys_exchange_rate
+    <set>
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=BIGINT},
+      </if>
+      <if test="record.currencyTo != null">
+        currency_to = #{record.currencyTo,jdbcType=VARCHAR},
+      </if>
+      <if test="record.currencyFrom != null">
+        currency_from = #{record.currencyFrom,jdbcType=VARCHAR},
+      </if>
+      <if test="record.exchangeRate != null">
+        exchange_rate = #{record.exchangeRate,jdbcType=DECIMAL},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update sys_exchange_rate
+    set id = #{record.id,jdbcType=BIGINT},
+      currency_to = #{record.currencyTo,jdbcType=VARCHAR},
+      currency_from = #{record.currencyFrom,jdbcType=VARCHAR},
+      exchange_rate = #{record.exchangeRate,jdbcType=DECIMAL}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="vc.thinker.cabbage.sys.model.ExchangeRate">
+    update sys_exchange_rate
+    <set>
+      <if test="currencyTo != null">
+        currency_to = #{currencyTo,jdbcType=VARCHAR},
+      </if>
+      <if test="currencyFrom != null">
+        currency_from = #{currencyFrom,jdbcType=VARCHAR},
+      </if>
+      <if test="exchangeRate != null">
+        exchange_rate = #{exchangeRate,jdbcType=DECIMAL},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="vc.thinker.cabbage.sys.model.ExchangeRate">
+    update sys_exchange_rate
+    set currency_to = #{currencyTo,jdbcType=VARCHAR},
+      currency_from = #{currencyFrom,jdbcType=VARCHAR},
+      exchange_rate = #{exchangeRate,jdbcType=DECIMAL}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

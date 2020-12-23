@@ -1,0 +1,316 @@
+.sku-group {
+    background-color: #fff;
+    border: 1px solid #e5e5e5;
+    padding: 10px;
+}
+
+.sku-group h3.sku-group-title {
+    background-color: #f8f8f8;
+    color: #666;
+    font-size: 12px;
+    font-weight: normal;
+    line-height: 16px;
+    margin: 0;
+    padding: 7px 0 7px 10px;
+    position: relative;
+}
+
+.sku-group h4 {
+    font-size: 12px;
+    font-weight: bold;
+    margin: 0;
+}
+
+.sku-group .addImg-radio {
+    display: inline-block;
+    float: right;
+    margin: 3px 350px 0 0;
+}
+
+.sku-group .addImg-radio input {
+    margin-right: 6px;
+    vertical-align: 0;
+}
+
+.sku-group .sku-sub-group:hover .remove-sku-group {
+    display: block;
+}
+
+.sku-group .remove-sku-group {
+    background: rgba(153, 153, 153, 0.6) none repeat scroll 0 0;
+    border-radius: 10px;
+    color: #fff;
+    cursor: pointer;
+    display: none;
+    font-size: 14px;
+    height: 18px;
+    line-height: 18px;
+    position: absolute;
+    right: 10px;
+    text-align: center;
+    text-indent: 0;
+    top: 12px;
+    width: 18px;
+    text-decoration: none;
+}
+
+.sku-group .sku-group-cont {
+    margin-bottom: 10px;
+    padding: 10px;
+    display: none;
+}
+
+.sku-group .sku-list ul {
+}
+
+.sku-group .sku-list ul::after {
+    clear: both;
+    content: "";
+    display: table;
+}
+
+.sku-group .sku-list ul > li {
+    float: left;
+    text-align: left;
+    width: 20%;
+}
+
+table.table-sku-color td {
+    padding-bottom: 15px;
+    text-align: left;
+    width: 20%;
+}
+
+.sku-stock {
+    background-color: #fff;
+    border: 1px solid #e5e5e5;
+    padding: 0 10px 20px;
+}
+
+table.table-sku-stock {
+    background-color: #fff;
+    text-align: left;
+    width: 100%;
+    border-collapse: collapse;
+}
+
+table.table-sku-stock th {
+    font-weight: normal;
+    padding: 10px 8px;
+}
+
+table.table-sku-stock th.th-price {
+    width: 100px;
+}
+
+table.table-sku-stock th.th-code {
+    width: 120px;
+}
+
+table.table-sku-stock td {
+    border: 1px solid #e5e5e5;
+    padding: 8px;
+    vertical-align: middle;
+}
+
+table.table-sku-stock td:first-of-type {
+    border-left: medium none;
+}
+
+table.table-sku-stock td:last-of-type {
+    border-right: medium none;
+}
+
+table.table-sku-stock .error-message {
+    color: #b94a48;
+    display: none;
+}
+
+.manual-valid-error {
+    color: #b94a48;
+}
+
+.manual-valid-error input {
+    border-color: #b94a48;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075) inset;
+}
+
+.manual-valid-error .error-message {
+    display: block !important;
+}
+
+.sku-atom-list {
+    display: inline-block;
+}
+
+.sku-atom {
+    border: 1px solid #aaa;
+    border-radius: 4px;
+    cursor: pointer;
+    display: inline-block;
+    margin-bottom: 5px;
+    margin-right: 10px;
+    margin-top: 5px;
+    padding: 4px;
+    position: relative;
+    text-align: center;
+    vertical-align: middle;
+    width: 80px;
+}
+
+.sku-atom span {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    width: 74px;
+}
+
+.sku-atom .close-modal {
+    display: none;
+}
+
+.sku-atom:hover .atom-close {
+    display: block;
+}
+
+.sku-atom .atom-close {
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    line-height: 16px;
+    border-radius: 9px;
+    background: #ccc;
+    color: #fff;
+    top: -5px;
+    right: -5px;
+}
+
+.sku-atom .atom-close:hover {
+    background-color: #555;
+}
+
+.sku-atom.active {
+    margin-bottom: 100px;
+}
+
+.sku-atom .upload-img-wrap {
+    background: #fff none repeat scroll 0 0;
+    border: 1px solid #dcdcdc;
+    border-radius: 4px;
+    left: 0;
+    padding: 2px;
+    position: absolute;
+    top: 36px;
+    width: 84px;
+}
+
+.sku-atom .upload-img-wrap img {
+    cursor: pointer;
+    height: 84px;
+    width: 84px;
+}
+
+.sku-atom .upload-img-wrap .add-image {
+    background: #fff none repeat scroll 0 0;
+    color: #e5e5e5;
+    cursor: pointer;
+    font-size: 30px;
+    height: 84px;
+    line-height: 84px;
+    text-align: center;
+    width: 84px;
+}
+
+.sku-atom .upload-img-wrap .arrow {
+    border-bottom: 5px solid #000000;
+    border-color: transparent transparent #000000;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-style: solid;
+    height: 0;
+    left: 44%;
+    position: absolute;
+    top: -5px;
+    width: 0;
+}
+
+.sku-atom .upload-img-wrap .arrow::after {
+    border-color: transparent transparent #fff;
+    border-style: solid;
+    border-width: 10px;
+    content: "";
+    display: block;
+    height: 0;
+    margin-left: -10px;
+    position: absolute;
+    top: -10px;
+    width: 0;
+}
+
+.sku-atom .upload-img-wrap .img-edit {
+    background: #000 none repeat scroll 0 0;
+    bottom: 0;
+    color: #fff;
+    cursor: pointer;
+    display: none;
+    left: 0;
+    opacity: 0.5;
+    position: absolute;
+    width: 100%;
+}
+
+.add-sku {
+    display: inline-block;
+    margin: 9px 5px 0;
+    padding: 0 5px;
+    vertical-align: top;
+}
+
+.message-container .message-item {
+    margin-bottom: 8px;
+}
+
+.message-container .message-item:last-of-type {
+    margin-bottom: 0;
+}
+
+.message-container input, .message-container select {
+    margin-right: 5px;
+}
+
+.message-container input, .message-container select, .message-container .remove-message {
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.message-container .remove-message {
+    margin: 0 0 0 10px;
+    padding-top: 5px;
+}
+
+.goods-edit-area .app-actions .form-actions {
+    background-color: #ffc;
+    border-top: medium none;
+    margin: 0;
+    padding: 10px;
+}
+
+.goods-details-block {
+    background: #e5e5e5 none repeat scroll 0 0;
+    color: #666;
+    padding: 30px 0;
+    text-align: center;
+}
+
+.goods-details-block h4 {
+    font-size: 16px;
+    line-height: 24px;
+    margin: 0;
+}
+
+.goods-details-block p {
+    font-size: 14px;
+    line-height: 24px;
+    margin: 0;
+}

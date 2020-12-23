@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta content="yes" name="apple-mobile-web-app-capable">
+    <meta content="yes" name="apple-touch-fullscreen">
+    <meta content="telephone=no,email=no" name="format-detection">
+    <script src="js/flexible.js"></script>
+
+    <link href="wgt/ickeck/orange.css" type="text/css" rel="stylesheet" />
+    <link rel="stylesheet" href="style/style.min.css"/>
+    <title>商户注册</title>
+</head>
+<body>
+<!-- 页面结构写在这里 -->
+
+<div class="container">
+    <form id="myform" class="pt-20">
+        <ul class="form-control">
+            <li>
+                <div class="inp-combo">
+                    <div class="title">类型</div>
+                    <div class="cont"><label><input type="radio" name="type" /> 公司</label> &nbsp; <label><input type="radio" name="type" /> 个人</label></div>
+                </div>
+            </li>
+            <li>
+                <input type="text" name="name" class="inp-txt" placeholder="服务商名称" />
+            </li>
+            <li>
+                <input type="text" name="name" class="inp-txt" placeholder="联系人" />
+            </li>
+            <li>
+                <input type="text" name="tel" class="inp-txt" placeholder="联系人手机号码" />
+            </li>
+            <li>
+                <input type="text" name="tel" class="inp-txt" placeholder="联系人职位" />
+            </li>
+            <li>
+                <input type="text" name="tel" class="inp-txt" placeholder="公司名称" />
+            </li>
+            <li>
+                <div class="inp-combo" id="industry">
+                    <div class="title">行业</div>
+                    <div class="cont">深圳市南山区科兴科学园 <i class="icon-chevron_right"></i></div>
+                </div>
+            </li>
+            <li>
+                <input type="text" name="tel" class="inp-txt" placeholder="公众号名称" />
+            </li>
+            <li>
+                <input type="text" name="tel" class="inp-txt" placeholder="微信号" />
+            </li>
+            <li>
+                <div class="select-box">
+                    <input type="text" class="inp-txt" name="fans" id="fans" placeholder="粉丝数" readonly />
+                    <select><option value="1">1-500</option><option value="2">500-1000</option></select>
+                </div>
+                <label for="fans" class="error"></label>
+            </li>
+
+            <li>
+                <div class="inp-combo">
+                    <div class="title long">公众号是否认证</div>
+                    <div class="cont"><label><input type="radio" name="type" />  是</label> &nbsp; <label><input type="radio" name="type" /> 否</label></div>
+                </div>
+            </li>
+            <li>
+                <textarea class="inp-txt" placeholder="公众号简介"></textarea>
+            </li>
+
+            <li>
+                <input type="submit" value="在线支付" class="weui_btn btn-blue" />
+            </li>
+        </ul>
+    </form>
+
+
+</div>
+
+<script src="js/jquery-1.8.3.min.js"></script>
+<script type="text/javascript" src="wgt/ickeck/icheck.min.js"></script>
+<script src="http://static.thinker.vc/static/wgt/jquery-validation/1.11.1/jquery.validate.min.js"></script>
+
+<script src="wgt/mobiscroll/mobiscroll.2.13.2.js"></script>
+<link href="wgt/mobiscroll/mobiscroll.2.13.2.css" rel="stylesheet" />
+
+<script src="js/common.js"></script>
+
+<script>
+
+    $('input[type="radio"]').icheck({radioClass: "iradio_minimal-orange", tap: false}).change(function() {
+        var name = $(this).attr("name");
+    });
+
+
+    $("#myform").validate({
+        rules:{
+            fans: "required",
+            tel: "required"
+        },
+        messages:{
+            fans: "请选择粉丝数",
+            tel:{
+                required:"电话号码不能为空"
+            }
+        }
+    });
+
+    $("#industry").click(function() {
+        $.get("dialog/address-list.html", function(html) {
+            var panel = sidePanel(html);
+            panel.obj.find("li").click(function() {
+                panel.destroy();
+                //
+            });
+
+        });
+    });
+
+    THINK.selectMenu({
+        selector: ".select-box"
+    });
+
+</script>
+
+</body>
+</html>

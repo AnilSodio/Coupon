@@ -1,0 +1,600 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="vc.thinker.cabbage.se.mapper.FeedbackMapper">
+  <resultMap id="BaseResultMap" type="vc.thinker.cabbage.se.model.Feedback">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="uid" jdbcType="BIGINT" property="uid" />
+    <result column="order_id" jdbcType="BIGINT" property="orderId" />
+    <result column="order_code" jdbcType="VARCHAR" property="orderCode" />
+    <result column="feed_type" jdbcType="CHAR" property="feedType" />
+    <result column="feed_desc" jdbcType="VARCHAR" property="feedDesc" />
+    <result column="img_url1" jdbcType="VARCHAR" property="imgUrl1" />
+    <result column="img_url2" jdbcType="VARCHAR" property="imgUrl2" />
+    <result column="img_url3" jdbcType="VARCHAR" property="imgUrl3" />
+    <result column="img_url4" jdbcType="VARCHAR" property="imgUrl4" />
+    <result column="status" jdbcType="INTEGER" property="status" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    <result column="update_by" jdbcType="VARCHAR" property="updateBy" />
+    <result column="remark" jdbcType="VARCHAR" property="remark" />
+    <result column="deal_type" jdbcType="VARCHAR" property="dealType" />
+    <result column="ticket_id" jdbcType="BIGINT" property="ticketId" />
+    <result column="type_id" jdbcType="BIGINT" property="typeId" />
+    <result column="cabinet_code" jdbcType="VARCHAR" property="cabinetCode" />
+    <result column="pb_code" jdbcType="VARCHAR" property="pbCode" />
+    <result column="pb_id" jdbcType="BIGINT" property="pbId" />
+    <result column="sys_code" jdbcType="VARCHAR" property="sysCode" />
+    <result column="client_source" jdbcType="VARCHAR" property="clientSource" />
+  </resultMap>
+  <resultMap extends="BaseResultMap" id="BOResultMap" type="vc.thinker.cabbage.se.bo.FeedbackBO" />
+  
+  <resultMap id="CountStatsMap" type="vc.thinker.cabbage.stats.bo.CountStatsBO" />
+  
+  <select id="countByTime" resultType="java.math.BigDecimal">
+  		select  count(1) from se_feedback
+	 	<where>
+		  	<if test="year!=null and year!=''">
+		  	AND DATE_FORMAT(create_time,'%Y') <![CDATA[ = ]]> #{year}
+		  	</if>
+		  	<if test="month!=null and month!=''">
+		  	AND DATE_FORMAT(create_time,'%m') <![CDATA[ = ]]> #{month}
+		  	</if>
+		  	<if test="null != isUsing and isUsing">
+		  	AND feed_type = 2
+		  	</if>
+	 	</where>
+  </select>
+  	
+  <select id="feedbackStats" resultMap="CountStatsMap">
+  		SELECT
+		    <if test="vo.statsType!=null and vo.statsType==&quot;1&quot; ">
+		      DATE_FORMAT(create_time, '%m') AS statsTime,
+		    </if>
+		    <if test="vo.statsType!=null and vo.statsType==&quot;2&quot; ">
+		      DATE_FORMAT(create_time, '%d') AS statsTime,
+		    </if>
+	   		 feed_type as feedType
+	    FROM
+	    se_feedback
+	    WHERE
+	    <if test="vo.statsType!=null and vo.statsType==&quot;1&quot; ">
+	      DATE_FORMAT(create_time, '%Y') = #{vo.time}
+	    </if>
+	    <if test="vo.statsType!=null and vo.statsType==&quot;2&quot; ">
+	      DATE_FORMAT(create_time, '%Y-%m') = #{vo.time}
+	    </if>
+	    ORDER BY
+	    statsTime
+  </select>
+  
+  <select id="groupByFeedType" resultMap="BOResultMap">
+  		select count(1) num,feed_type  from se_feedback group by feed_type
+  </select>
+  
+  <select id="countByTypeId" resultMap="BOResultMap">
+  		 select feed_type, count(*) as num
+    	from se_feedback GROUP BY feed_type;
+  </select>
+  
+  <select id="findDetailedOne" resultMap="BOResultMap">
+  		select 
+  			back.*,
+  			t.type_name typeName,t.type_desc typeDesc,
+  			us.mobile,us.nickname,us.country,us.currency
+  		from  
+  			se_feedback back 
+  			left join user_member us on back.uid = us.uid
+  			left join se_feedback_type t on back.type_id = t.id
+    	where back.id = #{id}
+  </select>
+  
+  <select id="findPageByVo" resultMap="BOResultMap">
+  		select 
+  			back.*,
+  			us.mobile,
+  			us.nickname ,
+  			t.type_name typeName,
+  			o.borrow_sys_code borrowSysCode
+  		from  
+  			se_feedback back left join user_member us on back.uid = us.uid 
+  			left join se_feedback_type t on back.type_id = t.id   
+  			left join se_order o on back.order_id = o.id
+  		<where>
+  			<if test="vo.mobile != null and vo.mobile != ''">
+  				and us.mobile like concat('%', #{vo.mobile}, '%')
+  			</if>
+  			<if test="vo.nickname != null and vo.nickname != ''">
+  				and us.nickname like concat('%', #{vo.nickname}, '%')
+  			</if>
+  			<if test="vo.sysCode != null and vo.sysCode != ''">
+  				and back.sys_code = #{vo.sysCode}
+  			</if>
+  			<if test="vo.feedType != null and vo.feedType != ''">
+  				and back.feed_type = #{vo.feedType}
+  			</if>
+  			<if test="vo.status != null and vo.status != '' or vo.status==0">
+  				and back.status = ${vo.status}
+  			</if>
+  			<if test="vo.beginDate != null and vo.beginDate != ''">
+  				AND DATE_FORMAT(back.create_time,'%Y-%m-%d') <![CDATA[ >= ]]> DATE_FORMAT(#{vo.beginDate},'%Y-%m-%d')
+  			</if>
+  			<if test="vo.endDate != null and vo.endDate != ''">
+  				AND DATE_FORMAT(back.create_time,'%Y-%m-%d') <![CDATA[ <= ]]> DATE_FORMAT(#{vo.endDate},'%Y-%m-%d')
+  			</if>
+  			<if test="vo.typeName != null and vo.typeName != ''">
+  				AND t.type_name = #{vo.typeName}
+  			</if>
+  		</where>
+  		order by back.create_time desc
+  </select>
+  
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    id, uid, order_id, order_code, feed_type, feed_desc, img_url1, img_url2, img_url3, 
+    img_url4, status, create_time, update_time, update_by, remark, deal_type, ticket_id, 
+    type_id, cabinet_code, pb_code, pb_id, sys_code, client_source
+  </sql>
+  <select id="selectByExample" parameterType="vc.thinker.cabbage.se.model.FeedbackExample" resultMap="BOResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from se_feedback
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+    <if test="limit != null">
+      limit ${limit}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BOResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from se_feedback
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from se_feedback
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteByExample" parameterType="vc.thinker.cabbage.se.model.FeedbackExample">
+    delete from se_feedback
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" keyProperty="id" parameterType="vc.thinker.cabbage.se.model.Feedback" useGeneratedKeys="true">
+    insert into se_feedback (id, uid, order_id, 
+      order_code, feed_type, feed_desc, 
+      img_url1, img_url2, img_url3, 
+      img_url4, status, create_time, 
+      update_time, update_by, remark, 
+      deal_type, ticket_id, type_id, 
+      cabinet_code, pb_code, pb_id, 
+      sys_code, client_source)
+    values (#{id,jdbcType=BIGINT}, #{uid,jdbcType=BIGINT}, #{orderId,jdbcType=BIGINT}, 
+      #{orderCode,jdbcType=VARCHAR}, #{feedType,jdbcType=CHAR}, #{feedDesc,jdbcType=VARCHAR}, 
+      #{imgUrl1,jdbcType=VARCHAR}, #{imgUrl2,jdbcType=VARCHAR}, #{imgUrl3,jdbcType=VARCHAR}, 
+      #{imgUrl4,jdbcType=VARCHAR}, #{status,jdbcType=INTEGER}, #{createTime,jdbcType=TIMESTAMP}, 
+      #{updateTime,jdbcType=TIMESTAMP}, #{updateBy,jdbcType=VARCHAR}, #{remark,jdbcType=VARCHAR}, 
+      #{dealType,jdbcType=VARCHAR}, #{ticketId,jdbcType=BIGINT}, #{typeId,jdbcType=BIGINT}, 
+      #{cabinetCode,jdbcType=VARCHAR}, #{pbCode,jdbcType=VARCHAR}, #{pbId,jdbcType=BIGINT}, 
+      #{sysCode,jdbcType=VARCHAR}, #{clientSource,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" keyProperty="id" parameterType="vc.thinker.cabbage.se.model.Feedback" useGeneratedKeys="true">
+    insert into se_feedback
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="uid != null">
+        uid,
+      </if>
+      <if test="orderId != null">
+        order_id,
+      </if>
+      <if test="orderCode != null">
+        order_code,
+      </if>
+      <if test="feedType != null">
+        feed_type,
+      </if>
+      <if test="feedDesc != null">
+        feed_desc,
+      </if>
+      <if test="imgUrl1 != null">
+        img_url1,
+      </if>
+      <if test="imgUrl2 != null">
+        img_url2,
+      </if>
+      <if test="imgUrl3 != null">
+        img_url3,
+      </if>
+      <if test="imgUrl4 != null">
+        img_url4,
+      </if>
+      <if test="status != null">
+        status,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="updateTime != null">
+        update_time,
+      </if>
+      <if test="updateBy != null">
+        update_by,
+      </if>
+      <if test="remark != null">
+        remark,
+      </if>
+      <if test="dealType != null">
+        deal_type,
+      </if>
+      <if test="ticketId != null">
+        ticket_id,
+      </if>
+      <if test="typeId != null">
+        type_id,
+      </if>
+      <if test="cabinetCode != null">
+        cabinet_code,
+      </if>
+      <if test="pbCode != null">
+        pb_code,
+      </if>
+      <if test="pbId != null">
+        pb_id,
+      </if>
+      <if test="sysCode != null">
+        sys_code,
+      </if>
+      <if test="clientSource != null">
+        client_source,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="uid != null">
+        #{uid,jdbcType=BIGINT},
+      </if>
+      <if test="orderId != null">
+        #{orderId,jdbcType=BIGINT},
+      </if>
+      <if test="orderCode != null">
+        #{orderCode,jdbcType=VARCHAR},
+      </if>
+      <if test="feedType != null">
+        #{feedType,jdbcType=CHAR},
+      </if>
+      <if test="feedDesc != null">
+        #{feedDesc,jdbcType=VARCHAR},
+      </if>
+      <if test="imgUrl1 != null">
+        #{imgUrl1,jdbcType=VARCHAR},
+      </if>
+      <if test="imgUrl2 != null">
+        #{imgUrl2,jdbcType=VARCHAR},
+      </if>
+      <if test="imgUrl3 != null">
+        #{imgUrl3,jdbcType=VARCHAR},
+      </if>
+      <if test="imgUrl4 != null">
+        #{imgUrl4,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null">
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateBy != null">
+        #{updateBy,jdbcType=VARCHAR},
+      </if>
+      <if test="remark != null">
+        #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="dealType != null">
+        #{dealType,jdbcType=VARCHAR},
+      </if>
+      <if test="ticketId != null">
+        #{ticketId,jdbcType=BIGINT},
+      </if>
+      <if test="typeId != null">
+        #{typeId,jdbcType=BIGINT},
+      </if>
+      <if test="cabinetCode != null">
+        #{cabinetCode,jdbcType=VARCHAR},
+      </if>
+      <if test="pbCode != null">
+        #{pbCode,jdbcType=VARCHAR},
+      </if>
+      <if test="pbId != null">
+        #{pbId,jdbcType=BIGINT},
+      </if>
+      <if test="sysCode != null">
+        #{sysCode,jdbcType=VARCHAR},
+      </if>
+      <if test="clientSource != null">
+        #{clientSource,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="vc.thinker.cabbage.se.model.FeedbackExample" resultType="java.lang.Integer">
+    select count(*) from se_feedback
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update se_feedback
+    <set>
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=BIGINT},
+      </if>
+      <if test="record.uid != null">
+        uid = #{record.uid,jdbcType=BIGINT},
+      </if>
+      <if test="record.orderId != null">
+        order_id = #{record.orderId,jdbcType=BIGINT},
+      </if>
+      <if test="record.orderCode != null">
+        order_code = #{record.orderCode,jdbcType=VARCHAR},
+      </if>
+      <if test="record.feedType != null">
+        feed_type = #{record.feedType,jdbcType=CHAR},
+      </if>
+      <if test="record.feedDesc != null">
+        feed_desc = #{record.feedDesc,jdbcType=VARCHAR},
+      </if>
+      <if test="record.imgUrl1 != null">
+        img_url1 = #{record.imgUrl1,jdbcType=VARCHAR},
+      </if>
+      <if test="record.imgUrl2 != null">
+        img_url2 = #{record.imgUrl2,jdbcType=VARCHAR},
+      </if>
+      <if test="record.imgUrl3 != null">
+        img_url3 = #{record.imgUrl3,jdbcType=VARCHAR},
+      </if>
+      <if test="record.imgUrl4 != null">
+        img_url4 = #{record.imgUrl4,jdbcType=VARCHAR},
+      </if>
+      <if test="record.status != null">
+        status = #{record.status,jdbcType=INTEGER},
+      </if>
+      <if test="record.createTime != null">
+        create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.updateTime != null">
+        update_time = #{record.updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.updateBy != null">
+        update_by = #{record.updateBy,jdbcType=VARCHAR},
+      </if>
+      <if test="record.remark != null">
+        remark = #{record.remark,jdbcType=VARCHAR},
+      </if>
+      <if test="record.dealType != null">
+        deal_type = #{record.dealType,jdbcType=VARCHAR},
+      </if>
+      <if test="record.ticketId != null">
+        ticket_id = #{record.ticketId,jdbcType=BIGINT},
+      </if>
+      <if test="record.typeId != null">
+        type_id = #{record.typeId,jdbcType=BIGINT},
+      </if>
+      <if test="record.cabinetCode != null">
+        cabinet_code = #{record.cabinetCode,jdbcType=VARCHAR},
+      </if>
+      <if test="record.pbCode != null">
+        pb_code = #{record.pbCode,jdbcType=VARCHAR},
+      </if>
+      <if test="record.pbId != null">
+        pb_id = #{record.pbId,jdbcType=BIGINT},
+      </if>
+      <if test="record.sysCode != null">
+        sys_code = #{record.sysCode,jdbcType=VARCHAR},
+      </if>
+      <if test="record.clientSource != null">
+        client_source = #{record.clientSource,jdbcType=VARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update se_feedback
+    set id = #{record.id,jdbcType=BIGINT},
+      uid = #{record.uid,jdbcType=BIGINT},
+      order_id = #{record.orderId,jdbcType=BIGINT},
+      order_code = #{record.orderCode,jdbcType=VARCHAR},
+      feed_type = #{record.feedType,jdbcType=CHAR},
+      feed_desc = #{record.feedDesc,jdbcType=VARCHAR},
+      img_url1 = #{record.imgUrl1,jdbcType=VARCHAR},
+      img_url2 = #{record.imgUrl2,jdbcType=VARCHAR},
+      img_url3 = #{record.imgUrl3,jdbcType=VARCHAR},
+      img_url4 = #{record.imgUrl4,jdbcType=VARCHAR},
+      status = #{record.status,jdbcType=INTEGER},
+      create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      update_time = #{record.updateTime,jdbcType=TIMESTAMP},
+      update_by = #{record.updateBy,jdbcType=VARCHAR},
+      remark = #{record.remark,jdbcType=VARCHAR},
+      deal_type = #{record.dealType,jdbcType=VARCHAR},
+      ticket_id = #{record.ticketId,jdbcType=BIGINT},
+      type_id = #{record.typeId,jdbcType=BIGINT},
+      cabinet_code = #{record.cabinetCode,jdbcType=VARCHAR},
+      pb_code = #{record.pbCode,jdbcType=VARCHAR},
+      pb_id = #{record.pbId,jdbcType=BIGINT},
+      sys_code = #{record.sysCode,jdbcType=VARCHAR},
+      client_source = #{record.clientSource,jdbcType=VARCHAR}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="vc.thinker.cabbage.se.model.Feedback">
+    update se_feedback
+    <set>
+      <if test="uid != null">
+        uid = #{uid,jdbcType=BIGINT},
+      </if>
+      <if test="orderId != null">
+        order_id = #{orderId,jdbcType=BIGINT},
+      </if>
+      <if test="orderCode != null">
+        order_code = #{orderCode,jdbcType=VARCHAR},
+      </if>
+      <if test="feedType != null">
+        feed_type = #{feedType,jdbcType=CHAR},
+      </if>
+      <if test="feedDesc != null">
+        feed_desc = #{feedDesc,jdbcType=VARCHAR},
+      </if>
+      <if test="imgUrl1 != null">
+        img_url1 = #{imgUrl1,jdbcType=VARCHAR},
+      </if>
+      <if test="imgUrl2 != null">
+        img_url2 = #{imgUrl2,jdbcType=VARCHAR},
+      </if>
+      <if test="imgUrl3 != null">
+        img_url3 = #{imgUrl3,jdbcType=VARCHAR},
+      </if>
+      <if test="imgUrl4 != null">
+        img_url4 = #{imgUrl4,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        status = #{status,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null">
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateBy != null">
+        update_by = #{updateBy,jdbcType=VARCHAR},
+      </if>
+      <if test="remark != null">
+        remark = #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="dealType != null">
+        deal_type = #{dealType,jdbcType=VARCHAR},
+      </if>
+      <if test="ticketId != null">
+        ticket_id = #{ticketId,jdbcType=BIGINT},
+      </if>
+      <if test="typeId != null">
+        type_id = #{typeId,jdbcType=BIGINT},
+      </if>
+      <if test="cabinetCode != null">
+        cabinet_code = #{cabinetCode,jdbcType=VARCHAR},
+      </if>
+      <if test="pbCode != null">
+        pb_code = #{pbCode,jdbcType=VARCHAR},
+      </if>
+      <if test="pbId != null">
+        pb_id = #{pbId,jdbcType=BIGINT},
+      </if>
+      <if test="sysCode != null">
+        sys_code = #{sysCode,jdbcType=VARCHAR},
+      </if>
+      <if test="clientSource != null">
+        client_source = #{clientSource,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="vc.thinker.cabbage.se.model.Feedback">
+    update se_feedback
+    set uid = #{uid,jdbcType=BIGINT},
+      order_id = #{orderId,jdbcType=BIGINT},
+      order_code = #{orderCode,jdbcType=VARCHAR},
+      feed_type = #{feedType,jdbcType=CHAR},
+      feed_desc = #{feedDesc,jdbcType=VARCHAR},
+      img_url1 = #{imgUrl1,jdbcType=VARCHAR},
+      img_url2 = #{imgUrl2,jdbcType=VARCHAR},
+      img_url3 = #{imgUrl3,jdbcType=VARCHAR},
+      img_url4 = #{imgUrl4,jdbcType=VARCHAR},
+      status = #{status,jdbcType=INTEGER},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      update_time = #{updateTime,jdbcType=TIMESTAMP},
+      update_by = #{updateBy,jdbcType=VARCHAR},
+      remark = #{remark,jdbcType=VARCHAR},
+      deal_type = #{dealType,jdbcType=VARCHAR},
+      ticket_id = #{ticketId,jdbcType=BIGINT},
+      type_id = #{typeId,jdbcType=BIGINT},
+      cabinet_code = #{cabinetCode,jdbcType=VARCHAR},
+      pb_code = #{pbCode,jdbcType=VARCHAR},
+      pb_id = #{pbId,jdbcType=BIGINT},
+      sys_code = #{sysCode,jdbcType=VARCHAR},
+      client_source = #{clientSource,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

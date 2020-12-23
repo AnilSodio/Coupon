@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="vc.thinker.cabbage.stats.mapper.CabinetStatsMapper" >
+  <resultMap id="BaseResultMap" type="vc.thinker.cabbage.stats.model.CabinetStats" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="current_day" property="currentDay" jdbcType="VARCHAR" />
+    <result column="total_num" property="totalNum" jdbcType="BIGINT" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <resultMap id="BOResultMap" type="vc.thinker.cabbage.stats.bo.CabinetStatsBO" extends="BaseResultMap" />
+  
+  <resultMap id="CountStatsMap" type="vc.thinker.cabbage.stats.bo.CountStatsBO" />
+  
+  <select id="statsTotalCabinet" resultMap="CountStatsMap">
+  		select
+			<if test="vo.statsType!=null and vo.statsType==&quot;1&quot; ">
+				DATE_FORMAT(create_time, '%m') AS statsTime,
+			</if>
+			<if test="vo.statsType!=null and vo.statsType==&quot;2&quot; ">
+				DATE_FORMAT(create_time, '%d') AS statsTime,
+			</if>
+			sum(total_num) sum
+		FROM
+			se_cabinet_stats
+		WHERE
+			<if test="vo.statsType!=null and vo.statsType==&quot;1&quot; ">
+				DATE_FORMAT(create_time, '%Y') = #{vo.time}
+			</if>
+			<if test="vo.statsType!=null and vo.statsType==&quot;2&quot; ">
+				DATE_FORMAT(create_time, '%Y-%m') = #{vo.time}
+			</if>
+		 
+		 group by statsTime 
+  </select>
+  
+  
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    id, current_day, total_num, create_time
+  </sql>
+  <select id="selectByExample" parameterType="vc.thinker.cabbage.stats.model.CabinetStatsExample" resultMap="BOResultMap" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from se_cabinet_stats
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+    <if test="limit != null" >
+      limit ${limit}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BOResultMap" >
+    select 
+    <include refid="Base_Column_List" />
+    from se_cabinet_stats
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from se_cabinet_stats
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteByExample" parameterType="vc.thinker.cabbage.stats.model.CabinetStatsExample" >
+    delete from se_cabinet_stats
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="vc.thinker.cabbage.stats.model.CabinetStats" useGeneratedKeys="true" keyProperty="id" >
+    insert into se_cabinet_stats (id, current_day, total_num, 
+      create_time)
+    values (#{id,jdbcType=BIGINT}, #{currentDay,jdbcType=VARCHAR}, #{totalNum,jdbcType=BIGINT}, 
+      #{createTime,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="vc.thinker.cabbage.stats.model.CabinetStats" useGeneratedKeys="true" keyProperty="id" >
+    insert into se_cabinet_stats
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="currentDay != null" >
+        current_day,
+      </if>
+      <if test="totalNum != null" >
+        total_num,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="currentDay != null" >
+        #{currentDay,jdbcType=VARCHAR},
+      </if>
+      <if test="totalNum != null" >
+        #{totalNum,jdbcType=BIGINT},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="vc.thinker.cabbage.stats.model.CabinetStatsExample" resultType="java.lang.Integer" >
+    select count(*) from se_cabinet_stats
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map" >
+    update se_cabinet_stats
+    <set >
+      <if test="record.id != null" >
+        id = #{record.id,jdbcType=BIGINT},
+      </if>
+      <if test="record.currentDay != null" >
+        current_day = #{record.currentDay,jdbcType=VARCHAR},
+      </if>
+      <if test="record.totalNum != null" >
+        total_num = #{record.totalNum,jdbcType=BIGINT},
+      </if>
+      <if test="record.createTime != null" >
+        create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+    update se_cabinet_stats
+    set id = #{record.id,jdbcType=BIGINT},
+      current_day = #{record.currentDay,jdbcType=VARCHAR},
+      total_num = #{record.totalNum,jdbcType=BIGINT},
+      create_time = #{record.createTime,jdbcType=TIMESTAMP}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="vc.thinker.cabbage.stats.model.CabinetStats" >
+    update se_cabinet_stats
+    <set >
+      <if test="currentDay != null" >
+        current_day = #{currentDay,jdbcType=VARCHAR},
+      </if>
+      <if test="totalNum != null" >
+        total_num = #{totalNum,jdbcType=BIGINT},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="vc.thinker.cabbage.stats.model.CabinetStats" >
+    update se_cabinet_stats
+    set current_day = #{currentDay,jdbcType=VARCHAR},
+      total_num = #{totalNum,jdbcType=BIGINT},
+      create_time = #{createTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

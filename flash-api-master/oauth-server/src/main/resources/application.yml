@@ -1,0 +1,118 @@
+#============================#
+#===== Database sttings =====#
+#============================#
+jdbc:
+    type: mysql
+     #driver: com.mysql.jdbc.Driver
+    #driver: com.mysql.cj.jdbc.Driver
+     #url: ${jdbc_url:jdbc:mysql://120.26.241.98:3306/powernow?autoReconnect=true&useUnicode=true&characterEncoding=utf-8&allowMultiQueries=true}
+    #url: ${jdbc_url:jdbc:mysql://localhost:3310/jiffy_database}
+   # username: ${jdbc_username:root}
+    #password: ${jdbc_password:thinker@15}
+   # password: ${jdbc_password:anil}
+    
+    driver: com.mysql.jdbc.Driver
+    url: ${jdbc_url:jdbc:mysql://15.207.241.18:3306/jiffy_db?autoReconnect=true&useUnicode=true&characterEncoding=utf-8&allowMultiQueries=true&useSSL=false}
+    username: ${jdbc_username:jiffy}
+    password: ${jdbc_password:FreshWater}
+    
+    pool:
+        initialSize: 10
+        maxActive: 20
+        minIdle: 3
+        
+mybatis:
+    configLocation: ''
+    typeAliasesPackage: vc.thinker.**.model
+    
+dic:
+    cache:
+        class: com.sinco.dic.client.cache.RemoteDataCached
+
+#============================#
+#====== Global sttings ======#
+#============================#
+
+spring:
+    profiles:
+        active: ${ spring_profiles_active:dev}
+    thymeleaf:
+        cache: false
+    data:
+        mongodb:
+            database: flash
+            host: ${spring_data_mongodb_host:192.168.1.250}
+            port: ${spring_data_mongodb_port:10001}
+    redis:
+        database: 2
+        host: ${ spring_redis_host:localhost}
+        port: ${spring_redis_port:6379}
+        password: ${ spring_redis_password:root123}
+    messages:
+        basename: messages/messages
+        
+#spring actuator        
+management:
+    security:
+        enabled: false
+    endpoints:
+        web:
+            exposure:
+                include: "*"
+    server:
+        port: ${management_server_port:13020}
+        
+# redis        
+redis:
+    host: ${redis_host:localhost}
+    port: ${redis_port:6379}
+    password: ${redis_password:root123}
+    timeout: 7000
+    database: 1
+    namespace: baogang
+    oauth2:
+        database: 3
+
+#http    
+server:
+    port: ${server_port:13020}
+
+# 极光推送
+app:
+    isProduct: ${app_isProduct:false}
+    member:
+        appkey: ${app_member_appkey:d668c04f9a51e5d4cd50a39f}
+        master:
+            secret: ${app_member_master_secret:b3b884255d047f1a329bea4a}
+    repairer:
+        appkey: ${app_repairer_appkey:69726184968d153d5efbd475}
+        master:
+            secret: ${app_repairer_master_secret:b23923964590f5c3f36de780}
+
+wx:
+    appid: ${wx_appid:wxaf5d44c961355557}
+    secret: ${wx_secret:968318f48b0773ffa2b6824bad4d2f1a}
+
+#文件服务器   
+fs:
+  server:
+    ip: ${fs_server_ip:192.168.1.250}
+    port: ${fs_server_port:9333}
+
+#百度地图相关
+lbs:
+    baidu:
+        ak: ${lbs_baidu_ak:HGGnrenGEEp2fhn9UxMPmUO2smTH4z0A}
+  
+#短信    
+sms:
+    handler:
+        accountSid: ${sms_handler_accountSid:23830729}
+        accountToken: ${sms_handler_accountToken:2456e82477e06bcaae4c567df085df9c}
+
+#iot paas platform
+iot:
+  paas:
+    id: ${iot_paas_id:1}
+    url: ${iot_paas_url:http://gopower.tcp.thinker.vc:8888/}
+    

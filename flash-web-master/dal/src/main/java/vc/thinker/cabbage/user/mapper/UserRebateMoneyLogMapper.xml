@@ -1,0 +1,373 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="vc.thinker.cabbage.user.mapper.UserRebateMoneyLogMapper">
+  <resultMap id="BaseResultMap" type="vc.thinker.cabbage.user.model.UserRebateMoneyLog">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="user_id" jdbcType="BIGINT" property="userId" />
+    <result column="to_user_id" jdbcType="BIGINT" property="toUserId" />
+    <result column="order_id" jdbcType="BIGINT" property="orderId" />
+    <result column="log_amount" jdbcType="DECIMAL" property="logAmount" />
+    <result column="log_currency" jdbcType="VARCHAR" property="logCurrency" />
+    <result column="exchange_rate" jdbcType="DECIMAL" property="exchangeRate" />
+    <result column="old_log_amount" jdbcType="DECIMAL" property="oldLogAmount" />
+    <result column="old_log_currency" jdbcType="VARCHAR" property="oldLogCurrency" />
+    <result column="log_info" jdbcType="VARCHAR" property="logInfo" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="user_type" jdbcType="INTEGER" property="userType" />
+  </resultMap>
+  <resultMap extends="BaseResultMap" id="BOResultMap" type="vc.thinker.cabbage.user.bo.UserRebateMoneyLogBO" />
+  
+  <select id="findPageByVo" resultMap="BOResultMap">
+  		select 
+			l.*,
+			m.nickname,m.mobile,
+			o.order_code,
+			s.seller_name,
+			r.referee_name ,
+			ua.agent_name
+		from 
+			user_rebate_money_log l
+			INNER JOIN user_member m on l.user_id = m.uid
+			left join se_order o on l.order_id = o.id 
+			left JOIN user_seller s on l.user_type = 1 and l.to_user_id = s.uid
+			left JOIN user_referee r  on l.user_type = 2 and l.to_user_id = r.uid
+			left JOIN user_agent ua on l.user_type = 3 and l.to_user_id = ua.uid
+		<where>
+			<if test="null != vo.nickname and '' != vo.nickname">
+				and m.nickname like concat ('%', #{vo.nickname}, '%')
+			</if>
+			<if test="null != vo.mobile and '' != vo.mobile">
+				and m.mobile like concat ('%', #{vo.mobile}, '%')
+			</if>
+			<if test="null != vo.orderCode and '' != vo.orderCode">
+				and o.order_code like concat ('%', #{vo.orderCode}, '%')
+			</if>
+			<if test="null != vo.sellerName and '' != vo.sellerName">
+				and s.seller_name like concat ('%', #{vo.sellerName}, '%')
+			</if>
+			<if test="null != vo.refereeName and '' != vo.refereeName">
+				and r.referee_name like concat ('%', #{vo.refereeName}, '%')
+			</if>
+			<if test="null != vo.agentName and '' != vo.agentName">
+				and ua.agent_name like concat ('%', #{vo.agentName}, '%')
+			</if>
+			<if test="vo.startTime != null and vo.startTime != ''">
+  				and DATE_FORMAT(l.create_time ,'%Y-%m-%d') <![CDATA[ >= ]]> DATE_FORMAT(#{vo.startTime} ,'%Y-%m-%d')
+  			</if>
+  			<if test="vo.endTime != null and vo.endTime != ''">
+  				and DATE_FORMAT(l.create_time ,'%Y-%m-%d') <![CDATA[ <= ]]> DATE_FORMAT(#{vo.endTime} ,'%Y-%m-%d')
+  			</if>
+		</where>	
+		order by l.create_time desc 
+		
+  </select>
+  
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    id, user_id, to_user_id, order_id, log_amount, log_currency, exchange_rate, old_log_amount, 
+    old_log_currency, log_info, create_time, user_type
+  </sql>
+  <select id="selectByExample" parameterType="vc.thinker.cabbage.user.model.UserRebateMoneyLogExample" resultMap="BOResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from user_rebate_money_log
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+    <if test="limit != null">
+      limit ${limit}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BOResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from user_rebate_money_log
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from user_rebate_money_log
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteByExample" parameterType="vc.thinker.cabbage.user.model.UserRebateMoneyLogExample">
+    delete from user_rebate_money_log
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" keyProperty="id" parameterType="vc.thinker.cabbage.user.model.UserRebateMoneyLog" useGeneratedKeys="true">
+    insert into user_rebate_money_log (id, user_id, to_user_id, 
+      order_id, log_amount, log_currency, 
+      exchange_rate, old_log_amount, old_log_currency, 
+      log_info, create_time, user_type
+      )
+    values (#{id,jdbcType=BIGINT}, #{userId,jdbcType=BIGINT}, #{toUserId,jdbcType=BIGINT}, 
+      #{orderId,jdbcType=BIGINT}, #{logAmount,jdbcType=DECIMAL}, #{logCurrency,jdbcType=VARCHAR}, 
+      #{exchangeRate,jdbcType=DECIMAL}, #{oldLogAmount,jdbcType=DECIMAL}, #{oldLogCurrency,jdbcType=VARCHAR}, 
+      #{logInfo,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, #{userType,jdbcType=INTEGER}
+      )
+  </insert>
+  <insert id="insertSelective" keyProperty="id" parameterType="vc.thinker.cabbage.user.model.UserRebateMoneyLog" useGeneratedKeys="true">
+    insert into user_rebate_money_log
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="userId != null">
+        user_id,
+      </if>
+      <if test="toUserId != null">
+        to_user_id,
+      </if>
+      <if test="orderId != null">
+        order_id,
+      </if>
+      <if test="logAmount != null">
+        log_amount,
+      </if>
+      <if test="logCurrency != null">
+        log_currency,
+      </if>
+      <if test="exchangeRate != null">
+        exchange_rate,
+      </if>
+      <if test="oldLogAmount != null">
+        old_log_amount,
+      </if>
+      <if test="oldLogCurrency != null">
+        old_log_currency,
+      </if>
+      <if test="logInfo != null">
+        log_info,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="userType != null">
+        user_type,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="userId != null">
+        #{userId,jdbcType=BIGINT},
+      </if>
+      <if test="toUserId != null">
+        #{toUserId,jdbcType=BIGINT},
+      </if>
+      <if test="orderId != null">
+        #{orderId,jdbcType=BIGINT},
+      </if>
+      <if test="logAmount != null">
+        #{logAmount,jdbcType=DECIMAL},
+      </if>
+      <if test="logCurrency != null">
+        #{logCurrency,jdbcType=VARCHAR},
+      </if>
+      <if test="exchangeRate != null">
+        #{exchangeRate,jdbcType=DECIMAL},
+      </if>
+      <if test="oldLogAmount != null">
+        #{oldLogAmount,jdbcType=DECIMAL},
+      </if>
+      <if test="oldLogCurrency != null">
+        #{oldLogCurrency,jdbcType=VARCHAR},
+      </if>
+      <if test="logInfo != null">
+        #{logInfo,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="userType != null">
+        #{userType,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="vc.thinker.cabbage.user.model.UserRebateMoneyLogExample" resultType="java.lang.Integer">
+    select count(*) from user_rebate_money_log
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update user_rebate_money_log
+    <set>
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=BIGINT},
+      </if>
+      <if test="record.userId != null">
+        user_id = #{record.userId,jdbcType=BIGINT},
+      </if>
+      <if test="record.toUserId != null">
+        to_user_id = #{record.toUserId,jdbcType=BIGINT},
+      </if>
+      <if test="record.orderId != null">
+        order_id = #{record.orderId,jdbcType=BIGINT},
+      </if>
+      <if test="record.logAmount != null">
+        log_amount = #{record.logAmount,jdbcType=DECIMAL},
+      </if>
+      <if test="record.logCurrency != null">
+        log_currency = #{record.logCurrency,jdbcType=VARCHAR},
+      </if>
+      <if test="record.exchangeRate != null">
+        exchange_rate = #{record.exchangeRate,jdbcType=DECIMAL},
+      </if>
+      <if test="record.oldLogAmount != null">
+        old_log_amount = #{record.oldLogAmount,jdbcType=DECIMAL},
+      </if>
+      <if test="record.oldLogCurrency != null">
+        old_log_currency = #{record.oldLogCurrency,jdbcType=VARCHAR},
+      </if>
+      <if test="record.logInfo != null">
+        log_info = #{record.logInfo,jdbcType=VARCHAR},
+      </if>
+      <if test="record.createTime != null">
+        create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.userType != null">
+        user_type = #{record.userType,jdbcType=INTEGER},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update user_rebate_money_log
+    set id = #{record.id,jdbcType=BIGINT},
+      user_id = #{record.userId,jdbcType=BIGINT},
+      to_user_id = #{record.toUserId,jdbcType=BIGINT},
+      order_id = #{record.orderId,jdbcType=BIGINT},
+      log_amount = #{record.logAmount,jdbcType=DECIMAL},
+      log_currency = #{record.logCurrency,jdbcType=VARCHAR},
+      exchange_rate = #{record.exchangeRate,jdbcType=DECIMAL},
+      old_log_amount = #{record.oldLogAmount,jdbcType=DECIMAL},
+      old_log_currency = #{record.oldLogCurrency,jdbcType=VARCHAR},
+      log_info = #{record.logInfo,jdbcType=VARCHAR},
+      create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      user_type = #{record.userType,jdbcType=INTEGER}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="vc.thinker.cabbage.user.model.UserRebateMoneyLog">
+    update user_rebate_money_log
+    <set>
+      <if test="userId != null">
+        user_id = #{userId,jdbcType=BIGINT},
+      </if>
+      <if test="toUserId != null">
+        to_user_id = #{toUserId,jdbcType=BIGINT},
+      </if>
+      <if test="orderId != null">
+        order_id = #{orderId,jdbcType=BIGINT},
+      </if>
+      <if test="logAmount != null">
+        log_amount = #{logAmount,jdbcType=DECIMAL},
+      </if>
+      <if test="logCurrency != null">
+        log_currency = #{logCurrency,jdbcType=VARCHAR},
+      </if>
+      <if test="exchangeRate != null">
+        exchange_rate = #{exchangeRate,jdbcType=DECIMAL},
+      </if>
+      <if test="oldLogAmount != null">
+        old_log_amount = #{oldLogAmount,jdbcType=DECIMAL},
+      </if>
+      <if test="oldLogCurrency != null">
+        old_log_currency = #{oldLogCurrency,jdbcType=VARCHAR},
+      </if>
+      <if test="logInfo != null">
+        log_info = #{logInfo,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="userType != null">
+        user_type = #{userType,jdbcType=INTEGER},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="vc.thinker.cabbage.user.model.UserRebateMoneyLog">
+    update user_rebate_money_log
+    set user_id = #{userId,jdbcType=BIGINT},
+      to_user_id = #{toUserId,jdbcType=BIGINT},
+      order_id = #{orderId,jdbcType=BIGINT},
+      log_amount = #{logAmount,jdbcType=DECIMAL},
+      log_currency = #{logCurrency,jdbcType=VARCHAR},
+      exchange_rate = #{exchangeRate,jdbcType=DECIMAL},
+      old_log_amount = #{oldLogAmount,jdbcType=DECIMAL},
+      old_log_currency = #{oldLogCurrency,jdbcType=VARCHAR},
+      log_info = #{logInfo,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      user_type = #{userType,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

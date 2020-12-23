@@ -1,0 +1,314 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="vc.thinker.cabbage.sys.mapper.ResourceMapper">
+  <resultMap id="BaseResultMap" type="vc.thinker.cabbage.sys.model.Resource">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="text" jdbcType="VARCHAR" property="text" />
+    <result column="language" jdbcType="VARCHAR" property="language" />
+    <result column="plat_type" jdbcType="VARCHAR" property="platType" />
+    <result column="function_module" jdbcType="VARCHAR" property="functionModule" />
+    <result column="second_menu" jdbcType="VARCHAR" property="secondMenu" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+  </resultMap>
+  <resultMap extends="BaseResultMap" id="BOResultMap" type="vc.thinker.cabbage.sys.bo.ResourceBO" />
+
+  <select id="groupBySecondMenu" resultMap="BOResultMap">
+  		select
+  			*
+  		from
+  			sys_resource
+  		where
+  			plat_type = #{platType}
+  			and language = #{language}
+  			and function_module = #{moudle}
+  		group by second_menu
+  </select>
+
+  <select id="groupByModule" resultMap="BOResultMap">
+  		select * from sys_resource where plat_type = #{platType} and language = #{language} group by function_module
+  </select>
+
+  <select id="findListByPageAndVO" resultMap="BOResultMap">
+    select *
+    from sys_resource
+    <where>
+      <if test="vo.name != null and vo.name != ''">
+        and `name` like concat("%",#{vo.name},"%")
+      </if>
+      <if test="vo.text != null and vo.text != ''">
+        and text like concat("%",#{vo.text},"%")
+      </if>
+      <if test="vo.language != null and vo.language != ''">
+        and `language` like concat("%",#{vo.language},"%")
+      </if>
+      <if test="vo.functionModule != null and vo.functionModule != ''">
+        and function_module like concat("%",#{vo.functionModule},"%")
+      </if>
+    </where>
+  </select>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    id, name, text, language, plat_type, function_module, second_menu, create_time, update_time
+  </sql>
+  <select id="selectByExample" parameterType="vc.thinker.cabbage.sys.model.ResourceExample" resultMap="BOResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from sys_resource
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+    <if test="limit != null">
+      limit ${limit}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BOResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from sys_resource
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from sys_resource
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteByExample" parameterType="vc.thinker.cabbage.sys.model.ResourceExample">
+    delete from sys_resource
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" keyProperty="id" parameterType="vc.thinker.cabbage.sys.model.Resource" useGeneratedKeys="true">
+    insert into sys_resource (id, name, text, 
+      language, plat_type, function_module, 
+      second_menu, create_time, update_time
+      )
+    values (#{id,jdbcType=BIGINT}, #{name,jdbcType=VARCHAR}, #{text,jdbcType=VARCHAR}, 
+      #{language,jdbcType=VARCHAR}, #{platType,jdbcType=VARCHAR}, #{functionModule,jdbcType=VARCHAR}, 
+      #{secondMenu,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}
+      )
+  </insert>
+  <insert id="insertSelective" keyProperty="id" parameterType="vc.thinker.cabbage.sys.model.Resource" useGeneratedKeys="true">
+    insert into sys_resource
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="name != null">
+        name,
+      </if>
+      <if test="text != null">
+        text,
+      </if>
+      <if test="language != null">
+        language,
+      </if>
+      <if test="platType != null">
+        plat_type,
+      </if>
+      <if test="functionModule != null">
+        function_module,
+      </if>
+      <if test="secondMenu != null">
+        second_menu,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="updateTime != null">
+        update_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="name != null">
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="text != null">
+        #{text,jdbcType=VARCHAR},
+      </if>
+      <if test="language != null">
+        #{language,jdbcType=VARCHAR},
+      </if>
+      <if test="platType != null">
+        #{platType,jdbcType=VARCHAR},
+      </if>
+      <if test="functionModule != null">
+        #{functionModule,jdbcType=VARCHAR},
+      </if>
+      <if test="secondMenu != null">
+        #{secondMenu,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null">
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="vc.thinker.cabbage.sys.model.ResourceExample" resultType="java.lang.Integer">
+    select count(*) from sys_resource
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update sys_resource
+    <set>
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=BIGINT},
+      </if>
+      <if test="record.name != null">
+        name = #{record.name,jdbcType=VARCHAR},
+      </if>
+      <if test="record.text != null">
+        text = #{record.text,jdbcType=VARCHAR},
+      </if>
+      <if test="record.language != null">
+        language = #{record.language,jdbcType=VARCHAR},
+      </if>
+      <if test="record.platType != null">
+        plat_type = #{record.platType,jdbcType=VARCHAR},
+      </if>
+      <if test="record.functionModule != null">
+        function_module = #{record.functionModule,jdbcType=VARCHAR},
+      </if>
+      <if test="record.secondMenu != null">
+        second_menu = #{record.secondMenu,jdbcType=VARCHAR},
+      </if>
+      <if test="record.createTime != null">
+        create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.updateTime != null">
+        update_time = #{record.updateTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update sys_resource
+    set id = #{record.id,jdbcType=BIGINT},
+      name = #{record.name,jdbcType=VARCHAR},
+      text = #{record.text,jdbcType=VARCHAR},
+      language = #{record.language,jdbcType=VARCHAR},
+      plat_type = #{record.platType,jdbcType=VARCHAR},
+      function_module = #{record.functionModule,jdbcType=VARCHAR},
+      second_menu = #{record.secondMenu,jdbcType=VARCHAR},
+      create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      update_time = #{record.updateTime,jdbcType=TIMESTAMP}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="vc.thinker.cabbage.sys.model.Resource">
+    update sys_resource
+    <set>
+      <if test="name != null">
+        name = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="text != null">
+        text = #{text,jdbcType=VARCHAR},
+      </if>
+      <if test="language != null">
+        language = #{language,jdbcType=VARCHAR},
+      </if>
+      <if test="platType != null">
+        plat_type = #{platType,jdbcType=VARCHAR},
+      </if>
+      <if test="functionModule != null">
+        function_module = #{functionModule,jdbcType=VARCHAR},
+      </if>
+      <if test="secondMenu != null">
+        second_menu = #{secondMenu,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null">
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="vc.thinker.cabbage.sys.model.Resource">
+    update sys_resource
+    set name = #{name,jdbcType=VARCHAR},
+      text = #{text,jdbcType=VARCHAR},
+      language = #{language,jdbcType=VARCHAR},
+      plat_type = #{platType,jdbcType=VARCHAR},
+      function_module = #{functionModule,jdbcType=VARCHAR},
+      second_menu = #{secondMenu,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      update_time = #{updateTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

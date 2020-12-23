@@ -1,0 +1,89 @@
+
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+
+    <script src="http://static.thinker.vc/static/wgt/jquery/jquery-1.9.1.min.js" type="text/javascript"></script>
+    <script src="http://static.thinker.vc/static/wgt/jquery/jquery-migrate-1.1.1.min.js" type="text/javascript"></script>
+    <link href="http://static.thinker.vc/static/wgt/jquery-validation/1.11.1/jquery.validate.min.css" type="text/css" rel="stylesheet" />
+    <script src="http://static.thinker.vc/static/wgt/jquery-validation/1.11.1/jquery.validate.min.js" type="text/javascript"></script>
+    <script src="http://static.thinker.vc/static/wgt/jquery-validation/1.11.1/jquery.validate.method.min.js" type="text/javascript"></script>
+    <script src="http://static.thinker.vc/static/wgt/jquery-form/jquery.form.min.js" type="text/javascript"></script>
+    <script src="http://static.thinker.vc/static/bootstrap/v3/bootstrap.min.js" type="text/javascript"></script>
+    <link href="http://static.thinker.vc/static/bootstrap/v3/bootstrap.min.css" type="text/css" rel="stylesheet"/>
+    <!--[if lte IE 6]><link href="http://static.thinker.vc/static/bootstrap/bsie/css/bootstrap-ie6.min.css" type="text/css" rel="stylesheet" />
+    <script src="http://static.thinker.vc/static/bootstrap/bsie/js/bootstrap-ie.min.js" type="text/javascript"></script><![endif]-->
+    <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <script src="http://static.thinker.vc/static/wgt/My97DatePicker/WdatePicker.js" type="text/javascript"></script>
+    <script src="http://static.thinker.vc/static/common/mustache.min.js" type="text/javascript"></script>
+    <script src="http://static.thinker.vc/static/wgt/list/list.min.js" type="text/javascript"></script>
+    <script src="http://static.thinker.vc/static/wgt/jquery-select2/3.4/select2.min.js"></script>
+    <link href="http://static.thinker.vc/static/wgt/jquery-select2/3.4/select2.css" rel="stylesheet"/>
+    <!--
+    <link href="http://static.thinker.vc/static/wgt/x-editable/css/bootstrap-editable.css" type="text/css" rel="stylesheet" />
+    <script src="http://static.thinker.vc/static/wgt/x-editable/js/bootstrap-editable.js" type="text/javascript"></script>
+    -->
+    <link href="http://static.thinker.vc/static/wgt/jquery-jbox/2.3/Skins/Bootstrap/jbox.css" rel="stylesheet" />
+    <script type="text/javascript" src="http://static.thinker.vc/static/wgt/jquery-jbox/2.3/jquery.jBox-2.3.min.js"></script>
+    <link type="text/css" rel="stylesheet" href="/resources/css/reg.css">
+    <link type="text/css" rel="stylesheet" href="/resources/css/apply.css">
+    <script type="text/javascript" src="/resources/js/common.js"></script>
+
+
+</head>
+<body>
+
+<div class="header">
+    <div class="cont-width">
+        <h1><span class="c-blue">接单侠</span>服务商管理系统</h1>
+        <h2>服务商入驻申请</h2>
+        <div class="header-tools mt-10">
+            已有账号<a href="#">登录</a>
+        </div>
+    </div>
+</div>
+
+<div class="apply-step">
+    <div class="item active-03"></div>
+</div>
+
+<div class="reg-box">
+    <div class="reg-content apply-ok-bg">
+        <div class="text-center apply-ok-cont">
+            <div><img src="images/icon-apply-ok.jpg" /></div>
+            <div class="fz-20">恭喜您，试用账号申请成功！</div>
+            <div class="fz-18 c-gray">绑定公众号后，您可以试用7天</div>
+            <div class="fz-14"><a href="#">马上登录平台</a> </div>
+        </div>
+
+        <div class="text-center apply-ok-foot">
+
+            <div><img src="images/apply-code.png" /></div>
+            <div class="fz-20 c-blue">扫二维码下载接单侠APP</div>
+            <div class="fz-18">用手机二维码扫描软件扫左侧二维码，下载接单侠APP</div>
+            <div class="c-gray fz-14">（支持iPhone和Android）</div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    $("#reg-form").validate({
+        rules:{
+            name: "required",
+            tel: "required"
+        },
+        messages:{
+            name: "姓名不能为空",
+            tel:{
+                required:"电话号码不能为空"
+            }
+        }
+    });
+</script>
+
+
+</body>
+
+</html>

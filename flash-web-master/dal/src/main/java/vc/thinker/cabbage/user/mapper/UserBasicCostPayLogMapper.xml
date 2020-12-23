@@ -1,0 +1,328 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="vc.thinker.cabbage.user.mapper.UserBasicCostPayLogMapper" >
+  <resultMap id="BaseResultMap" type="vc.thinker.cabbage.user.model.UserBasicCostPayLog" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="uid" property="uid" jdbcType="BIGINT" />
+    <result column="amount" property="amount" jdbcType="DECIMAL" />
+    <result column="payment_mark" property="paymentMark" jdbcType="VARCHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="out_order_id" property="outOrderId" jdbcType="VARCHAR" />
+    <result column="pay_order_code" property="payOrderCode" jdbcType="VARCHAR" />
+    <result column="status" property="status" jdbcType="INTEGER" />
+    <result column="cash_fee" property="cashFee" jdbcType="DECIMAL" />
+    <result column="currency" property="currency" jdbcType="VARCHAR" />
+  </resultMap>
+  <resultMap id="BOResultMap" type="vc.thinker.cabbage.user.bo.UserBasicCostPayLogBO" extends="BaseResultMap" />
+  
+  <select id="findPageByVo" resultMap="BOResultMap">
+  		select 
+  			l.*,m.nickname,m.mobile  
+  		from 
+  			user_basic_cost_pay_log l 
+  			left join user_member m on l.uid = m.uid 
+  		where
+  			l.status = 2
+  			<if test="null != vo.paymentMark and '' != vo.paymentMark">
+  				and l.payment_mark = #{vo.paymentMark}
+  			</if>
+  			<if test="null != vo.outOrderId and '' != vo.outOrderId">
+  				and l.out_order_id like concat ('%',#{vo.outOrderId},'%')
+  			</if>
+  			<if test="null != vo.payOrderCode and '' != vo.payOrderCode">
+  				and l.pay_order_code like concat ('%',#{vo.payOrderCode},'%') 
+  			</if>
+  			<if test="null != vo.nickname and '' != vo.nickname">
+  				and m.nickname like concat ('%',#{vo.nickname},'%')
+  			</if>
+  			<if test="null != vo.mobile and '' != vo.mobile">
+  				and m.mobile like concat ('%',#{vo.mobile},'%')
+  			</if>
+  			<if test="vo.startTime != null and vo.startTime != ''">
+	    		and DATE_FORMAT(l.create_time ,'%Y-%m-%d') <![CDATA[ >= ]]> DATE_FORMAT(#{vo.startTime} ,'%Y-%m-%d')
+	    	</if>
+	    	<if test="vo.endTime != null and vo.endTime != ''">
+	    		and DATE_FORMAT(l.create_time ,'%Y-%m-%d') <![CDATA[ <= ]]> DATE_FORMAT(#{vo.endTime} ,'%Y-%m-%d')
+	    	</if>
+  		order by l.create_time desc 
+  </select>
+  
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    id, uid, amount, payment_mark, create_time, out_order_id, pay_order_code, status, 
+    cash_fee, currency
+  </sql>
+  <select id="selectByExample" parameterType="vc.thinker.cabbage.user.model.UserBasicCostPayLogExample" resultMap="BOResultMap" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from user_basic_cost_pay_log
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+    <if test="limit != null" >
+      limit ${limit}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BOResultMap" >
+    select 
+    <include refid="Base_Column_List" />
+    from user_basic_cost_pay_log
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from user_basic_cost_pay_log
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteByExample" parameterType="vc.thinker.cabbage.user.model.UserBasicCostPayLogExample" >
+    delete from user_basic_cost_pay_log
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="vc.thinker.cabbage.user.model.UserBasicCostPayLog" useGeneratedKeys="true" keyProperty="id" >
+    insert into user_basic_cost_pay_log (id, uid, amount, 
+      payment_mark, create_time, out_order_id, 
+      pay_order_code, status, cash_fee, 
+      currency)
+    values (#{id,jdbcType=BIGINT}, #{uid,jdbcType=BIGINT}, #{amount,jdbcType=DECIMAL}, 
+      #{paymentMark,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, #{outOrderId,jdbcType=VARCHAR}, 
+      #{payOrderCode,jdbcType=VARCHAR}, #{status,jdbcType=INTEGER}, #{cashFee,jdbcType=DECIMAL}, 
+      #{currency,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="vc.thinker.cabbage.user.model.UserBasicCostPayLog" useGeneratedKeys="true" keyProperty="id" >
+    insert into user_basic_cost_pay_log
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="uid != null" >
+        uid,
+      </if>
+      <if test="amount != null" >
+        amount,
+      </if>
+      <if test="paymentMark != null" >
+        payment_mark,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="outOrderId != null" >
+        out_order_id,
+      </if>
+      <if test="payOrderCode != null" >
+        pay_order_code,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+      <if test="cashFee != null" >
+        cash_fee,
+      </if>
+      <if test="currency != null" >
+        currency,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="uid != null" >
+        #{uid,jdbcType=BIGINT},
+      </if>
+      <if test="amount != null" >
+        #{amount,jdbcType=DECIMAL},
+      </if>
+      <if test="paymentMark != null" >
+        #{paymentMark,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="outOrderId != null" >
+        #{outOrderId,jdbcType=VARCHAR},
+      </if>
+      <if test="payOrderCode != null" >
+        #{payOrderCode,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=INTEGER},
+      </if>
+      <if test="cashFee != null" >
+        #{cashFee,jdbcType=DECIMAL},
+      </if>
+      <if test="currency != null" >
+        #{currency,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="vc.thinker.cabbage.user.model.UserBasicCostPayLogExample" resultType="java.lang.Integer" >
+    select count(*) from user_basic_cost_pay_log
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map" >
+    update user_basic_cost_pay_log
+    <set >
+      <if test="record.id != null" >
+        id = #{record.id,jdbcType=BIGINT},
+      </if>
+      <if test="record.uid != null" >
+        uid = #{record.uid,jdbcType=BIGINT},
+      </if>
+      <if test="record.amount != null" >
+        amount = #{record.amount,jdbcType=DECIMAL},
+      </if>
+      <if test="record.paymentMark != null" >
+        payment_mark = #{record.paymentMark,jdbcType=VARCHAR},
+      </if>
+      <if test="record.createTime != null" >
+        create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.outOrderId != null" >
+        out_order_id = #{record.outOrderId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.payOrderCode != null" >
+        pay_order_code = #{record.payOrderCode,jdbcType=VARCHAR},
+      </if>
+      <if test="record.status != null" >
+        status = #{record.status,jdbcType=INTEGER},
+      </if>
+      <if test="record.cashFee != null" >
+        cash_fee = #{record.cashFee,jdbcType=DECIMAL},
+      </if>
+      <if test="record.currency != null" >
+        currency = #{record.currency,jdbcType=VARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+    update user_basic_cost_pay_log
+    set id = #{record.id,jdbcType=BIGINT},
+      uid = #{record.uid,jdbcType=BIGINT},
+      amount = #{record.amount,jdbcType=DECIMAL},
+      payment_mark = #{record.paymentMark,jdbcType=VARCHAR},
+      create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      out_order_id = #{record.outOrderId,jdbcType=VARCHAR},
+      pay_order_code = #{record.payOrderCode,jdbcType=VARCHAR},
+      status = #{record.status,jdbcType=INTEGER},
+      cash_fee = #{record.cashFee,jdbcType=DECIMAL},
+      currency = #{record.currency,jdbcType=VARCHAR}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="vc.thinker.cabbage.user.model.UserBasicCostPayLog" >
+    update user_basic_cost_pay_log
+    <set >
+      <if test="uid != null" >
+        uid = #{uid,jdbcType=BIGINT},
+      </if>
+      <if test="amount != null" >
+        amount = #{amount,jdbcType=DECIMAL},
+      </if>
+      <if test="paymentMark != null" >
+        payment_mark = #{paymentMark,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="outOrderId != null" >
+        out_order_id = #{outOrderId,jdbcType=VARCHAR},
+      </if>
+      <if test="payOrderCode != null" >
+        pay_order_code = #{payOrderCode,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=INTEGER},
+      </if>
+      <if test="cashFee != null" >
+        cash_fee = #{cashFee,jdbcType=DECIMAL},
+      </if>
+      <if test="currency != null" >
+        currency = #{currency,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="vc.thinker.cabbage.user.model.UserBasicCostPayLog" >
+    update user_basic_cost_pay_log
+    set uid = #{uid,jdbcType=BIGINT},
+      amount = #{amount,jdbcType=DECIMAL},
+      payment_mark = #{paymentMark,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      out_order_id = #{outOrderId,jdbcType=VARCHAR},
+      pay_order_code = #{payOrderCode,jdbcType=VARCHAR},
+      status = #{status,jdbcType=INTEGER},
+      cash_fee = #{cashFee,jdbcType=DECIMAL},
+      currency = #{currency,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

@@ -1,0 +1,339 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="vc.thinker.cabbage.se.mapper.CabinetChargeRuleMapper" >
+  <resultMap id="BaseResultMap" type="vc.thinker.cabbage.se.model.CabinetChargeRule" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="cost_top" property="costTop" jdbcType="DECIMAL" />
+    <result column="free_use_time" property="freeUseTime" jdbcType="INTEGER" />
+    <result column="unit_minute" property="unitMinute" jdbcType="INTEGER" />
+    <result column="unit_price" property="unitPrice" jdbcType="DECIMAL" />
+    <result column="currency" property="currency" jdbcType="VARCHAR" />
+    <result column="rule_desc" property="ruleDesc" jdbcType="VARCHAR" />
+    <result column="cabinet_type_id" property="cabinetTypeId" jdbcType="BIGINT" />
+    <result column="create_by" property="createBy" jdbcType="BIGINT" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="update_by" property="updateBy" jdbcType="BIGINT" />
+    <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <resultMap id="BOResultMap" type="vc.thinker.cabbage.se.bo.CabinetChargeRuleBO" extends="BaseResultMap" />
+  
+  <select id="findPageByVo" resultMap="BOResultMap">
+  
+  		select  
+  			r.*,a.name createName,b.name updateName 
+  		from 
+			se_cabinet_charge_rule r 
+			left join user_admin a on r.create_by = a.uid
+			left join user_admin b on r.update_by = b.uid
+		order by r.create_time desc
+  </select>
+  
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    id, cost_top, free_use_time, unit_minute, unit_price, currency, rule_desc, cabinet_type_id, 
+    create_by, create_time, update_by, update_time
+  </sql>
+  <select id="selectByExample" parameterType="vc.thinker.cabbage.se.model.CabinetChargeRuleExample" resultMap="BOResultMap" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from se_cabinet_charge_rule
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+    <if test="limit != null" >
+      limit ${limit}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BOResultMap" >
+    select 
+    <include refid="Base_Column_List" />
+    from se_cabinet_charge_rule
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from se_cabinet_charge_rule
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteByExample" parameterType="vc.thinker.cabbage.se.model.CabinetChargeRuleExample" >
+    delete from se_cabinet_charge_rule
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="vc.thinker.cabbage.se.model.CabinetChargeRule" useGeneratedKeys="true" keyProperty="id" >
+    insert into se_cabinet_charge_rule (id, cost_top, free_use_time, 
+      unit_minute, unit_price, currency, 
+      rule_desc, cabinet_type_id, create_by, 
+      create_time, update_by, update_time
+      )
+    values (#{id,jdbcType=BIGINT}, #{costTop,jdbcType=DECIMAL}, #{freeUseTime,jdbcType=INTEGER}, 
+      #{unitMinute,jdbcType=INTEGER}, #{unitPrice,jdbcType=DECIMAL}, #{currency,jdbcType=VARCHAR}, 
+      #{ruleDesc,jdbcType=VARCHAR}, #{cabinetTypeId,jdbcType=BIGINT}, #{createBy,jdbcType=BIGINT}, 
+      #{createTime,jdbcType=TIMESTAMP}, #{updateBy,jdbcType=BIGINT}, #{updateTime,jdbcType=TIMESTAMP}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="vc.thinker.cabbage.se.model.CabinetChargeRule" useGeneratedKeys="true" keyProperty="id" >
+    insert into se_cabinet_charge_rule
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="costTop != null" >
+        cost_top,
+      </if>
+      <if test="freeUseTime != null" >
+        free_use_time,
+      </if>
+      <if test="unitMinute != null" >
+        unit_minute,
+      </if>
+      <if test="unitPrice != null" >
+        unit_price,
+      </if>
+      <if test="currency != null" >
+        currency,
+      </if>
+      <if test="ruleDesc != null" >
+        rule_desc,
+      </if>
+      <if test="cabinetTypeId != null" >
+        cabinet_type_id,
+      </if>
+      <if test="createBy != null" >
+        create_by,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="updateBy != null" >
+        update_by,
+      </if>
+      <if test="updateTime != null" >
+        update_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="costTop != null" >
+        #{costTop,jdbcType=DECIMAL},
+      </if>
+      <if test="freeUseTime != null" >
+        #{freeUseTime,jdbcType=INTEGER},
+      </if>
+      <if test="unitMinute != null" >
+        #{unitMinute,jdbcType=INTEGER},
+      </if>
+      <if test="unitPrice != null" >
+        #{unitPrice,jdbcType=DECIMAL},
+      </if>
+      <if test="currency != null" >
+        #{currency,jdbcType=VARCHAR},
+      </if>
+      <if test="ruleDesc != null" >
+        #{ruleDesc,jdbcType=VARCHAR},
+      </if>
+      <if test="cabinetTypeId != null" >
+        #{cabinetTypeId,jdbcType=BIGINT},
+      </if>
+      <if test="createBy != null" >
+        #{createBy,jdbcType=BIGINT},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateBy != null" >
+        #{updateBy,jdbcType=BIGINT},
+      </if>
+      <if test="updateTime != null" >
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="vc.thinker.cabbage.se.model.CabinetChargeRuleExample" resultType="java.lang.Integer" >
+    select count(*) from se_cabinet_charge_rule
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map" >
+    update se_cabinet_charge_rule
+    <set >
+      <if test="record.id != null" >
+        id = #{record.id,jdbcType=BIGINT},
+      </if>
+      <if test="record.costTop != null" >
+        cost_top = #{record.costTop,jdbcType=DECIMAL},
+      </if>
+      <if test="record.freeUseTime != null" >
+        free_use_time = #{record.freeUseTime,jdbcType=INTEGER},
+      </if>
+      <if test="record.unitMinute != null" >
+        unit_minute = #{record.unitMinute,jdbcType=INTEGER},
+      </if>
+      <if test="record.unitPrice != null" >
+        unit_price = #{record.unitPrice,jdbcType=DECIMAL},
+      </if>
+      <if test="record.currency != null" >
+        currency = #{record.currency,jdbcType=VARCHAR},
+      </if>
+      <if test="record.ruleDesc != null" >
+        rule_desc = #{record.ruleDesc,jdbcType=VARCHAR},
+      </if>
+      <if test="record.cabinetTypeId != null" >
+        cabinet_type_id = #{record.cabinetTypeId,jdbcType=BIGINT},
+      </if>
+      <if test="record.createBy != null" >
+        create_by = #{record.createBy,jdbcType=BIGINT},
+      </if>
+      <if test="record.createTime != null" >
+        create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.updateBy != null" >
+        update_by = #{record.updateBy,jdbcType=BIGINT},
+      </if>
+      <if test="record.updateTime != null" >
+        update_time = #{record.updateTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+    update se_cabinet_charge_rule
+    set id = #{record.id,jdbcType=BIGINT},
+      cost_top = #{record.costTop,jdbcType=DECIMAL},
+      free_use_time = #{record.freeUseTime,jdbcType=INTEGER},
+      unit_minute = #{record.unitMinute,jdbcType=INTEGER},
+      unit_price = #{record.unitPrice,jdbcType=DECIMAL},
+      currency = #{record.currency,jdbcType=VARCHAR},
+      rule_desc = #{record.ruleDesc,jdbcType=VARCHAR},
+      cabinet_type_id = #{record.cabinetTypeId,jdbcType=BIGINT},
+      create_by = #{record.createBy,jdbcType=BIGINT},
+      create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      update_by = #{record.updateBy,jdbcType=BIGINT},
+      update_time = #{record.updateTime,jdbcType=TIMESTAMP}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="vc.thinker.cabbage.se.model.CabinetChargeRule" >
+    update se_cabinet_charge_rule
+    <set >
+      <if test="costTop != null" >
+        cost_top = #{costTop,jdbcType=DECIMAL},
+      </if>
+      <if test="freeUseTime != null" >
+        free_use_time = #{freeUseTime,jdbcType=INTEGER},
+      </if>
+      <if test="unitMinute != null" >
+        unit_minute = #{unitMinute,jdbcType=INTEGER},
+      </if>
+      <if test="unitPrice != null" >
+        unit_price = #{unitPrice,jdbcType=DECIMAL},
+      </if>
+      <if test="currency != null" >
+        currency = #{currency,jdbcType=VARCHAR},
+      </if>
+      <if test="ruleDesc != null" >
+        rule_desc = #{ruleDesc,jdbcType=VARCHAR},
+      </if>
+      <if test="cabinetTypeId != null" >
+        cabinet_type_id = #{cabinetTypeId,jdbcType=BIGINT},
+      </if>
+      <if test="createBy != null" >
+        create_by = #{createBy,jdbcType=BIGINT},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateBy != null" >
+        update_by = #{updateBy,jdbcType=BIGINT},
+      </if>
+      <if test="updateTime != null" >
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="vc.thinker.cabbage.se.model.CabinetChargeRule" >
+    update se_cabinet_charge_rule
+    set cost_top = #{costTop,jdbcType=DECIMAL},
+      free_use_time = #{freeUseTime,jdbcType=INTEGER},
+      unit_minute = #{unitMinute,jdbcType=INTEGER},
+      unit_price = #{unitPrice,jdbcType=DECIMAL},
+      currency = #{currency,jdbcType=VARCHAR},
+      rule_desc = #{ruleDesc,jdbcType=VARCHAR},
+      cabinet_type_id = #{cabinetTypeId,jdbcType=BIGINT},
+      create_by = #{createBy,jdbcType=BIGINT},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      update_by = #{updateBy,jdbcType=BIGINT},
+      update_time = #{updateTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

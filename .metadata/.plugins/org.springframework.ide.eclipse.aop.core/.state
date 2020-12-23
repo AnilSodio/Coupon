@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<aop-reference-model>
+<aop-project name="flash-referee-web"/>
+<aop-project name="flash-agent-web"/>
+<aop-project name="flash-dal"/>
+<aop-project name="flash-biz"/>
+<aop-project name="flash-resource-serverv"/>
+<aop-project name="flash-api-common"/>
+<aop-project name="flash-job"/>
+<aop-project name="flash-admin-web"/>
+<aop-project name="flash-cobweb"/>
+<aop-project name="flash-oauth-server"/>
+<aop-project name="flash-seller-web"/>
+</aop-reference-model>

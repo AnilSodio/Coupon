@@ -1,0 +1,338 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>vc.thinker</groupId>
+	<artifactId>flash</artifactId>
+	<version>1.0.0-SNAPSHOT</version>
+	<packaging>pom</packaging>
+	<name>cabbage</name>
+	<modules>
+		<module>admin-web</module>
+		<module>dal</module>
+		<module>biz</module>
+		<module>job</module>
+		<module>seller-web</module>
+		<module>referee-web</module>
+		<module>agent-web</module>
+		<module>cobweb</module>
+	</modules>
+
+	<!-- 项目属性 -->
+	<properties>
+		<!-- version setting -->
+		<sitemesh.version>3.0.1</sitemesh.version>
+		<slf4j.version>1.7.5</slf4j.version>
+		<dozer.version>5.4.0</dozer.version>
+		<poi.version>3.9</poi.version>
+		<freemarker.version>2.3.23</freemarker.version>
+		<!-- jdbc driver setting -->
+		<mysql.driver.version>8.0.19</mysql.driver.version>
+		<!-- other setting -->
+		<jdk.version>1.8</jdk.version>
+		<quartz.version>2.2.1</quartz.version>
+		<jsoup.version>1.8.1</jsoup.version>
+		<thinker-pay.version>2.1.2-SNAPSHOT</thinker-pay.version>
+		<cabbage-core.version>2.1.2-SNAPSHOT</cabbage-core.version>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<dockerfile-maven-plugin.version>1.4.4</dockerfile-maven-plugin.version>
+		<docker-hub>registry-vpc.cn-shenzhen.aliyuncs.com/thinker-vc</docker-hub>
+	</properties>
+
+	<dependencies>
+		<!-- AOP begin -->
+		<!-- <dependency> -->
+		<!-- <groupId>org.aspectj</groupId> -->
+		<!-- <artifactId>aspectjrt</artifactId> -->
+		<!-- </dependency> -->
+		<!-- <dependency> -->
+		<!-- <groupId>org.aspectj</groupId> -->
+		<!-- <artifactId>aspectjweaver</artifactId> -->
+		<!-- </dependency> -->
+
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+			<version>${mysql.driver.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>cglib</groupId>
+			<artifactId>cglib-nodep</artifactId>
+			<version>3.1</version>
+			<scope>runtime</scope>
+		</dependency>
+		<!-- AOP end -->
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>javax.servlet-api</artifactId>
+		</dependency>
+	</dependencies>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>vc.thinker</groupId>
+				<artifactId>flash-biz</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>vc.thinker</groupId>
+				<artifactId>flash-dal</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>vc.thinker</groupId>
+				<artifactId>cabbage-sys-web</artifactId>
+				<version>${cabbage-core.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>vc.thinker</groupId>
+				<artifactId>cabbage-sys-biz</artifactId>
+				<version>${cabbage-core.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>vc.thinker</groupId>
+				<artifactId>cabbage-pay-biz</artifactId>
+				<version>${cabbage-core.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>vc.thinker</groupId>
+				<artifactId>cabbage-core-common</artifactId>
+				<version>${cabbage-core.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>vc.thinker</groupId>
+				<artifactId>cabbage-core-web</artifactId>
+				<version>${cabbage-core.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>vc.thinker</groupId>
+				<artifactId>cabbage-core-dal</artifactId>
+				<version>${cabbage-core.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>vc.thinker</groupId>
+				<artifactId>cabbage-core-actuator</artifactId>
+				<version>${cabbage-core.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>vc.thinker</groupId>
+				<artifactId>cabbage-sys-common</artifactId>
+				<version>${cabbage-core.version}</version>
+			</dependency>
+
+			<!-- SPRING begin -->
+			<dependency>
+				<groupId>io.spring.platform</groupId>
+				<artifactId>platform-bom</artifactId>
+				<version>2.0.1.RELEASE</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+			<!-- <dependency> -->
+			<dependency>
+				<groupId>org.sitemesh</groupId>
+				<artifactId>sitemesh</artifactId>
+				<version>${sitemesh.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>taglibs</groupId>
+				<artifactId>standard</artifactId>
+				<version>1.1.2</version>
+				<type>jar</type>
+			</dependency>
+			<dependency>
+				<groupId>javax.servlet</groupId>
+				<artifactId>jstl</artifactId>
+				<version>1.2</version>
+				<type>jar</type>
+			</dependency>
+			<dependency>
+				<groupId>javax.servlet</groupId>
+				<artifactId>servlet-api</artifactId>
+				<version>3.0.1</version>
+			</dependency>
+
+			<dependency>
+				<groupId>javax.servlet.jsp</groupId>
+				<artifactId>jsp-api</artifactId>
+				<version>2.1</version>
+			</dependency>
+			<!-- WEB end -->
+
+
+			<!-- xstream xml -->
+			<dependency>
+				<groupId>com.thoughtworks.xstream</groupId>
+				<artifactId>xstream</artifactId>
+				<version>${xstream.version}</version>
+			</dependency>
+
+			<!-- pojo copy -->
+			<dependency>
+				<groupId>net.sf.dozer</groupId>
+				<artifactId>dozer</artifactId>
+				<version>${dozer.version}</version>
+			</dependency>
+
+			<!-- email -->
+			<dependency>
+				<groupId>javax.mail</groupId>
+				<artifactId>mail</artifactId>
+				<version>1.4.7</version>
+			</dependency>
+			<dependency>
+				<groupId>javax.activation</groupId>
+				<artifactId>activation</artifactId>
+				<version>1.1.1</version>
+			</dependency>
+
+			<!-- TEST begin -->
+			<dependency>
+				<groupId>junit</groupId>
+				<artifactId>junit</artifactId>
+				<version>4.11</version>
+				<scope>test</scope>
+			</dependency>
+			<!-- TEST end -->
+
+			<dependency>
+				<groupId>org.jsoup</groupId>
+				<artifactId>jsoup</artifactId>
+				<version>${jsoup.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>javax.servlet</groupId>
+				<artifactId>javax.servlet-api</artifactId>
+				<version>3.1.0</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.httpcomponents</groupId>
+				<artifactId>httpclient</artifactId>
+				<version>4.5.1</version>
+			</dependency>
+			<!-- quartz begin -->
+			<dependency>
+				<groupId>org.quartz-scheduler</groupId>
+				<artifactId>quartz</artifactId>
+				<version>${quartz.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.quartz-scheduler</groupId>
+				<artifactId>quartz-jobs</artifactId>
+				<version>${quartz.version}</version>
+			</dependency>
+			<!-- quartz end -->
+
+			<!-- thinker common begin -->
+			<dependency>
+				<groupId>com.sinco</groupId>
+				<artifactId>data-mybatis</artifactId>
+				<version>2.0.1-SNAPSHOT</version>
+				<exclusions>
+					<exclusion>
+						<groupId>org.freemarker</groupId>
+						<artifactId>freemarker</artifactId>
+					</exclusion>
+				</exclusions>
+			</dependency>
+			<dependency>
+				<groupId>net.weedfs.client</groupId>
+				<artifactId>weed-client</artifactId>
+				<version>1.0.7</version>
+			</dependency>
+			<dependency>
+				<groupId>com.sinco</groupId>
+				<artifactId>messager</artifactId>
+				<version>0.0.4-SNAPSHOT</version>
+			</dependency>
+			<!-- thinker common end -->
+			<dependency>
+				<groupId>vc.thinker</groupId>
+				<artifactId>thinker-pay</artifactId>
+				<version>${thinker-pay.version}</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+	<build>
+		<resources>
+			<resource>
+				<directory>src/main/java</directory>
+				<!-- 包含 -->
+				<includes>
+					<include>**/*.xml</include>
+				</includes>
+			</resource>
+			<resource>
+				<directory>src/main/resources</directory>
+				<!-- 包含 -->
+				<includes>
+					<include>**/*</include>
+				</includes>
+			</resource>
+		</resources>
+		<plugins>
+			<!-- Compiler 插件, 设定JDK版本 -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.1</version>
+				<configuration>
+					<source>${jdk.version}</source>
+					<target>${jdk.version}</target>
+				</configuration>
+			</plugin>
+
+			<!-- war 打包插件, 设定war包名称不带版本号 -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-war-plugin</artifactId>
+				<version>2.3</version>
+				<configuration>
+					<warName>${project.artifactId}</warName>
+				</configuration>
+			</plugin>
+
+			<!-- dependency插件 -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<version>2.7</version>
+			</plugin>
+		</plugins>
+	</build>
+
+	<repositories>
+		<repository>
+			<id>local-nexus</id>
+			<url>http://mvn.thinker.vc/content/groups/public/</url>
+		</repository>
+		<repository>
+			<id>alimaven</id>
+			<name>aliyun maven</name>
+			<url>http://maven.aliyun.com/nexus/content/groups/public/</url>
+		</repository>
+	</repositories>
+
+	<distributionManagement>
+		<repository>
+			<id>local-nexus</id>
+			<url>http://mvn.thinker.vc/content/repositories/releases</url>
+		</repository>
+
+		<snapshotRepository>
+			<id>local-nexus</id>
+			<url>http://mvn.thinker.vc/content/repositories/snapshots</url>
+		</snapshotRepository>
+	</distributionManagement>
+
+</project>

@@ -1,0 +1,140 @@
+#============================#
+#===== Database sttings =====#
+#============================#
+jdbc:
+    type: mysql
+    driver: com.mysql.jdbc.Driver
+    #driver: com.mysql.cj.jdbc.Driver
+     #url: ${jdbc_url:jdbc:mysql://120.26.241.98:3306/powernow?autoReconnect=true&useUnicode=true&characterEncoding=utf-8&allowMultiQueries=true}
+    #url: ${jdbc_url:jdbc:mysql://13.232.54.220:443/powernow?autoReconnect=true&useUnicode=true&characterEncoding=utf-8&allowMultiQueries=true}
+    #url: ${jdbc_url:jdbc:mysql://localhost:3310/jiffy_database}
+    #username: ${jdbc_username:root}
+    #password: ${jdbc_password:thinker@15}
+    #password: ${jdbc_password:anil}
+    url: ${jdbc_url:jdbc:mysql://15.207.241.18:3306/jiffy_db?autoReconnect=true&useUnicode=true&characterEncoding=utf-8&allowMultiQueries=true&useSSL=false}
+    username: ${jdbc_username:jiffy}
+    password: ${jdbc_password:FreshWater}
+    pool:
+        initialSize: 10
+        maxActive: 20
+        minIdle: 3
+        
+mybatis:
+    configLocation: ''
+    typeAliasesPackage: vc.thinker.**.model
+    
+dic:
+    cache:
+        class: com.sinco.dic.client.cache.RemoteDataCached
+
+#============================#
+#====== Global sttings ======#
+#============================#
+
+spring:
+    profiles:
+        active: ${spring_profiles_active:dev}
+    data:
+        mongodb:
+            database: flash
+            host: ${spring_data_mongodb_host:192.168.1.250}
+            port: ${spring_data_mongodb_port:10001}
+    redis:
+        database: 2
+        host: ${spring_redis_host:localhost}
+        port: ${spring_redis_port:6379}
+        password: ${spring_redis_password:root123}
+    messages:
+        basename: messages/messages
+        cache-seconds: 3600
+        encoding: UTF-8
+    freemarker:
+        cache: false
+        
+api:
+    version: 1.1
+        
+#spring actuator        
+management:
+    security:
+        enabled: false
+    endpoints:
+        web:
+            exposure:
+                include: "*"
+    server:
+        port: ${management_server_port:15010}
+
+security:
+    basic:
+        enabled: false
+
+multipart:
+    maxFileSize: 20MB
+    maxRequestSize: 40MB
+
+# redis        
+redis:
+    host: ${redis_host:localhost}
+    port: ${redis_port:6379}
+    password: ${redis_password:root123}
+    timeout: 7000
+    database: 1
+    message:
+        database: 1
+    namespace: flash
+    oauth2:
+        database: 3
+
+#http    
+server:
+    port: ${server_port:13010}
+
+# 极光推送
+app:
+    isProduct: ${app_isProduct:false}
+    member:
+        appkey: ${app_member_appkey:d668c04f9a51e5d4cd50a39f}
+        master:
+            secret: ${app_member_master_secret:b3b884255d047f1a329bea4a}
+    repairer:
+        appkey: ${app_repairer_appkey:69726184968d153d5efbd475}
+        master:
+            secret: ${app_repairer_master_secret:b23923964590f5c3f36de780}
+            
+     
+#文件服务器   
+fs:
+  server:
+    ip: ${fs_server_ip:192.168.1.250}
+    port: ${fs_server_port:9333}
+
+#百度地图相关
+lbs:
+    baidu:
+        ak: ${lbs_baidu_ak:HGGnrenGEEp2fhn9UxMPmUO2smTH4z0A }
+        js:
+            ak: ${lbs_baidu_js_ak:TZ4CHeqpRBuB5CpWK6GeChtGldwQvRG9 }
+qq:
+    appid: ${qq_appid:10010101010}
+  
+#短信    
+sms:
+    handler:
+        type: ${sms_handler_type:turbo}
+        signature: ${sms_handler_signature:Power NOW}
+        accountSid: ${sms_handler_accountSid:powernowua}
+        accountToken: ${sms_handler_accountToken:01478520}
+        
+pay:
+    callback: ${pay_callback:http://thinkervc.imwork.net:59799}
+    
+invite:
+    code: invite_code
+    
+
+#iot paas platform
+iot:
+  paas:
+    id: ${iot_paas_id:1}
+    url: ${iot_paas_url:http://gopower.tcp.thinker.vc:8888/}

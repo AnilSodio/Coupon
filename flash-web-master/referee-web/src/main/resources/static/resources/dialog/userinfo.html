@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+
+<!-- Nav tabs -->
+<ul class="nav nav-tabs" role="tablist">
+    <li role="presentation" class="active"><a href="#info" aria-controls="info" role="tab" data-toggle="tab">基本信息</a></li>
+    <li role="presentation"><a href="#skills" aria-controls="skills" role="tab" data-toggle="tab">技能标签</a></li>
+</ul>
+
+<!-- Tab panes -->
+<div class="tab-content">
+    <div role="tabpanel" class="tab-pane active" id="info">
+        <div class="text-center pt-10">
+            <img src="/resources/images/a1.jpg" class="user-info-pic" />
+        </div>
+        <ul class="form-control">
+            <li>
+                <div class="min-txt-label pr-20 c_gray">姓名</div>
+                张律师
+            </li>
+            <li>
+                <div class="min-txt-label pr-20 c_gray">姓名</div>
+                张律师
+            </li>
+            <li>
+                <div class="min-txt-label pr-20 c_gray">性别</div>
+                男
+            </li>
+            <li>
+                <div class="min-txt-label pr-20 c_gray">手机</div>
+                13877999871
+            </li>
+            <li>
+                <div class="min-txt-label pr-20 c_gray">评价</div>
+                <div class="dis-star"><i style="width: 50%"></i></div>
+            </li>
+            <li>
+                <div class="min-txt-label pr-20 c_gray">评价数</div>
+                100条
+            </li>
+            <li>
+                <div class="min-txt-label pr-20 c_gray">成单数</div>
+                120单
+            </li>
+            <li>
+                <div class="min-txt-label pr-20 c_gray">自我介绍</div>
+                <textarea rows="3" cols="30"></textarea>
+            </li>
+        </ul>
+
+
+
+    </div>
+    <div role="tabpanel" class="tab-pane p-15" id="skills">
+        <div class="skills-labels"><label>擅长送快递</label></div>
+        <div>
+            本人擅长于福田的路线，已经跑了十多年的快递了，所以一直在快递行业干，这下到接单侠来做一点私活，希望大家多多支持！
+            快递业，是指承运方通过铁路、公路、航空等交通方式，运用专用工具、设备和应用软件系统，对国内、国际及港澳台地区的快件揽收、分拣、封发、转运、投送、信息录入、查询、市场开发、疑难快件进行处理，以较快的速度将特定的物品运达指定地点或目标客户手中的物流活动，是物流的重要组成部分，他的特点就是在于他的“快”字。能够在极短的时间内将物品运达到目标地点，但是运量相对较小，运费较高，同时由于要经过不同的站点，几经周折，易使物品流失或损坏，安全系数相对较低。
+        </div>
+
+    </div>
+    <ul class="form-control">
+        <li>
+            <div class="min-txt-label">&nbsp;</div>
+            <input type="button" value="拒绝" class="btn btn-orange mr-20" onclick="parent.refused(301)" />
+            <input type="button" value="通过" class="btn btn-green" onclick="parent.accept(300)" />
+        </li>
+    </ul>
+</div>
+
+</body>
+</html>

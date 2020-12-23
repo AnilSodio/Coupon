@@ -1,0 +1,358 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="vc.thinker.cabbage.se.mapper.OrderRebateMapper" >
+  <resultMap id="BaseResultMap" type="vc.thinker.cabbage.se.model.OrderRebate" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="order_id" property="orderId" jdbcType="BIGINT" />
+    <result column="plantform_model" property="plantformModel" jdbcType="CHAR" />
+    <result column="plantform_rebate" property="plantformRebate" jdbcType="DECIMAL" />
+    <result column="borrow_seller_model" property="borrowSellerModel" jdbcType="CHAR" />
+    <result column="borrow_seller_rebate" property="borrowSellerRebate" jdbcType="DECIMAL" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="return_seller_model" property="returnSellerModel" jdbcType="CHAR" />
+    <result column="return_seller_rabate" property="returnSellerRabate" jdbcType="DECIMAL" />
+    <result column="agent_rebate_type" property="agentRebateType" jdbcType="CHAR" />
+    <result column="agent_model" property="agentModel" jdbcType="CHAR" />
+    <result column="agent_rabate" property="agentRabate" jdbcType="DECIMAL" />
+    <result column="recommended_model" property="recommendedModel" jdbcType="CHAR" />
+    <result column="recommended_rabate" property="recommendedRabate" jdbcType="DECIMAL" />
+  </resultMap>
+  <resultMap id="BOResultMap" type="vc.thinker.cabbage.se.bo.OrderRebateBO" extends="BaseResultMap" />
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    id, order_id, plantform_model, plantform_rebate, borrow_seller_model, borrow_seller_rebate, 
+    create_time, return_seller_model, return_seller_rabate, agent_rebate_type, agent_model, 
+    agent_rabate, recommended_model, recommended_rabate
+  </sql>
+  <select id="selectByExample" parameterType="vc.thinker.cabbage.se.model.OrderRebateExample" resultMap="BOResultMap" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from se_order_rebate
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+    <if test="limit != null" >
+      limit ${limit}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BOResultMap" >
+    select 
+    <include refid="Base_Column_List" />
+    from se_order_rebate
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from se_order_rebate
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteByExample" parameterType="vc.thinker.cabbage.se.model.OrderRebateExample" >
+    delete from se_order_rebate
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="vc.thinker.cabbage.se.model.OrderRebate" useGeneratedKeys="true" keyProperty="id" >
+    insert into se_order_rebate (id, order_id, plantform_model, 
+      plantform_rebate, borrow_seller_model, borrow_seller_rebate, 
+      create_time, return_seller_model, return_seller_rabate, 
+      agent_rebate_type, agent_model, agent_rabate, 
+      recommended_model, recommended_rabate)
+    values (#{id,jdbcType=BIGINT}, #{orderId,jdbcType=BIGINT}, #{plantformModel,jdbcType=CHAR}, 
+      #{plantformRebate,jdbcType=DECIMAL}, #{borrowSellerModel,jdbcType=CHAR}, #{borrowSellerRebate,jdbcType=DECIMAL}, 
+      #{createTime,jdbcType=TIMESTAMP}, #{returnSellerModel,jdbcType=CHAR}, #{returnSellerRabate,jdbcType=DECIMAL}, 
+      #{agentRebateType,jdbcType=CHAR}, #{agentModel,jdbcType=CHAR}, #{agentRabate,jdbcType=DECIMAL}, 
+      #{recommendedModel,jdbcType=CHAR}, #{recommendedRabate,jdbcType=DECIMAL})
+  </insert>
+  <insert id="insertSelective" parameterType="vc.thinker.cabbage.se.model.OrderRebate" useGeneratedKeys="true" keyProperty="id" >
+    insert into se_order_rebate
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="orderId != null" >
+        order_id,
+      </if>
+      <if test="plantformModel != null" >
+        plantform_model,
+      </if>
+      <if test="plantformRebate != null" >
+        plantform_rebate,
+      </if>
+      <if test="borrowSellerModel != null" >
+        borrow_seller_model,
+      </if>
+      <if test="borrowSellerRebate != null" >
+        borrow_seller_rebate,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="returnSellerModel != null" >
+        return_seller_model,
+      </if>
+      <if test="returnSellerRabate != null" >
+        return_seller_rabate,
+      </if>
+      <if test="agentRebateType != null" >
+        agent_rebate_type,
+      </if>
+      <if test="agentModel != null" >
+        agent_model,
+      </if>
+      <if test="agentRabate != null" >
+        agent_rabate,
+      </if>
+      <if test="recommendedModel != null" >
+        recommended_model,
+      </if>
+      <if test="recommendedRabate != null" >
+        recommended_rabate,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="orderId != null" >
+        #{orderId,jdbcType=BIGINT},
+      </if>
+      <if test="plantformModel != null" >
+        #{plantformModel,jdbcType=CHAR},
+      </if>
+      <if test="plantformRebate != null" >
+        #{plantformRebate,jdbcType=DECIMAL},
+      </if>
+      <if test="borrowSellerModel != null" >
+        #{borrowSellerModel,jdbcType=CHAR},
+      </if>
+      <if test="borrowSellerRebate != null" >
+        #{borrowSellerRebate,jdbcType=DECIMAL},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="returnSellerModel != null" >
+        #{returnSellerModel,jdbcType=CHAR},
+      </if>
+      <if test="returnSellerRabate != null" >
+        #{returnSellerRabate,jdbcType=DECIMAL},
+      </if>
+      <if test="agentRebateType != null" >
+        #{agentRebateType,jdbcType=CHAR},
+      </if>
+      <if test="agentModel != null" >
+        #{agentModel,jdbcType=CHAR},
+      </if>
+      <if test="agentRabate != null" >
+        #{agentRabate,jdbcType=DECIMAL},
+      </if>
+      <if test="recommendedModel != null" >
+        #{recommendedModel,jdbcType=CHAR},
+      </if>
+      <if test="recommendedRabate != null" >
+        #{recommendedRabate,jdbcType=DECIMAL},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="vc.thinker.cabbage.se.model.OrderRebateExample" resultType="java.lang.Integer" >
+    select count(*) from se_order_rebate
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map" >
+    update se_order_rebate
+    <set >
+      <if test="record.id != null" >
+        id = #{record.id,jdbcType=BIGINT},
+      </if>
+      <if test="record.orderId != null" >
+        order_id = #{record.orderId,jdbcType=BIGINT},
+      </if>
+      <if test="record.plantformModel != null" >
+        plantform_model = #{record.plantformModel,jdbcType=CHAR},
+      </if>
+      <if test="record.plantformRebate != null" >
+        plantform_rebate = #{record.plantformRebate,jdbcType=DECIMAL},
+      </if>
+      <if test="record.borrowSellerModel != null" >
+        borrow_seller_model = #{record.borrowSellerModel,jdbcType=CHAR},
+      </if>
+      <if test="record.borrowSellerRebate != null" >
+        borrow_seller_rebate = #{record.borrowSellerRebate,jdbcType=DECIMAL},
+      </if>
+      <if test="record.createTime != null" >
+        create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.returnSellerModel != null" >
+        return_seller_model = #{record.returnSellerModel,jdbcType=CHAR},
+      </if>
+      <if test="record.returnSellerRabate != null" >
+        return_seller_rabate = #{record.returnSellerRabate,jdbcType=DECIMAL},
+      </if>
+      <if test="record.agentRebateType != null" >
+        agent_rebate_type = #{record.agentRebateType,jdbcType=CHAR},
+      </if>
+      <if test="record.agentModel != null" >
+        agent_model = #{record.agentModel,jdbcType=CHAR},
+      </if>
+      <if test="record.agentRabate != null" >
+        agent_rabate = #{record.agentRabate,jdbcType=DECIMAL},
+      </if>
+      <if test="record.recommendedModel != null" >
+        recommended_model = #{record.recommendedModel,jdbcType=CHAR},
+      </if>
+      <if test="record.recommendedRabate != null" >
+        recommended_rabate = #{record.recommendedRabate,jdbcType=DECIMAL},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+    update se_order_rebate
+    set id = #{record.id,jdbcType=BIGINT},
+      order_id = #{record.orderId,jdbcType=BIGINT},
+      plantform_model = #{record.plantformModel,jdbcType=CHAR},
+      plantform_rebate = #{record.plantformRebate,jdbcType=DECIMAL},
+      borrow_seller_model = #{record.borrowSellerModel,jdbcType=CHAR},
+      borrow_seller_rebate = #{record.borrowSellerRebate,jdbcType=DECIMAL},
+      create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      return_seller_model = #{record.returnSellerModel,jdbcType=CHAR},
+      return_seller_rabate = #{record.returnSellerRabate,jdbcType=DECIMAL},
+      agent_rebate_type = #{record.agentRebateType,jdbcType=CHAR},
+      agent_model = #{record.agentModel,jdbcType=CHAR},
+      agent_rabate = #{record.agentRabate,jdbcType=DECIMAL},
+      recommended_model = #{record.recommendedModel,jdbcType=CHAR},
+      recommended_rabate = #{record.recommendedRabate,jdbcType=DECIMAL}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="vc.thinker.cabbage.se.model.OrderRebate" >
+    update se_order_rebate
+    <set >
+      <if test="orderId != null" >
+        order_id = #{orderId,jdbcType=BIGINT},
+      </if>
+      <if test="plantformModel != null" >
+        plantform_model = #{plantformModel,jdbcType=CHAR},
+      </if>
+      <if test="plantformRebate != null" >
+        plantform_rebate = #{plantformRebate,jdbcType=DECIMAL},
+      </if>
+      <if test="borrowSellerModel != null" >
+        borrow_seller_model = #{borrowSellerModel,jdbcType=CHAR},
+      </if>
+      <if test="borrowSellerRebate != null" >
+        borrow_seller_rebate = #{borrowSellerRebate,jdbcType=DECIMAL},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="returnSellerModel != null" >
+        return_seller_model = #{returnSellerModel,jdbcType=CHAR},
+      </if>
+      <if test="returnSellerRabate != null" >
+        return_seller_rabate = #{returnSellerRabate,jdbcType=DECIMAL},
+      </if>
+      <if test="agentRebateType != null" >
+        agent_rebate_type = #{agentRebateType,jdbcType=CHAR},
+      </if>
+      <if test="agentModel != null" >
+        agent_model = #{agentModel,jdbcType=CHAR},
+      </if>
+      <if test="agentRabate != null" >
+        agent_rabate = #{agentRabate,jdbcType=DECIMAL},
+      </if>
+      <if test="recommendedModel != null" >
+        recommended_model = #{recommendedModel,jdbcType=CHAR},
+      </if>
+      <if test="recommendedRabate != null" >
+        recommended_rabate = #{recommendedRabate,jdbcType=DECIMAL},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="vc.thinker.cabbage.se.model.OrderRebate" >
+    update se_order_rebate
+    set order_id = #{orderId,jdbcType=BIGINT},
+      plantform_model = #{plantformModel,jdbcType=CHAR},
+      plantform_rebate = #{plantformRebate,jdbcType=DECIMAL},
+      borrow_seller_model = #{borrowSellerModel,jdbcType=CHAR},
+      borrow_seller_rebate = #{borrowSellerRebate,jdbcType=DECIMAL},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      return_seller_model = #{returnSellerModel,jdbcType=CHAR},
+      return_seller_rabate = #{returnSellerRabate,jdbcType=DECIMAL},
+      agent_rebate_type = #{agentRebateType,jdbcType=CHAR},
+      agent_model = #{agentModel,jdbcType=CHAR},
+      agent_rabate = #{agentRabate,jdbcType=DECIMAL},
+      recommended_model = #{recommendedModel,jdbcType=CHAR},
+      recommended_rabate = #{recommendedRabate,jdbcType=DECIMAL}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="vc.thinker.cabbage.se.mapper.CabinetFirmwareMapper" >
+  <resultMap id="BaseResultMap" type="vc.thinker.cabbage.se.model.CabinetFirmware" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="firmware_name" property="firmwareName" jdbcType="VARCHAR" />
+    <result column="firmware_url" property="firmwareUrl" jdbcType="VARCHAR" />
+    <result column="module_code" property="moduleCode" jdbcType="VARCHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <resultMap id="BOResultMap" type="vc.thinker.cabbage.se.bo.CabinetFirmwareBO" extends="BaseResultMap" />
+  
+   <select id="findPageByVo" resultMap="BOResultMap">
+  		select 
+  			f.*,m.name moubleName  
+  		from 
+  			se_cabinet_firmware f 
+  			left join dic_firmware_module m on f.module_code = m.code
+  		order by f.create_time desc 
+  </select>
+  
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    id, firmware_name, firmware_url, module_code, create_time, update_time
+  </sql>
+  <select id="selectByExample" parameterType="vc.thinker.cabbage.se.model.CabinetFirmwareExample" resultMap="BOResultMap" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from se_cabinet_firmware
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+    <if test="limit != null" >
+      limit ${limit}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BOResultMap" >
+    select 
+    <include refid="Base_Column_List" />
+    from se_cabinet_firmware
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from se_cabinet_firmware
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteByExample" parameterType="vc.thinker.cabbage.se.model.CabinetFirmwareExample" >
+    delete from se_cabinet_firmware
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="vc.thinker.cabbage.se.model.CabinetFirmware" useGeneratedKeys="true" keyProperty="id" >
+    insert into se_cabinet_firmware (id, firmware_name, firmware_url, 
+      module_code, create_time, update_time
+      )
+    values (#{id,jdbcType=BIGINT}, #{firmwareName,jdbcType=VARCHAR}, #{firmwareUrl,jdbcType=VARCHAR}, 
+      #{moduleCode,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="vc.thinker.cabbage.se.model.CabinetFirmware" useGeneratedKeys="true" keyProperty="id" >
+    insert into se_cabinet_firmware
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="firmwareName != null" >
+        firmware_name,
+      </if>
+      <if test="firmwareUrl != null" >
+        firmware_url,
+      </if>
+      <if test="moduleCode != null" >
+        module_code,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="updateTime != null" >
+        update_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="firmwareName != null" >
+        #{firmwareName,jdbcType=VARCHAR},
+      </if>
+      <if test="firmwareUrl != null" >
+        #{firmwareUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="moduleCode != null" >
+        #{moduleCode,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null" >
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="vc.thinker.cabbage.se.model.CabinetFirmwareExample" resultType="java.lang.Integer" >
+    select count(*) from se_cabinet_firmware
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map" >
+    update se_cabinet_firmware
+    <set >
+      <if test="record.id != null" >
+        id = #{record.id,jdbcType=BIGINT},
+      </if>
+      <if test="record.firmwareName != null" >
+        firmware_name = #{record.firmwareName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.firmwareUrl != null" >
+        firmware_url = #{record.firmwareUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="record.moduleCode != null" >
+        module_code = #{record.moduleCode,jdbcType=VARCHAR},
+      </if>
+      <if test="record.createTime != null" >
+        create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.updateTime != null" >
+        update_time = #{record.updateTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+    update se_cabinet_firmware
+    set id = #{record.id,jdbcType=BIGINT},
+      firmware_name = #{record.firmwareName,jdbcType=VARCHAR},
+      firmware_url = #{record.firmwareUrl,jdbcType=VARCHAR},
+      module_code = #{record.moduleCode,jdbcType=VARCHAR},
+      create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      update_time = #{record.updateTime,jdbcType=TIMESTAMP}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="vc.thinker.cabbage.se.model.CabinetFirmware" >
+    update se_cabinet_firmware
+    <set >
+      <if test="firmwareName != null" >
+        firmware_name = #{firmwareName,jdbcType=VARCHAR},
+      </if>
+      <if test="firmwareUrl != null" >
+        firmware_url = #{firmwareUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="moduleCode != null" >
+        module_code = #{moduleCode,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null" >
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="vc.thinker.cabbage.se.model.CabinetFirmware" >
+    update se_cabinet_firmware
+    set firmware_name = #{firmwareName,jdbcType=VARCHAR},
+      firmware_url = #{firmwareUrl,jdbcType=VARCHAR},
+      module_code = #{moduleCode,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      update_time = #{updateTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

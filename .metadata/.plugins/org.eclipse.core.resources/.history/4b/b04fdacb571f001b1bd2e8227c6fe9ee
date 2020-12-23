@@ -1,0 +1,80 @@
+#============================#
+#===== Database sttings =====#
+#============================#
+jdbc:
+    type: mysql
+    #driver: com.mysql.jdbc.Driver
+    #url: ${jdbc_url:jdbc:mysql://192.168.1.250:3306/nomo-saas-1.0.x?autoReconnect=true&useUnicode=true&characterEncoding=utf-8&allowMultiQueries=true}
+   # username: ${jdbc_username:root}
+   # password: ${jdbc_password:admin123}
+    
+    driver: com.mysql.jdbc.Driver
+    url: ${jdbc_url:jdbc:mysql://15.207.241.18:3306/jiffy_db?autoReconnect=true&useUnicode=true&characterEncoding=utf-8&allowMultiQueries=true&useSSL=false}
+    username: ${jdbc_username:jiffy}
+    password: ${jdbc_password:FreshWater}
+     
+    pool:
+        initialSize: 10
+        maxActive: 20
+        minIdle: 3
+        
+#mybatis
+mybatis:
+    configLocation: ''
+    typeAliasesPackage: vc.thinker.**.model
+
+#短信    
+sms:
+    handler:
+         accountSid: ${sms_handler_accountSid:23830729}
+         accountToken: ${sms_handler_accountToken:2456e82477e06bcaae4c567df085df9c}
+    redis:
+        host: ${sms_redis_host:192.168.1.250}
+        port: ${sms_redis_port:6379}
+       
+
+redis:
+    host: ${ redis_host:localhost}
+    port: ${ redis_port:6379}
+    password: ${ redis_password:root123}
+    timeout: 7000
+    database: 1
+    message:
+        database: 1
+    namespace: flash
+    oauth2:
+        database: 3
+        
+ 
+# Random port for embedded MongoDB
+#spring.data.mongodb.host=120.24.252.218
+spring:
+    profiles:
+        active: ${ spring_profiles_active:dev}
+    data:
+          mongodb:
+              database: flash
+             # host: ${spring_data_mongodb_host:192.168.1.250}
+             #port: ${spring_data_mongodb_port:10001}
+              #host: ${spring_data_mongodb_host:0.0.0.27017}
+              #port: ${spring_data_mongodb_port:27017}
+              host: ${spring_data_mongodb_host:localhost}
+              port: ${spring_data_mongodb_port:27017}
+
+
+lbs:
+    baidu:
+        ak: ${lbs_baidu_ak:joiYACL3gPYaWC9r71mNoxlEtyPUMb2g}
+        
+
+
+#订单创建失败
+order:
+    fail:
+        second: 120
+
+#iot paas platform
+iot:
+  paas:
+    id: ${iot_paas_id:1}
+    url: ${iot_paas_url:http://gopower.tcp.thinker.vc:8888/}

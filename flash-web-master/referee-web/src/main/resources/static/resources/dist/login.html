@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta content="yes" name="apple-mobile-web-app-capable">
+    <meta content="yes" name="apple-touch-fullscreen">
+    <meta content="telephone=no,email=no" name="format-detection">
+    <script src="http://g.tbcdn.cn/mtb/lib-flexible/0.3.4/??flexible_css.js,flexible.js"></script>
+    <link rel="stylesheet" href="style/style.min.css"/>
+    <title>再来一波</title>
+</head>
+<body>
+<!-- 页面结构写在这里 -->
+
+
+<style>
+    html { background-color: #fff;}
+</style>
+
+<div class="container">
+
+    <div class="login-banner">
+        <img src="images/reg-banner.jpg">
+    </div>
+    <div class="login-title">
+        在线注册，开启惊喜旅程
+    </div>
+    <ul class="form-control list">
+        <li>
+            <div class="pos-r">
+                <input type="text" class="inp-txt" placeholder="请输入您的手机号码" maxlength="15" />
+                <a id="vcode" href="javascript:;" class="weui_btn_warn weui_btn code-btn">验证</a>
+            </div>
+        </li>
+        <li>
+            <input type="text" class="inp-txt" placeholder="验证码" />
+        </li>
+        <li>
+            <input type="submit" class="weui_btn_warn weui_btn" value="提交" />
+        </li>
+        <li>
+            <div class="pt-5 f-s text-center c-gray">点击“我们”代表已同意<a href="javascript:;" class="c-orange">法律声明和隐私政策</a></div>
+        </li>
+    </ul>
+
+
+</div>
+
+<script src="js/jquery-1.8.3.min.js"></script>
+<script src="js/common.js"></script>
+<script>
+    $("#vcode").click(function() {
+        var $this = $(this);
+       if (!$this.hasClass("code-btn-send")) {
+           $this.addClass("code-btn-send");
+           THINK.countdown({
+               selector: $this,
+               callback: function() {
+                   $this.removeClass("code-btn-send");
+               }
+           })
+       }
+    });
+</script>
+
+</body>
+</html>

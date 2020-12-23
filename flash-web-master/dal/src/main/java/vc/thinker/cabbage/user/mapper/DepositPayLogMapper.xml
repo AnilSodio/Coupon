@@ -1,0 +1,548 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="vc.thinker.cabbage.user.mapper.DepositPayLogMapper">
+  <resultMap id="BaseResultMap" type="vc.thinker.cabbage.user.model.DepositPayLog">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="uid" jdbcType="BIGINT" property="uid" />
+    <result column="amount" jdbcType="DECIMAL" property="amount" />
+    <result column="payment_mark" jdbcType="VARCHAR" property="paymentMark" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="pay_time" jdbcType="TIMESTAMP" property="payTime" />
+    <result column="out_order_id" jdbcType="VARCHAR" property="outOrderId" />
+    <result column="pay_order_code" jdbcType="VARCHAR" property="payOrderCode" />
+    <result column="status" jdbcType="INTEGER" property="status" />
+    <result column="cash_fee" jdbcType="DECIMAL" property="cashFee" />
+    <result column="refund_apply_time" jdbcType="TIMESTAMP" property="refundApplyTime" />
+    <result column="refund_id" jdbcType="VARCHAR" property="refundId" />
+    <result column="refund_account" jdbcType="VARCHAR" property="refundAccount" />
+    <result column="refund_succ_time" jdbcType="TIMESTAMP" property="refundSuccTime" />
+    <result column="refund_operator" jdbcType="BIGINT" property="refundOperator" />
+    <result column="refund_remark" jdbcType="VARCHAR" property="refundRemark" />
+    <result column="refund_error_code" jdbcType="VARCHAR" property="refundErrorCode" />
+    <result column="refund_error_message" jdbcType="VARCHAR" property="refundErrorMessage" />
+    <result column="is_capture" jdbcType="BIT" property="isCapture" />
+    <result column="capture_time" jdbcType="TIMESTAMP" property="captureTime" />
+    <result column="currency" jdbcType="VARCHAR" property="currency" />
+  </resultMap>
+  <resultMap extends="BaseResultMap" id="BOResultMap" type="vc.thinker.cabbage.user.bo.DepositPayLogBO" />
+  
+  <select id="sumByData" resultType="DECIMAL">
+  		select sum(amount) from user_deposit_pay_log where status BETWEEN 2 and 3
+  		<if test="null != date and '' != date">
+  			AND DATE_FORMAT(pay_time,'%Y-%m-%d') = #{date}
+  		</if>
+  </select>
+  
+  <select id="findLogListByVo" resultMap="BOResultMap">
+  		select 
+  			l.*,u.name,u.nickname,u.mobile,u.currency
+  		from 
+  			user_deposit_pay_log l left join user_member u on l.uid = u.uid  
+  		<where>
+  			l.status != 1 
+  			<if test="null != vo.name and '' != vo.name">
+  				and u.name like concat('%', #{vo.name}, '%')
+  			</if>
+  			<if test="vo.mobile != null and vo.mobile != ''">
+  				and u.mobile like concat('%', #{vo.mobile}, '%')
+  			</if>
+  			<if test="null != vo.nickname and '' != vo.nickname">
+  				and u.nickname like concat('%', #{vo.nickname}, '%')
+  			</if>
+  			<if test="null != vo.payOrderCode and '' != vo.payOrderCode">
+  				and l.pay_order_code like  concat('%', #{vo.payOrderCode}, '%')
+  			</if>
+  			<if test="null != vo.outOrderId and '' != vo.outOrderId">
+  				and l.out_order_id like  concat('%', #{vo.outOrderId}, '%')
+  			</if>
+  			<if test="null != vo.paymentMark and '' != vo.paymentMark">
+  				and l.payment_mark = #{vo.paymentMark}
+  			</if>
+  			<if test="null != vo.refundId and '' != vo.refundId">
+  				and l.refund_id like concat('%', #{vo.refundId}, '%')
+  			</if>
+  			<if test="null != vo.gtTime">
+  				and l.pay_time <![CDATA[ <= ]]> #{vo.gtTime}
+  			</if>
+  			<if test="null != vo.ltTime">
+  				and l.pay_time <![CDATA[ >= ]]> #{vo.ltTime}
+  			</if>
+  		</where>
+  		order by l.create_time desc 
+  </select>
+  
+  <select id="findPageByVo" resultMap="BOResultMap">
+  		select 
+  			l.*,u.name,u.nickname,u.mobile,u.currency
+  		from 
+  			user_deposit_pay_log l  left join user_member u on l.uid = u.uid 
+  		<where>
+  			<if test="null != vo.name and '' != vo.name">
+  				and u.name like concat('%', #{vo.name}, '%')
+  			</if>
+  			<if test="vo.nickname != null and vo.nickname != ''">
+  				and u.nickname like concat('%', #{vo.nickname}, '%')
+  			</if>
+  			<if test="vo.mobile != null and vo.mobile != ''">
+  				and u.mobile like concat('%', #{vo.mobile}, '%')
+  			</if>
+  			<if test="null != vo.paymentMark and '' != vo.paymentMark">
+  				and l.payment_mark = #{vo.paymentMark}
+  			</if>
+  			<if test="null != vo.status and '' != vo.status">
+  				and l.status = #{vo.status}
+  			</if>
+  			<if test="null == vo.status or '' == vo.status">
+  				and l.status in (3,4)
+  			</if>
+  		</where>
+  		order by l.refund_apply_time desc 
+  </select>
+  
+  <select id="findLastOneByUidAndStutus" resultMap="BOResultMap">
+  		select * from user_deposit_pay_log where uid = #{uid} and status = #{status} order by create_time desc limit 1
+  </select>
+  
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    id, uid, amount, payment_mark, create_time, pay_time, out_order_id, pay_order_code, 
+    status, cash_fee, refund_apply_time, refund_id, refund_account, refund_succ_time, 
+    refund_operator, refund_remark, refund_error_code, refund_error_message, is_capture, 
+    capture_time, currency
+  </sql>
+  <select id="selectByExample" parameterType="vc.thinker.cabbage.user.model.DepositPayLogExample" resultMap="BOResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from user_deposit_pay_log
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+    <if test="limit != null">
+      limit ${limit}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BOResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from user_deposit_pay_log
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from user_deposit_pay_log
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteByExample" parameterType="vc.thinker.cabbage.user.model.DepositPayLogExample">
+    delete from user_deposit_pay_log
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" keyProperty="id" parameterType="vc.thinker.cabbage.user.model.DepositPayLog" useGeneratedKeys="true">
+    insert into user_deposit_pay_log (id, uid, amount, 
+      payment_mark, create_time, pay_time, 
+      out_order_id, pay_order_code, status, 
+      cash_fee, refund_apply_time, refund_id, 
+      refund_account, refund_succ_time, refund_operator, 
+      refund_remark, refund_error_code, refund_error_message, 
+      is_capture, capture_time, currency
+      )
+    values (#{id,jdbcType=BIGINT}, #{uid,jdbcType=BIGINT}, #{amount,jdbcType=DECIMAL}, 
+      #{paymentMark,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, #{payTime,jdbcType=TIMESTAMP}, 
+      #{outOrderId,jdbcType=VARCHAR}, #{payOrderCode,jdbcType=VARCHAR}, #{status,jdbcType=INTEGER}, 
+      #{cashFee,jdbcType=DECIMAL}, #{refundApplyTime,jdbcType=TIMESTAMP}, #{refundId,jdbcType=VARCHAR}, 
+      #{refundAccount,jdbcType=VARCHAR}, #{refundSuccTime,jdbcType=TIMESTAMP}, #{refundOperator,jdbcType=BIGINT}, 
+      #{refundRemark,jdbcType=VARCHAR}, #{refundErrorCode,jdbcType=VARCHAR}, #{refundErrorMessage,jdbcType=VARCHAR}, 
+      #{isCapture,jdbcType=BIT}, #{captureTime,jdbcType=TIMESTAMP}, #{currency,jdbcType=VARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" keyProperty="id" parameterType="vc.thinker.cabbage.user.model.DepositPayLog" useGeneratedKeys="true">
+    insert into user_deposit_pay_log
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="uid != null">
+        uid,
+      </if>
+      <if test="amount != null">
+        amount,
+      </if>
+      <if test="paymentMark != null">
+        payment_mark,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="payTime != null">
+        pay_time,
+      </if>
+      <if test="outOrderId != null">
+        out_order_id,
+      </if>
+      <if test="payOrderCode != null">
+        pay_order_code,
+      </if>
+      <if test="status != null">
+        status,
+      </if>
+      <if test="cashFee != null">
+        cash_fee,
+      </if>
+      <if test="refundApplyTime != null">
+        refund_apply_time,
+      </if>
+      <if test="refundId != null">
+        refund_id,
+      </if>
+      <if test="refundAccount != null">
+        refund_account,
+      </if>
+      <if test="refundSuccTime != null">
+        refund_succ_time,
+      </if>
+      <if test="refundOperator != null">
+        refund_operator,
+      </if>
+      <if test="refundRemark != null">
+        refund_remark,
+      </if>
+      <if test="refundErrorCode != null">
+        refund_error_code,
+      </if>
+      <if test="refundErrorMessage != null">
+        refund_error_message,
+      </if>
+      <if test="isCapture != null">
+        is_capture,
+      </if>
+      <if test="captureTime != null">
+        capture_time,
+      </if>
+      <if test="currency != null">
+        currency,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="uid != null">
+        #{uid,jdbcType=BIGINT},
+      </if>
+      <if test="amount != null">
+        #{amount,jdbcType=DECIMAL},
+      </if>
+      <if test="paymentMark != null">
+        #{paymentMark,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="payTime != null">
+        #{payTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="outOrderId != null">
+        #{outOrderId,jdbcType=VARCHAR},
+      </if>
+      <if test="payOrderCode != null">
+        #{payOrderCode,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=INTEGER},
+      </if>
+      <if test="cashFee != null">
+        #{cashFee,jdbcType=DECIMAL},
+      </if>
+      <if test="refundApplyTime != null">
+        #{refundApplyTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="refundId != null">
+        #{refundId,jdbcType=VARCHAR},
+      </if>
+      <if test="refundAccount != null">
+        #{refundAccount,jdbcType=VARCHAR},
+      </if>
+      <if test="refundSuccTime != null">
+        #{refundSuccTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="refundOperator != null">
+        #{refundOperator,jdbcType=BIGINT},
+      </if>
+      <if test="refundRemark != null">
+        #{refundRemark,jdbcType=VARCHAR},
+      </if>
+      <if test="refundErrorCode != null">
+        #{refundErrorCode,jdbcType=VARCHAR},
+      </if>
+      <if test="refundErrorMessage != null">
+        #{refundErrorMessage,jdbcType=VARCHAR},
+      </if>
+      <if test="isCapture != null">
+        #{isCapture,jdbcType=BIT},
+      </if>
+      <if test="captureTime != null">
+        #{captureTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="currency != null">
+        #{currency,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="vc.thinker.cabbage.user.model.DepositPayLogExample" resultType="java.lang.Integer">
+    select count(*) from user_deposit_pay_log
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update user_deposit_pay_log
+    <set>
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=BIGINT},
+      </if>
+      <if test="record.uid != null">
+        uid = #{record.uid,jdbcType=BIGINT},
+      </if>
+      <if test="record.amount != null">
+        amount = #{record.amount,jdbcType=DECIMAL},
+      </if>
+      <if test="record.paymentMark != null">
+        payment_mark = #{record.paymentMark,jdbcType=VARCHAR},
+      </if>
+      <if test="record.createTime != null">
+        create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.payTime != null">
+        pay_time = #{record.payTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.outOrderId != null">
+        out_order_id = #{record.outOrderId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.payOrderCode != null">
+        pay_order_code = #{record.payOrderCode,jdbcType=VARCHAR},
+      </if>
+      <if test="record.status != null">
+        status = #{record.status,jdbcType=INTEGER},
+      </if>
+      <if test="record.cashFee != null">
+        cash_fee = #{record.cashFee,jdbcType=DECIMAL},
+      </if>
+      <if test="record.refundApplyTime != null">
+        refund_apply_time = #{record.refundApplyTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.refundId != null">
+        refund_id = #{record.refundId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.refundAccount != null">
+        refund_account = #{record.refundAccount,jdbcType=VARCHAR},
+      </if>
+      <if test="record.refundSuccTime != null">
+        refund_succ_time = #{record.refundSuccTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.refundOperator != null">
+        refund_operator = #{record.refundOperator,jdbcType=BIGINT},
+      </if>
+      <if test="record.refundRemark != null">
+        refund_remark = #{record.refundRemark,jdbcType=VARCHAR},
+      </if>
+      <if test="record.refundErrorCode != null">
+        refund_error_code = #{record.refundErrorCode,jdbcType=VARCHAR},
+      </if>
+      <if test="record.refundErrorMessage != null">
+        refund_error_message = #{record.refundErrorMessage,jdbcType=VARCHAR},
+      </if>
+      <if test="record.isCapture != null">
+        is_capture = #{record.isCapture,jdbcType=BIT},
+      </if>
+      <if test="record.captureTime != null">
+        capture_time = #{record.captureTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.currency != null">
+        currency = #{record.currency,jdbcType=VARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update user_deposit_pay_log
+    set id = #{record.id,jdbcType=BIGINT},
+      uid = #{record.uid,jdbcType=BIGINT},
+      amount = #{record.amount,jdbcType=DECIMAL},
+      payment_mark = #{record.paymentMark,jdbcType=VARCHAR},
+      create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      pay_time = #{record.payTime,jdbcType=TIMESTAMP},
+      out_order_id = #{record.outOrderId,jdbcType=VARCHAR},
+      pay_order_code = #{record.payOrderCode,jdbcType=VARCHAR},
+      status = #{record.status,jdbcType=INTEGER},
+      cash_fee = #{record.cashFee,jdbcType=DECIMAL},
+      refund_apply_time = #{record.refundApplyTime,jdbcType=TIMESTAMP},
+      refund_id = #{record.refundId,jdbcType=VARCHAR},
+      refund_account = #{record.refundAccount,jdbcType=VARCHAR},
+      refund_succ_time = #{record.refundSuccTime,jdbcType=TIMESTAMP},
+      refund_operator = #{record.refundOperator,jdbcType=BIGINT},
+      refund_remark = #{record.refundRemark,jdbcType=VARCHAR},
+      refund_error_code = #{record.refundErrorCode,jdbcType=VARCHAR},
+      refund_error_message = #{record.refundErrorMessage,jdbcType=VARCHAR},
+      is_capture = #{record.isCapture,jdbcType=BIT},
+      capture_time = #{record.captureTime,jdbcType=TIMESTAMP},
+      currency = #{record.currency,jdbcType=VARCHAR}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="vc.thinker.cabbage.user.model.DepositPayLog">
+    update user_deposit_pay_log
+    <set>
+      <if test="uid != null">
+        uid = #{uid,jdbcType=BIGINT},
+      </if>
+      <if test="amount != null">
+        amount = #{amount,jdbcType=DECIMAL},
+      </if>
+      <if test="paymentMark != null">
+        payment_mark = #{paymentMark,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="payTime != null">
+        pay_time = #{payTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="outOrderId != null">
+        out_order_id = #{outOrderId,jdbcType=VARCHAR},
+      </if>
+      <if test="payOrderCode != null">
+        pay_order_code = #{payOrderCode,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        status = #{status,jdbcType=INTEGER},
+      </if>
+      <if test="cashFee != null">
+        cash_fee = #{cashFee,jdbcType=DECIMAL},
+      </if>
+      <if test="refundApplyTime != null">
+        refund_apply_time = #{refundApplyTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="refundId != null">
+        refund_id = #{refundId,jdbcType=VARCHAR},
+      </if>
+      <if test="refundAccount != null">
+        refund_account = #{refundAccount,jdbcType=VARCHAR},
+      </if>
+      <if test="refundSuccTime != null">
+        refund_succ_time = #{refundSuccTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="refundOperator != null">
+        refund_operator = #{refundOperator,jdbcType=BIGINT},
+      </if>
+      <if test="refundRemark != null">
+        refund_remark = #{refundRemark,jdbcType=VARCHAR},
+      </if>
+      <if test="refundErrorCode != null">
+        refund_error_code = #{refundErrorCode,jdbcType=VARCHAR},
+      </if>
+      <if test="refundErrorMessage != null">
+        refund_error_message = #{refundErrorMessage,jdbcType=VARCHAR},
+      </if>
+      <if test="isCapture != null">
+        is_capture = #{isCapture,jdbcType=BIT},
+      </if>
+      <if test="captureTime != null">
+        capture_time = #{captureTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="currency != null">
+        currency = #{currency,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="vc.thinker.cabbage.user.model.DepositPayLog">
+    update user_deposit_pay_log
+    set uid = #{uid,jdbcType=BIGINT},
+      amount = #{amount,jdbcType=DECIMAL},
+      payment_mark = #{paymentMark,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      pay_time = #{payTime,jdbcType=TIMESTAMP},
+      out_order_id = #{outOrderId,jdbcType=VARCHAR},
+      pay_order_code = #{payOrderCode,jdbcType=VARCHAR},
+      status = #{status,jdbcType=INTEGER},
+      cash_fee = #{cashFee,jdbcType=DECIMAL},
+      refund_apply_time = #{refundApplyTime,jdbcType=TIMESTAMP},
+      refund_id = #{refundId,jdbcType=VARCHAR},
+      refund_account = #{refundAccount,jdbcType=VARCHAR},
+      refund_succ_time = #{refundSuccTime,jdbcType=TIMESTAMP},
+      refund_operator = #{refundOperator,jdbcType=BIGINT},
+      refund_remark = #{refundRemark,jdbcType=VARCHAR},
+      refund_error_code = #{refundErrorCode,jdbcType=VARCHAR},
+      refund_error_message = #{refundErrorMessage,jdbcType=VARCHAR},
+      is_capture = #{isCapture,jdbcType=BIT},
+      capture_time = #{captureTime,jdbcType=TIMESTAMP},
+      currency = #{currency,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

@@ -1,0 +1,993 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="vc.thinker.cabbage.se.mapper.OrderMapper">
+  <resultMap id="BaseResultMap" type="vc.thinker.cabbage.se.model.Order">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="uid" jdbcType="BIGINT" property="uid" />
+    <result column="borrow_cabinet_id" jdbcType="BIGINT" property="borrowCabinetId" />
+    <result column="borrow_sys_code" jdbcType="VARCHAR" property="borrowSysCode" />
+    <result column="price" jdbcType="DECIMAL" property="price" />
+    <result column="is_deleted" jdbcType="BIT" property="isDeleted" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="begin_time" jdbcType="TIMESTAMP" property="beginTime" />
+    <result column="finish_time" jdbcType="TIMESTAMP" property="finishTime" />
+    <result column="pay_time" jdbcType="TIMESTAMP" property="payTime" />
+    <result column="payment_mark" jdbcType="VARCHAR" property="paymentMark" />
+    <result column="status" jdbcType="INTEGER" property="status" />
+    <result column="out_order_id" jdbcType="VARCHAR" property="outOrderId" />
+    <result column="pay_order_code" jdbcType="VARCHAR" property="payOrderCode" />
+    <result column="user_coupon_id" jdbcType="BIGINT" property="userCouponId" />
+    <result column="city_id" jdbcType="VARCHAR" property="cityId" />
+    <result column="office_id" jdbcType="BIGINT" property="officeId" />
+    <result column="begin_location_lon" jdbcType="DECIMAL" property="beginLocationLon" />
+    <result column="begin_location_lat" jdbcType="DECIMAL" property="beginLocationLat" />
+    <result column="end_location_lon" jdbcType="DECIMAL" property="endLocationLon" />
+    <result column="end_location_lat" jdbcType="DECIMAL" property="endLocationLat" />
+    <result column="check_name" jdbcType="VARCHAR" property="checkName" />
+    <result column="check_time" jdbcType="TIMESTAMP" property="checkTime" />
+    <result column="check_desc" jdbcType="VARCHAR" property="checkDesc" />
+    <result column="order_code" jdbcType="VARCHAR" property="orderCode" />
+    <result column="ride_time" jdbcType="INTEGER" property="rideTime" />
+    <result column="borrow_seller_id" jdbcType="BIGINT" property="borrowSellerId" />
+    <result column="return_seller_id" jdbcType="BIGINT" property="returnSellerId" />
+    <result column="return_cabinet_id" jdbcType="BIGINT" property="returnCabinetId" />
+    <result column="return_sys_code" jdbcType="VARCHAR" property="returnSysCode" />
+    <result column="begin_location_details" jdbcType="VARCHAR" property="beginLocationDetails" />
+    <result column="end_locaiton_details" jdbcType="VARCHAR" property="endLocaitonDetails" />
+    <result column="pay_price" jdbcType="DECIMAL" property="payPrice" />
+    <result column="borrow_channel" jdbcType="INTEGER" property="borrowChannel" />
+    <result column="return_channel" jdbcType="INTEGER" property="returnChannel" />
+    <result column="pay_type" jdbcType="VARCHAR" property="payType" />
+    <result column="pb_id" jdbcType="BIGINT" property="pbId" />
+    <result column="pb_code" jdbcType="VARCHAR" property="pbCode" />
+    <result column="country" jdbcType="VARCHAR" property="country" />
+    <result column="currency" jdbcType="VARCHAR" property="currency" />
+    <result column="return_type" jdbcType="VARCHAR" property="returnType" />
+    <result column="borrow_cabinet_status_code" jdbcType="VARCHAR" property="borrowCabinetStatusCode" />
+    <result column="client_source" jdbcType="VARCHAR" property="clientSource" />
+  </resultMap>
+  <resultMap extends="BaseResultMap" id="BOResultMap" type="vc.thinker.cabbage.se.bo.OrderBO" />
+  <resultMap id="CountStatsMap" type="vc.thinker.cabbage.stats.bo.CountStatsBO" />
+	
+ 
+ <select id="findOnlyIdByStatusAndPayTime" resultMap="BOResultMap">
+ 		select id from se_order
+ 		<where>
+ 			<if test="status != null and status != ''">
+  				and status  = #{status}
+  			</if>
+  			<if test="beginDate != null and beginDate != ''">
+	    		and DATE_FORMAT(pay_time ,'%Y-%m-%d') <![CDATA[ >= ]]> DATE_FORMAT(#{beginDate} ,'%Y-%m-%d')
+	    	</if>
+	    	<if test="endDate != null and endDate != ''">
+	    		and DATE_FORMAT(pay_time ,'%Y-%m-%d') <![CDATA[ <= ]]> DATE_FORMAT(#{endDate} ,'%Y-%m-%d')
+	    	</if>
+ 		</where>
+ </select>
+ 
+ 
+  <select id="findRideCountYesToday" resultType="java.lang.Integer">
+      select count(1) from se_order where status &gt; 20
+      <if test="null != date">
+      	and DATE_FORMAT(begin_time ,'%Y-%m-%d') <![CDATA[ = ]]> DATE_FORMAT(#{date} ,'%Y-%m-%d')
+      </if>
+  </select>
+  
+  <select id="findConsumeStats" resultMap="CountStatsMap">
+  	SELECT
+  		<if test="vo.statsType!=null and vo.statsType==&quot;1&quot; ">
+		DATE_FORMAT(l.pay_time, '%m') AS statsTime,
+		</if>
+		<if test="vo.statsType!=null and vo.statsType==&quot;2&quot; ">
+		DATE_FORMAT(l.pay_time, '%d') AS statsTime,
+		</if>
+		sum(
+			IF (
+				(l.price - if((c.amount is null),0,c.amount)) <![CDATA[ > ]]> 0,
+				(l.price - if((c.amount is null),0,c.amount)),
+				0
+			)
+		) 
+	  AS consume
+		FROM
+			se_order l
+			LEFT JOIN user_coupon c on c.id=l.user_coupon_id
+		WHERE l.status=50
+		<if test="vo.statsType!=null and vo.statsType==&quot;1&quot; ">
+		 and DATE_FORMAT(l.pay_time, '%Y') = #{vo.time}
+		</if>
+		<if test="vo.statsType!=null and vo.statsType==&quot;2&quot; ">
+		and DATE_FORMAT(l.pay_time, '%Y-%m') = #{vo.time}
+		</if>
+		<if test="vo.officeId!=null and vo.officeId!=&quot;&quot; and  vo.officeId!=&quot;1&quot;">
+		and l.office_id =#{vo.officeId}
+		</if>
+		<if test="null != vo.payType and '' != vo.payType">
+			and l.pay_type = #{vo.payType}
+		</if>
+		GROUP BY
+			statsTime
+		ORDER BY
+			statsTime
+  </select>
+  
+  <select id="sumConsume" resultType="DECIMAL">
+  	select 
+	  	sum(
+				IF (
+					(t.price - if((c.amount is null),0,c.amount)) <![CDATA[ > ]]> 0,
+					(t.price - if((c.amount is null),0,c.amount)),
+					0
+				)
+			) 
+	from 
+		(
+			select price,pay_time,user_coupon_id  from se_order 
+			where STATUS = 50
+			<if test="day!=null and day!=''">
+		 		and DATE_FORMAT(pay_time, '%Y-%m-%d') = #{day}
+		 	</if>
+		)  t LEFT JOIN user_coupon c on c.id=t.user_coupon_id
+		
+  </select>
+  
+  <select id="findLastUseByPbId" resultMap="BOResultMap">
+  		select 
+			o.*,m.name,m.nickname,m.mobile 
+		from 
+			se_order o left join user_member m on o.uid = m.uid 
+		where o.pb_id = #{pbId} and o.status <![CDATA[ >= ]]> 30
+		order by o.create_time desc limit 1
+  </select>
+  
+  <update id="updateUserCouponNull">
+  	update se_order set user_coupon_id = null where id = #{id}
+  </update>
+  
+  <update id="updateOrderFail">
+  	update se_order t set t.is_deleted=true,t.`status`=20 where t.`status`=10
+  	<if test="time != null">
+	  	and t.create_time <![CDATA[ <= ]]> #{time}
+  	</if>
+  	<if test="uid != null">
+	  	and t.uid = #{uid}
+  	</if>
+  </update>
+  
+  <select id="findPageByVo" resultMap="BOResultMap">
+  		SELECT 
+			o.*,
+			m.nickname ,m.name,m.mobile,
+			t.amount ticketAmount,
+			b.seller_name borrowSellerName,
+			r.seller_name returnSellerName
+		from se_order o 
+			left join user_member m on o.uid = m.uid
+			left join user_coupon t on o.user_coupon_id = t.id
+			left join user_seller b on o.borrow_seller_id = b.uid 
+			left join user_seller r on o.return_seller_id = r.uid 
+			left join se_cabinet c on o.borrow_cabinet_id=c.id
+		<where>
+			<if test="null != vo.borrowSysCode and '' != vo.borrowSysCode">
+				and o.borrow_sys_code like concat ('%',#{vo.borrowSysCode},'%')
+			</if>
+			<if test="null != vo.returnSysCode and '' != vo.returnSysCode">
+				and o.return_sys_code like concat ('%',#{vo.returnSysCode},'%')
+			</if>
+			<if test="null != vo.orderCode and '' != vo.orderCode">
+				and o.order_code like concat ('%',#{vo.orderCode},'%')
+			</if>
+			<if test="null != vo.nickname and '' != vo.nickname">
+				and m.nickname like concat ('%',#{vo.nickname},'%')
+			</if>
+			<if test="null != vo.mobile and '' != vo.mobile">
+				and m.mobile like concat ('%',#{vo.mobile},'%')
+			</if>
+			<if test="null != vo.status and '' != vo.status">
+				and o.status = #{vo.status}
+			</if>
+			<if test="null == vo.status or '' == vo.status">
+				and o.status != 20
+			</if>
+			<if test="null != vo.pbCode and '' != vo.pbCode">
+				and o.pb_code like concat ('%',#{vo.pbCode},'%') 
+			</if>
+			<if test="null != vo.gtTime">
+				and o.pay_time <![CDATA[ >= ]]> ${vo.gtTime}
+			</if>
+			<if test="null != vo.ltTime">
+				and o.pay_time <![CDATA[ <= ]]> ${vo.ltTime}
+			</if>
+			<if test="vo.beginDate != null and '' != vo.beginDate">
+  				and DATE_FORMAT(o.pay_time,'%Y-%m-%d') <![CDATA[ >= ]]> DATE_FORMAT(#{vo.beginDate},'%Y-%m-%d')
+  			</if>
+  			<if test="vo.endDate != null and '' != vo.endDate">
+  				and DATE_FORMAT(o.pay_time,'%Y-%m-%d') <![CDATA[ <= ]]> DATE_FORMAT(#{vo.endDate},'%Y-%m-%d')
+  			</if>
+			<if test="null != vo.borrowSellerId">
+				and o.borrow_seller_id = #{vo.borrowSellerId} 
+			</if>
+			<if test="null != vo.borrowSellerId">
+				and o.borrow_seller_id = #{vo.borrowSellerId}
+			</if>
+			<if test="null != vo.returnSellerId">
+				and o.return_seller_id = #{vo.returnSellerId}
+			</if>
+			<if test="null != vo.agentId">
+				and c.agent_id = #{vo.agentId}
+			</if>
+			<if test="null != vo.refereeId">
+				and b.referee_uid = #{vo.refereeId}
+			</if>
+		</where>
+		order by  o.create_time desc 
+  </select>
+  
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    id, uid, borrow_cabinet_id, borrow_sys_code, price, is_deleted, create_time, begin_time, 
+    finish_time, pay_time, payment_mark, status, out_order_id, pay_order_code, user_coupon_id, 
+    city_id, office_id, begin_location_lon, begin_location_lat, end_location_lon, end_location_lat, 
+    check_name, check_time, check_desc, order_code, ride_time, borrow_seller_id, return_seller_id, 
+    return_cabinet_id, return_sys_code, begin_location_details, end_locaiton_details, 
+    pay_price, borrow_channel, return_channel, pay_type, pb_id, pb_code, country, currency, 
+    return_type, borrow_cabinet_status_code, client_source
+  </sql>
+  <select id="selectByExample" parameterType="vc.thinker.cabbage.se.model.OrderExample" resultMap="BOResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from se_order
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+    <if test="limit != null">
+      limit ${limit}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BOResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from se_order
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from se_order
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteByExample" parameterType="vc.thinker.cabbage.se.model.OrderExample">
+    delete from se_order
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" keyProperty="id" parameterType="vc.thinker.cabbage.se.model.Order" useGeneratedKeys="true">
+    insert into se_order (id, uid, borrow_cabinet_id, 
+      borrow_sys_code, price, is_deleted, 
+      create_time, begin_time, finish_time, 
+      pay_time, payment_mark, status, 
+      out_order_id, pay_order_code, user_coupon_id, 
+      city_id, office_id, begin_location_lon, 
+      begin_location_lat, end_location_lon, end_location_lat, 
+      check_name, check_time, check_desc, 
+      order_code, ride_time, borrow_seller_id, 
+      return_seller_id, return_cabinet_id, return_sys_code, 
+      begin_location_details, end_locaiton_details, 
+      pay_price, borrow_channel, return_channel, 
+      pay_type, pb_id, pb_code, 
+      country, currency, return_type, 
+      borrow_cabinet_status_code, client_source)
+    values (#{id,jdbcType=BIGINT}, #{uid,jdbcType=BIGINT}, #{borrowCabinetId,jdbcType=BIGINT}, 
+      #{borrowSysCode,jdbcType=VARCHAR}, #{price,jdbcType=DECIMAL}, #{isDeleted,jdbcType=BIT}, 
+      #{createTime,jdbcType=TIMESTAMP}, #{beginTime,jdbcType=TIMESTAMP}, #{finishTime,jdbcType=TIMESTAMP}, 
+      #{payTime,jdbcType=TIMESTAMP}, #{paymentMark,jdbcType=VARCHAR}, #{status,jdbcType=INTEGER}, 
+      #{outOrderId,jdbcType=VARCHAR}, #{payOrderCode,jdbcType=VARCHAR}, #{userCouponId,jdbcType=BIGINT}, 
+      #{cityId,jdbcType=VARCHAR}, #{officeId,jdbcType=BIGINT}, #{beginLocationLon,jdbcType=DECIMAL}, 
+      #{beginLocationLat,jdbcType=DECIMAL}, #{endLocationLon,jdbcType=DECIMAL}, #{endLocationLat,jdbcType=DECIMAL}, 
+      #{checkName,jdbcType=VARCHAR}, #{checkTime,jdbcType=TIMESTAMP}, #{checkDesc,jdbcType=VARCHAR}, 
+      #{orderCode,jdbcType=VARCHAR}, #{rideTime,jdbcType=INTEGER}, #{borrowSellerId,jdbcType=BIGINT}, 
+      #{returnSellerId,jdbcType=BIGINT}, #{returnCabinetId,jdbcType=BIGINT}, #{returnSysCode,jdbcType=VARCHAR}, 
+      #{beginLocationDetails,jdbcType=VARCHAR}, #{endLocaitonDetails,jdbcType=VARCHAR}, 
+      #{payPrice,jdbcType=DECIMAL}, #{borrowChannel,jdbcType=INTEGER}, #{returnChannel,jdbcType=INTEGER}, 
+      #{payType,jdbcType=VARCHAR}, #{pbId,jdbcType=BIGINT}, #{pbCode,jdbcType=VARCHAR}, 
+      #{country,jdbcType=VARCHAR}, #{currency,jdbcType=VARCHAR}, #{returnType,jdbcType=VARCHAR}, 
+      #{borrowCabinetStatusCode,jdbcType=VARCHAR}, #{clientSource,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" keyProperty="id" parameterType="vc.thinker.cabbage.se.model.Order" useGeneratedKeys="true">
+    insert into se_order
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="uid != null">
+        uid,
+      </if>
+      <if test="borrowCabinetId != null">
+        borrow_cabinet_id,
+      </if>
+      <if test="borrowSysCode != null">
+        borrow_sys_code,
+      </if>
+      <if test="price != null">
+        price,
+      </if>
+      <if test="isDeleted != null">
+        is_deleted,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="beginTime != null">
+        begin_time,
+      </if>
+      <if test="finishTime != null">
+        finish_time,
+      </if>
+      <if test="payTime != null">
+        pay_time,
+      </if>
+      <if test="paymentMark != null">
+        payment_mark,
+      </if>
+      <if test="status != null">
+        status,
+      </if>
+      <if test="outOrderId != null">
+        out_order_id,
+      </if>
+      <if test="payOrderCode != null">
+        pay_order_code,
+      </if>
+      <if test="userCouponId != null">
+        user_coupon_id,
+      </if>
+      <if test="cityId != null">
+        city_id,
+      </if>
+      <if test="officeId != null">
+        office_id,
+      </if>
+      <if test="beginLocationLon != null">
+        begin_location_lon,
+      </if>
+      <if test="beginLocationLat != null">
+        begin_location_lat,
+      </if>
+      <if test="endLocationLon != null">
+        end_location_lon,
+      </if>
+      <if test="endLocationLat != null">
+        end_location_lat,
+      </if>
+      <if test="checkName != null">
+        check_name,
+      </if>
+      <if test="checkTime != null">
+        check_time,
+      </if>
+      <if test="checkDesc != null">
+        check_desc,
+      </if>
+      <if test="orderCode != null">
+        order_code,
+      </if>
+      <if test="rideTime != null">
+        ride_time,
+      </if>
+      <if test="borrowSellerId != null">
+        borrow_seller_id,
+      </if>
+      <if test="returnSellerId != null">
+        return_seller_id,
+      </if>
+      <if test="returnCabinetId != null">
+        return_cabinet_id,
+      </if>
+      <if test="returnSysCode != null">
+        return_sys_code,
+      </if>
+      <if test="beginLocationDetails != null">
+        begin_location_details,
+      </if>
+      <if test="endLocaitonDetails != null">
+        end_locaiton_details,
+      </if>
+      <if test="payPrice != null">
+        pay_price,
+      </if>
+      <if test="borrowChannel != null">
+        borrow_channel,
+      </if>
+      <if test="returnChannel != null">
+        return_channel,
+      </if>
+      <if test="payType != null">
+        pay_type,
+      </if>
+      <if test="pbId != null">
+        pb_id,
+      </if>
+      <if test="pbCode != null">
+        pb_code,
+      </if>
+      <if test="country != null">
+        country,
+      </if>
+      <if test="currency != null">
+        currency,
+      </if>
+      <if test="returnType != null">
+        return_type,
+      </if>
+      <if test="borrowCabinetStatusCode != null">
+        borrow_cabinet_status_code,
+      </if>
+      <if test="clientSource != null">
+        client_source,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="uid != null">
+        #{uid,jdbcType=BIGINT},
+      </if>
+      <if test="borrowCabinetId != null">
+        #{borrowCabinetId,jdbcType=BIGINT},
+      </if>
+      <if test="borrowSysCode != null">
+        #{borrowSysCode,jdbcType=VARCHAR},
+      </if>
+      <if test="price != null">
+        #{price,jdbcType=DECIMAL},
+      </if>
+      <if test="isDeleted != null">
+        #{isDeleted,jdbcType=BIT},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="beginTime != null">
+        #{beginTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="finishTime != null">
+        #{finishTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="payTime != null">
+        #{payTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="paymentMark != null">
+        #{paymentMark,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=INTEGER},
+      </if>
+      <if test="outOrderId != null">
+        #{outOrderId,jdbcType=VARCHAR},
+      </if>
+      <if test="payOrderCode != null">
+        #{payOrderCode,jdbcType=VARCHAR},
+      </if>
+      <if test="userCouponId != null">
+        #{userCouponId,jdbcType=BIGINT},
+      </if>
+      <if test="cityId != null">
+        #{cityId,jdbcType=VARCHAR},
+      </if>
+      <if test="officeId != null">
+        #{officeId,jdbcType=BIGINT},
+      </if>
+      <if test="beginLocationLon != null">
+        #{beginLocationLon,jdbcType=DECIMAL},
+      </if>
+      <if test="beginLocationLat != null">
+        #{beginLocationLat,jdbcType=DECIMAL},
+      </if>
+      <if test="endLocationLon != null">
+        #{endLocationLon,jdbcType=DECIMAL},
+      </if>
+      <if test="endLocationLat != null">
+        #{endLocationLat,jdbcType=DECIMAL},
+      </if>
+      <if test="checkName != null">
+        #{checkName,jdbcType=VARCHAR},
+      </if>
+      <if test="checkTime != null">
+        #{checkTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="checkDesc != null">
+        #{checkDesc,jdbcType=VARCHAR},
+      </if>
+      <if test="orderCode != null">
+        #{orderCode,jdbcType=VARCHAR},
+      </if>
+      <if test="rideTime != null">
+        #{rideTime,jdbcType=INTEGER},
+      </if>
+      <if test="borrowSellerId != null">
+        #{borrowSellerId,jdbcType=BIGINT},
+      </if>
+      <if test="returnSellerId != null">
+        #{returnSellerId,jdbcType=BIGINT},
+      </if>
+      <if test="returnCabinetId != null">
+        #{returnCabinetId,jdbcType=BIGINT},
+      </if>
+      <if test="returnSysCode != null">
+        #{returnSysCode,jdbcType=VARCHAR},
+      </if>
+      <if test="beginLocationDetails != null">
+        #{beginLocationDetails,jdbcType=VARCHAR},
+      </if>
+      <if test="endLocaitonDetails != null">
+        #{endLocaitonDetails,jdbcType=VARCHAR},
+      </if>
+      <if test="payPrice != null">
+        #{payPrice,jdbcType=DECIMAL},
+      </if>
+      <if test="borrowChannel != null">
+        #{borrowChannel,jdbcType=INTEGER},
+      </if>
+      <if test="returnChannel != null">
+        #{returnChannel,jdbcType=INTEGER},
+      </if>
+      <if test="payType != null">
+        #{payType,jdbcType=VARCHAR},
+      </if>
+      <if test="pbId != null">
+        #{pbId,jdbcType=BIGINT},
+      </if>
+      <if test="pbCode != null">
+        #{pbCode,jdbcType=VARCHAR},
+      </if>
+      <if test="country != null">
+        #{country,jdbcType=VARCHAR},
+      </if>
+      <if test="currency != null">
+        #{currency,jdbcType=VARCHAR},
+      </if>
+      <if test="returnType != null">
+        #{returnType,jdbcType=VARCHAR},
+      </if>
+      <if test="borrowCabinetStatusCode != null">
+        #{borrowCabinetStatusCode,jdbcType=VARCHAR},
+      </if>
+      <if test="clientSource != null">
+        #{clientSource,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="vc.thinker.cabbage.se.model.OrderExample" resultType="java.lang.Integer">
+    select count(*) from se_order
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update se_order
+    <set>
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=BIGINT},
+      </if>
+      <if test="record.uid != null">
+        uid = #{record.uid,jdbcType=BIGINT},
+      </if>
+      <if test="record.borrowCabinetId != null">
+        borrow_cabinet_id = #{record.borrowCabinetId,jdbcType=BIGINT},
+      </if>
+      <if test="record.borrowSysCode != null">
+        borrow_sys_code = #{record.borrowSysCode,jdbcType=VARCHAR},
+      </if>
+      <if test="record.price != null">
+        price = #{record.price,jdbcType=DECIMAL},
+      </if>
+      <if test="record.isDeleted != null">
+        is_deleted = #{record.isDeleted,jdbcType=BIT},
+      </if>
+      <if test="record.createTime != null">
+        create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.beginTime != null">
+        begin_time = #{record.beginTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.finishTime != null">
+        finish_time = #{record.finishTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.payTime != null">
+        pay_time = #{record.payTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.paymentMark != null">
+        payment_mark = #{record.paymentMark,jdbcType=VARCHAR},
+      </if>
+      <if test="record.status != null">
+        status = #{record.status,jdbcType=INTEGER},
+      </if>
+      <if test="record.outOrderId != null">
+        out_order_id = #{record.outOrderId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.payOrderCode != null">
+        pay_order_code = #{record.payOrderCode,jdbcType=VARCHAR},
+      </if>
+      <if test="record.userCouponId != null">
+        user_coupon_id = #{record.userCouponId,jdbcType=BIGINT},
+      </if>
+      <if test="record.cityId != null">
+        city_id = #{record.cityId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.officeId != null">
+        office_id = #{record.officeId,jdbcType=BIGINT},
+      </if>
+      <if test="record.beginLocationLon != null">
+        begin_location_lon = #{record.beginLocationLon,jdbcType=DECIMAL},
+      </if>
+      <if test="record.beginLocationLat != null">
+        begin_location_lat = #{record.beginLocationLat,jdbcType=DECIMAL},
+      </if>
+      <if test="record.endLocationLon != null">
+        end_location_lon = #{record.endLocationLon,jdbcType=DECIMAL},
+      </if>
+      <if test="record.endLocationLat != null">
+        end_location_lat = #{record.endLocationLat,jdbcType=DECIMAL},
+      </if>
+      <if test="record.checkName != null">
+        check_name = #{record.checkName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.checkTime != null">
+        check_time = #{record.checkTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.checkDesc != null">
+        check_desc = #{record.checkDesc,jdbcType=VARCHAR},
+      </if>
+      <if test="record.orderCode != null">
+        order_code = #{record.orderCode,jdbcType=VARCHAR},
+      </if>
+      <if test="record.rideTime != null">
+        ride_time = #{record.rideTime,jdbcType=INTEGER},
+      </if>
+      <if test="record.borrowSellerId != null">
+        borrow_seller_id = #{record.borrowSellerId,jdbcType=BIGINT},
+      </if>
+      <if test="record.returnSellerId != null">
+        return_seller_id = #{record.returnSellerId,jdbcType=BIGINT},
+      </if>
+      <if test="record.returnCabinetId != null">
+        return_cabinet_id = #{record.returnCabinetId,jdbcType=BIGINT},
+      </if>
+      <if test="record.returnSysCode != null">
+        return_sys_code = #{record.returnSysCode,jdbcType=VARCHAR},
+      </if>
+      <if test="record.beginLocationDetails != null">
+        begin_location_details = #{record.beginLocationDetails,jdbcType=VARCHAR},
+      </if>
+      <if test="record.endLocaitonDetails != null">
+        end_locaiton_details = #{record.endLocaitonDetails,jdbcType=VARCHAR},
+      </if>
+      <if test="record.payPrice != null">
+        pay_price = #{record.payPrice,jdbcType=DECIMAL},
+      </if>
+      <if test="record.borrowChannel != null">
+        borrow_channel = #{record.borrowChannel,jdbcType=INTEGER},
+      </if>
+      <if test="record.returnChannel != null">
+        return_channel = #{record.returnChannel,jdbcType=INTEGER},
+      </if>
+      <if test="record.payType != null">
+        pay_type = #{record.payType,jdbcType=VARCHAR},
+      </if>
+      <if test="record.pbId != null">
+        pb_id = #{record.pbId,jdbcType=BIGINT},
+      </if>
+      <if test="record.pbCode != null">
+        pb_code = #{record.pbCode,jdbcType=VARCHAR},
+      </if>
+      <if test="record.country != null">
+        country = #{record.country,jdbcType=VARCHAR},
+      </if>
+      <if test="record.currency != null">
+        currency = #{record.currency,jdbcType=VARCHAR},
+      </if>
+      <if test="record.returnType != null">
+        return_type = #{record.returnType,jdbcType=VARCHAR},
+      </if>
+      <if test="record.borrowCabinetStatusCode != null">
+        borrow_cabinet_status_code = #{record.borrowCabinetStatusCode,jdbcType=VARCHAR},
+      </if>
+      <if test="record.clientSource != null">
+        client_source = #{record.clientSource,jdbcType=VARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update se_order
+    set id = #{record.id,jdbcType=BIGINT},
+      uid = #{record.uid,jdbcType=BIGINT},
+      borrow_cabinet_id = #{record.borrowCabinetId,jdbcType=BIGINT},
+      borrow_sys_code = #{record.borrowSysCode,jdbcType=VARCHAR},
+      price = #{record.price,jdbcType=DECIMAL},
+      is_deleted = #{record.isDeleted,jdbcType=BIT},
+      create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      begin_time = #{record.beginTime,jdbcType=TIMESTAMP},
+      finish_time = #{record.finishTime,jdbcType=TIMESTAMP},
+      pay_time = #{record.payTime,jdbcType=TIMESTAMP},
+      payment_mark = #{record.paymentMark,jdbcType=VARCHAR},
+      status = #{record.status,jdbcType=INTEGER},
+      out_order_id = #{record.outOrderId,jdbcType=VARCHAR},
+      pay_order_code = #{record.payOrderCode,jdbcType=VARCHAR},
+      user_coupon_id = #{record.userCouponId,jdbcType=BIGINT},
+      city_id = #{record.cityId,jdbcType=VARCHAR},
+      office_id = #{record.officeId,jdbcType=BIGINT},
+      begin_location_lon = #{record.beginLocationLon,jdbcType=DECIMAL},
+      begin_location_lat = #{record.beginLocationLat,jdbcType=DECIMAL},
+      end_location_lon = #{record.endLocationLon,jdbcType=DECIMAL},
+      end_location_lat = #{record.endLocationLat,jdbcType=DECIMAL},
+      check_name = #{record.checkName,jdbcType=VARCHAR},
+      check_time = #{record.checkTime,jdbcType=TIMESTAMP},
+      check_desc = #{record.checkDesc,jdbcType=VARCHAR},
+      order_code = #{record.orderCode,jdbcType=VARCHAR},
+      ride_time = #{record.rideTime,jdbcType=INTEGER},
+      borrow_seller_id = #{record.borrowSellerId,jdbcType=BIGINT},
+      return_seller_id = #{record.returnSellerId,jdbcType=BIGINT},
+      return_cabinet_id = #{record.returnCabinetId,jdbcType=BIGINT},
+      return_sys_code = #{record.returnSysCode,jdbcType=VARCHAR},
+      begin_location_details = #{record.beginLocationDetails,jdbcType=VARCHAR},
+      end_locaiton_details = #{record.endLocaitonDetails,jdbcType=VARCHAR},
+      pay_price = #{record.payPrice,jdbcType=DECIMAL},
+      borrow_channel = #{record.borrowChannel,jdbcType=INTEGER},
+      return_channel = #{record.returnChannel,jdbcType=INTEGER},
+      pay_type = #{record.payType,jdbcType=VARCHAR},
+      pb_id = #{record.pbId,jdbcType=BIGINT},
+      pb_code = #{record.pbCode,jdbcType=VARCHAR},
+      country = #{record.country,jdbcType=VARCHAR},
+      currency = #{record.currency,jdbcType=VARCHAR},
+      return_type = #{record.returnType,jdbcType=VARCHAR},
+      borrow_cabinet_status_code = #{record.borrowCabinetStatusCode,jdbcType=VARCHAR},
+      client_source = #{record.clientSource,jdbcType=VARCHAR}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="vc.thinker.cabbage.se.model.Order">
+    update se_order
+    <set>
+      <if test="uid != null">
+        uid = #{uid,jdbcType=BIGINT},
+      </if>
+      <if test="borrowCabinetId != null">
+        borrow_cabinet_id = #{borrowCabinetId,jdbcType=BIGINT},
+      </if>
+      <if test="borrowSysCode != null">
+        borrow_sys_code = #{borrowSysCode,jdbcType=VARCHAR},
+      </if>
+      <if test="price != null">
+        price = #{price,jdbcType=DECIMAL},
+      </if>
+      <if test="isDeleted != null">
+        is_deleted = #{isDeleted,jdbcType=BIT},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="beginTime != null">
+        begin_time = #{beginTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="finishTime != null">
+        finish_time = #{finishTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="payTime != null">
+        pay_time = #{payTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="paymentMark != null">
+        payment_mark = #{paymentMark,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        status = #{status,jdbcType=INTEGER},
+      </if>
+      <if test="outOrderId != null">
+        out_order_id = #{outOrderId,jdbcType=VARCHAR},
+      </if>
+      <if test="payOrderCode != null">
+        pay_order_code = #{payOrderCode,jdbcType=VARCHAR},
+      </if>
+      <if test="userCouponId != null">
+        user_coupon_id = #{userCouponId,jdbcType=BIGINT},
+      </if>
+      <if test="cityId != null">
+        city_id = #{cityId,jdbcType=VARCHAR},
+      </if>
+      <if test="officeId != null">
+        office_id = #{officeId,jdbcType=BIGINT},
+      </if>
+      <if test="beginLocationLon != null">
+        begin_location_lon = #{beginLocationLon,jdbcType=DECIMAL},
+      </if>
+      <if test="beginLocationLat != null">
+        begin_location_lat = #{beginLocationLat,jdbcType=DECIMAL},
+      </if>
+      <if test="endLocationLon != null">
+        end_location_lon = #{endLocationLon,jdbcType=DECIMAL},
+      </if>
+      <if test="endLocationLat != null">
+        end_location_lat = #{endLocationLat,jdbcType=DECIMAL},
+      </if>
+      <if test="checkName != null">
+        check_name = #{checkName,jdbcType=VARCHAR},
+      </if>
+      <if test="checkTime != null">
+        check_time = #{checkTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="checkDesc != null">
+        check_desc = #{checkDesc,jdbcType=VARCHAR},
+      </if>
+      <if test="orderCode != null">
+        order_code = #{orderCode,jdbcType=VARCHAR},
+      </if>
+      <if test="rideTime != null">
+        ride_time = #{rideTime,jdbcType=INTEGER},
+      </if>
+      <if test="borrowSellerId != null">
+        borrow_seller_id = #{borrowSellerId,jdbcType=BIGINT},
+      </if>
+      <if test="returnSellerId != null">
+        return_seller_id = #{returnSellerId,jdbcType=BIGINT},
+      </if>
+      <if test="returnCabinetId != null">
+        return_cabinet_id = #{returnCabinetId,jdbcType=BIGINT},
+      </if>
+      <if test="returnSysCode != null">
+        return_sys_code = #{returnSysCode,jdbcType=VARCHAR},
+      </if>
+      <if test="beginLocationDetails != null">
+        begin_location_details = #{beginLocationDetails,jdbcType=VARCHAR},
+      </if>
+      <if test="endLocaitonDetails != null">
+        end_locaiton_details = #{endLocaitonDetails,jdbcType=VARCHAR},
+      </if>
+      <if test="payPrice != null">
+        pay_price = #{payPrice,jdbcType=DECIMAL},
+      </if>
+      <if test="borrowChannel != null">
+        borrow_channel = #{borrowChannel,jdbcType=INTEGER},
+      </if>
+      <if test="returnChannel != null">
+        return_channel = #{returnChannel,jdbcType=INTEGER},
+      </if>
+      <if test="payType != null">
+        pay_type = #{payType,jdbcType=VARCHAR},
+      </if>
+      <if test="pbId != null">
+        pb_id = #{pbId,jdbcType=BIGINT},
+      </if>
+      <if test="pbCode != null">
+        pb_code = #{pbCode,jdbcType=VARCHAR},
+      </if>
+      <if test="country != null">
+        country = #{country,jdbcType=VARCHAR},
+      </if>
+      <if test="currency != null">
+        currency = #{currency,jdbcType=VARCHAR},
+      </if>
+      <if test="returnType != null">
+        return_type = #{returnType,jdbcType=VARCHAR},
+      </if>
+      <if test="borrowCabinetStatusCode != null">
+        borrow_cabinet_status_code = #{borrowCabinetStatusCode,jdbcType=VARCHAR},
+      </if>
+      <if test="clientSource != null">
+        client_source = #{clientSource,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="vc.thinker.cabbage.se.model.Order">
+    update se_order
+    set uid = #{uid,jdbcType=BIGINT},
+      borrow_cabinet_id = #{borrowCabinetId,jdbcType=BIGINT},
+      borrow_sys_code = #{borrowSysCode,jdbcType=VARCHAR},
+      price = #{price,jdbcType=DECIMAL},
+      is_deleted = #{isDeleted,jdbcType=BIT},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      begin_time = #{beginTime,jdbcType=TIMESTAMP},
+      finish_time = #{finishTime,jdbcType=TIMESTAMP},
+      pay_time = #{payTime,jdbcType=TIMESTAMP},
+      payment_mark = #{paymentMark,jdbcType=VARCHAR},
+      status = #{status,jdbcType=INTEGER},
+      out_order_id = #{outOrderId,jdbcType=VARCHAR},
+      pay_order_code = #{payOrderCode,jdbcType=VARCHAR},
+      user_coupon_id = #{userCouponId,jdbcType=BIGINT},
+      city_id = #{cityId,jdbcType=VARCHAR},
+      office_id = #{officeId,jdbcType=BIGINT},
+      begin_location_lon = #{beginLocationLon,jdbcType=DECIMAL},
+      begin_location_lat = #{beginLocationLat,jdbcType=DECIMAL},
+      end_location_lon = #{endLocationLon,jdbcType=DECIMAL},
+      end_location_lat = #{endLocationLat,jdbcType=DECIMAL},
+      check_name = #{checkName,jdbcType=VARCHAR},
+      check_time = #{checkTime,jdbcType=TIMESTAMP},
+      check_desc = #{checkDesc,jdbcType=VARCHAR},
+      order_code = #{orderCode,jdbcType=VARCHAR},
+      ride_time = #{rideTime,jdbcType=INTEGER},
+      borrow_seller_id = #{borrowSellerId,jdbcType=BIGINT},
+      return_seller_id = #{returnSellerId,jdbcType=BIGINT},
+      return_cabinet_id = #{returnCabinetId,jdbcType=BIGINT},
+      return_sys_code = #{returnSysCode,jdbcType=VARCHAR},
+      begin_location_details = #{beginLocationDetails,jdbcType=VARCHAR},
+      end_locaiton_details = #{endLocaitonDetails,jdbcType=VARCHAR},
+      pay_price = #{payPrice,jdbcType=DECIMAL},
+      borrow_channel = #{borrowChannel,jdbcType=INTEGER},
+      return_channel = #{returnChannel,jdbcType=INTEGER},
+      pay_type = #{payType,jdbcType=VARCHAR},
+      pb_id = #{pbId,jdbcType=BIGINT},
+      pb_code = #{pbCode,jdbcType=VARCHAR},
+      country = #{country,jdbcType=VARCHAR},
+      currency = #{currency,jdbcType=VARCHAR},
+      return_type = #{returnType,jdbcType=VARCHAR},
+      borrow_cabinet_status_code = #{borrowCabinetStatusCode,jdbcType=VARCHAR},
+      client_source = #{clientSource,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

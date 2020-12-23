@@ -1,0 +1,258 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="vc.thinker.cabbage.stats.mapper.IncomeStatsMapper">
+  <resultMap id="BaseResultMap" type="vc.thinker.cabbage.stats.model.IncomeStats">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="current_day" jdbcType="VARCHAR" property="currentDay" />
+    <result column="amount" jdbcType="DECIMAL" property="amount" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="currency" jdbcType="VARCHAR" property="currency" />
+    <result column="income_type" jdbcType="VARCHAR" property="incomeType" />
+  </resultMap>
+  <resultMap extends="BaseResultMap" id="BOResultMap" type="vc.thinker.cabbage.stats.bo.IncomeStatsBO" />
+  <resultMap id="CountStatsMap" type="vc.thinker.cabbage.stats.bo.CountStatsBO" />
+  
+  <select id="findDailyIncome" resultMap="CountStatsMap">
+  		select
+			<if test="vo.statsType!=null and vo.statsType==&quot;1&quot; ">
+				DATE_FORMAT(create_time, '%m') AS statsTime,
+			</if>
+			<if test="vo.statsType!=null and vo.statsType==&quot;2&quot; ">
+				DATE_FORMAT(create_time, '%d') AS statsTime,
+			</if>
+			sum(amount) deposit
+		FROM
+			st_income_stats
+		WHERE
+			<if test="vo.statsType!=null and vo.statsType==&quot;1&quot; ">
+				DATE_FORMAT(create_time, '%Y') = #{vo.time}
+			</if>
+			<if test="vo.statsType!=null and vo.statsType==&quot;2&quot; ">
+				DATE_FORMAT(create_time, '%Y-%m') = #{vo.time}
+			</if>
+			<if test="null != vo.incomeType and '' != vo.incomeType ">
+				and income_type = #{vo.incomeType}
+			</if>
+		 group by statsTime 
+  </select>
+  
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    id, current_day, amount, create_time, currency, income_type
+  </sql>
+  <select id="selectByExample" parameterType="vc.thinker.cabbage.stats.model.IncomeStatsExample" resultMap="BOResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from st_income_stats
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+    <if test="limit != null">
+      limit ${limit}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BOResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from st_income_stats
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from st_income_stats
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteByExample" parameterType="vc.thinker.cabbage.stats.model.IncomeStatsExample">
+    delete from st_income_stats
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" keyProperty="id" parameterType="vc.thinker.cabbage.stats.model.IncomeStats" useGeneratedKeys="true">
+    insert into st_income_stats (id, current_day, amount, 
+      create_time, currency, income_type
+      )
+    values (#{id,jdbcType=BIGINT}, #{currentDay,jdbcType=VARCHAR}, #{amount,jdbcType=DECIMAL}, 
+      #{createTime,jdbcType=TIMESTAMP}, #{currency,jdbcType=VARCHAR}, #{incomeType,jdbcType=VARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" keyProperty="id" parameterType="vc.thinker.cabbage.stats.model.IncomeStats" useGeneratedKeys="true">
+    insert into st_income_stats
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="currentDay != null">
+        current_day,
+      </if>
+      <if test="amount != null">
+        amount,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="currency != null">
+        currency,
+      </if>
+      <if test="incomeType != null">
+        income_type,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="currentDay != null">
+        #{currentDay,jdbcType=VARCHAR},
+      </if>
+      <if test="amount != null">
+        #{amount,jdbcType=DECIMAL},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="currency != null">
+        #{currency,jdbcType=VARCHAR},
+      </if>
+      <if test="incomeType != null">
+        #{incomeType,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="vc.thinker.cabbage.stats.model.IncomeStatsExample" resultType="java.lang.Integer">
+    select count(*) from st_income_stats
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update st_income_stats
+    <set>
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=BIGINT},
+      </if>
+      <if test="record.currentDay != null">
+        current_day = #{record.currentDay,jdbcType=VARCHAR},
+      </if>
+      <if test="record.amount != null">
+        amount = #{record.amount,jdbcType=DECIMAL},
+      </if>
+      <if test="record.createTime != null">
+        create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.currency != null">
+        currency = #{record.currency,jdbcType=VARCHAR},
+      </if>
+      <if test="record.incomeType != null">
+        income_type = #{record.incomeType,jdbcType=VARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update st_income_stats
+    set id = #{record.id,jdbcType=BIGINT},
+      current_day = #{record.currentDay,jdbcType=VARCHAR},
+      amount = #{record.amount,jdbcType=DECIMAL},
+      create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      currency = #{record.currency,jdbcType=VARCHAR},
+      income_type = #{record.incomeType,jdbcType=VARCHAR}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="vc.thinker.cabbage.stats.model.IncomeStats">
+    update st_income_stats
+    <set>
+      <if test="currentDay != null">
+        current_day = #{currentDay,jdbcType=VARCHAR},
+      </if>
+      <if test="amount != null">
+        amount = #{amount,jdbcType=DECIMAL},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="currency != null">
+        currency = #{currency,jdbcType=VARCHAR},
+      </if>
+      <if test="incomeType != null">
+        income_type = #{incomeType,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="vc.thinker.cabbage.stats.model.IncomeStats">
+    update st_income_stats
+    set current_day = #{currentDay,jdbcType=VARCHAR},
+      amount = #{amount,jdbcType=DECIMAL},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      currency = #{currency,jdbcType=VARCHAR},
+      income_type = #{incomeType,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

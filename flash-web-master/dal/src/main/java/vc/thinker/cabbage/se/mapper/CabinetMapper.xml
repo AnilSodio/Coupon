@@ -1,0 +1,607 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="vc.thinker.cabbage.se.mapper.CabinetMapper">
+  <resultMap id="BaseResultMap" type="vc.thinker.cabbage.se.model.Cabinet">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="cabinet_code" jdbcType="VARCHAR" property="cabinetCode" />
+    <result column="sys_code" jdbcType="VARCHAR" property="sysCode" />
+    <result column="type_id" jdbcType="BIGINT" property="typeId" />
+    <result column="rule_id" jdbcType="BIGINT" property="ruleId" />
+    <result column="seller_id" jdbcType="BIGINT" property="sellerId" />
+    <result column="agent_id" jdbcType="BIGINT" property="agentId" />
+    <result column="status" jdbcType="INTEGER" property="status" />
+    <result column="is_delivery" jdbcType="BIT" property="isDelivery" />
+    <result column="delivery_time" jdbcType="TIMESTAMP" property="deliveryTime" />
+    <result column="delivery_id" jdbcType="BIGINT" property="deliveryId" />
+    <result column="location_lon" jdbcType="DECIMAL" property="locationLon" />
+    <result column="location_lat" jdbcType="DECIMAL" property="locationLat" />
+    <result column="location_address" jdbcType="VARCHAR" property="locationAddress" />
+    <result column="location_desc" jdbcType="VARCHAR" property="locationDesc" />
+    <result column="create_by" jdbcType="BIGINT" property="createBy" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="cabinet_alias" jdbcType="VARCHAR" property="cabinetAlias" />
+  </resultMap>
+  <resultMap extends="BaseResultMap" id="BOResultMap" type="vc.thinker.cabbage.se.bo.CabinetBO" />
+  
+  <resultMap id="CountStatsMap" type="vc.thinker.cabbage.stats.bo.CountStatsBO" />
+  
+  <select id="findByAliasOrSysCode" resultMap="BOResultMap">
+  		select 
+  			* 
+  		from 
+  			se_cabinet 
+  		where 
+  			cabinet_alias = #{cabinetAlias} or sys_code = #{cabinetAlias}
+  		limit 1
+  </select>
+  
+  <select id="findTotalByTime" resultType="java.math.BigDecimal">
+  		select  count(*)   from se_cabinet
+	  	<where>
+		  	<if test="year!=null and year!=''">
+		  	AND DATE_FORMAT(create_time,'%Y') <![CDATA[ = ]]> #{year}
+		  	</if>
+		  	<if test="month!=null and month!=''">
+		  	AND DATE_FORMAT(create_time,'%m') <![CDATA[ = ]]> #{month}
+		  	</if>
+	  	</where>
+  </select>
+  
+  <select id="statsNormalCabinet" resultMap="CountStatsMap">
+  		select
+			<if test="vo.statsType!=null and vo.statsType==&quot;1&quot; ">
+				DATE_FORMAT(create_time, '%m') AS statsTime,
+			</if>
+			<if test="vo.statsType!=null and vo.statsType==&quot;2&quot; ">
+				DATE_FORMAT(create_time, '%d') AS statsTime,
+			</if>
+			count(1) sum
+		FROM
+			se_cabinet
+		WHERE
+			<if test="vo.statsType!=null and vo.statsType==&quot;1&quot; ">
+				DATE_FORMAT(create_time, '%Y') = #{vo.time}
+			</if>
+			<if test="vo.statsType!=null and vo.statsType==&quot;2&quot; ">
+				DATE_FORMAT(create_time, '%Y-%m') = #{vo.time}
+			</if>
+		 
+		 group by statsTime 
+  </select>
+  
+  <select id="findDetailsOne" resultMap="BOResultMap">
+  		select 
+  			c.*,
+  			t.type_name typeName,
+  			s.seller_name sellerName,
+  			ua.agent_name agentName
+  		from 
+  			se_cabinet c 
+  			left join se_cabinet_type t on c.type_id = t.id
+			left join user_seller s on c.seller_id = s.uid
+			left join user_agent ua on c.agent_id = ua.uid
+  		 where c.id = #{id,jdbcType=BIGINT}
+  </select>
+  
+  <select id="findByLocation" resultMap="BOResultMap">
+	 
+	select ca.*,s.seller_name sellerName from (
+		select 
+			a.id,
+			a.seller_id,
+			a.location_lat,
+			a.location_lon,
+			a.location_address,
+			a.location_desc,
+			a.sys_code,
+			ROUND(
+			6378.138 * 2 * ASIN(
+			    SQRT(
+				POW(
+				    SIN(
+					(
+					    ${p.y} * PI() / 180 - a.location_lat * PI() / 180
+					) / 2
+				    ),
+				    2
+				) + COS(${p.y} * PI() / 180) * COS(a.location_lat * PI() / 180) * POW(
+				    SIN(
+					(
+					    ${p.x} * PI() / 180 - a.location_lon * PI() / 180
+					) / 2
+				    ),
+				    2
+				)
+			    )
+			) * 1000
+		    ) AS distance 
+		  from se_cabinet a where status = 1 and is_delivery = 1
+	)ca left join user_seller s on ca.seller_id = s.uid
+
+	<where>
+		<if test="distance != null">
+			ca.distance <![CDATA[<= ]]> #{distance}
+		</if>
+	</where>
+  </select>
+  
+  <select id="findCabinetsByType" resultMap="BOResultMap">
+	SELECT
+		c.*
+	FROM
+		se_cabinet c
+	WHERE 
+	c.type_id = #{typeId, jdbcType=BIGINT}
+  </select>
+  
+  
+  <select id="findByIds" resultMap="BOResultMap">
+	SELECT
+		umm.*
+	FROM
+		se_cabinet c
+	WHERE
+		c.id IN
+      <foreach close=")" collection="idList" item="listItem" open="(" separator=",">
+          #{listItem}
+      </foreach>
+  	ORDER BY FIELD(c.id,
+  	   <foreach collection="idList" item="listItem" separator=",">
+          #{listItem}
+      </foreach>)
+  </select>
+  
+  <select id="findPageByVo" resultMap="BOResultMap">
+  		select 
+			c.*,a.name createName, 
+			t.type_name typeName, 
+			r.rule_desc ruleDesc, 
+			s.seller_name sellerName,
+			ua.agent_name agentName
+		from 
+			se_cabinet c 
+			left join user_admin a on c.create_by = a.uid 
+			left join se_cabinet_type t on c.type_id = t.id
+			left join se_cabinet_charge_rule r on c.rule_id = r.id
+			left join user_seller s on c.seller_id = s.uid 
+			left join user_agent ua on c.agent_id = ua.uid
+		<where>
+			<if test="null != vo.typeId">
+				and c.type_id = #{vo.typeId}
+			</if>
+			<if test="null != vo.sellerId">
+				and c.seller_id = #{vo.sellerId}
+			</if>
+			<if test="null != vo.agentId">
+				and c.agent_id = #{vo.agentId}
+			</if>
+			<if test="null != vo.status and '' != vo.status">
+				and c.status = #{vo.status}
+			</if>
+			<if test="null != vo.cabinetCode and '' != vo.cabinetCode">
+				and c.cabinet_code like concat('%', #{vo.cabinetCode}, '%') 
+			</if>
+			<if test="null != vo.isDelivery and vo.isDelivery">
+				and c.is_delivery = 1
+			</if>
+			<if test="null != vo.isDelivery and !vo.isDelivery">
+				and c.is_delivery = 0
+			</if>
+			<if test="null != vo.sysCode and '' != vo.sysCode">
+				and c.sys_code like concat('%', #{vo.sysCode}, '%') 
+			</if>
+			<if test="null != vo.sellerName and '' != vo.sellerName">
+				and s.seller_name like concat('%', #{vo.sellerName}, '%') 
+			</if>
+			<if test="vo.beginDate != null and vo.beginDate != ''">
+  				AND DATE_FORMAT(c.create_time,'%Y-%m-%d') <![CDATA[ >= ]]> DATE_FORMAT(#{vo.beginDate},'%Y-%m-%d')
+  			</if>
+  			<if test="vo.endDate != null and vo.endDate != ''">
+  				AND DATE_FORMAT(c.create_time,'%Y-%m-%d') <![CDATA[ <= ]]> DATE_FORMAT(#{vo.endDate},'%Y-%m-%d')
+  			</if>
+  			<if test="null != vo.locationAddress and '' != vo.locationAddress">
+  				and (
+  					c.location_address like concat('%', #{vo.locationAddress}, '%') 
+  					or c.location_desc like concat('%', #{vo.locationAddress}, '%') 
+  				)
+  			</if>
+		</where>
+		order by c.create_time desc 
+  </select>
+  
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    id, cabinet_code, sys_code, type_id, rule_id, seller_id, agent_id, status, is_delivery, delivery_time, 
+    delivery_id, location_lon, location_lat, location_address, location_desc, create_by, 
+    create_time, cabinet_alias
+  </sql>
+  <select id="selectByExample" parameterType="vc.thinker.cabbage.se.model.CabinetExample" resultMap="BOResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from se_cabinet
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+    <if test="limit != null">
+      limit ${limit}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BOResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from se_cabinet
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from se_cabinet
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteByExample" parameterType="vc.thinker.cabbage.se.model.CabinetExample">
+    delete from se_cabinet
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" keyProperty="id" parameterType="vc.thinker.cabbage.se.model.Cabinet" useGeneratedKeys="true">
+    insert into se_cabinet (id, cabinet_code, sys_code, 
+      type_id, rule_id, seller_id, agent_id, 
+      status, is_delivery, delivery_time, 
+      delivery_id, location_lon, location_lat, 
+      location_address, location_desc, create_by, 
+      create_time, cabinet_alias)
+    values (#{id,jdbcType=BIGINT}, #{cabinetCode,jdbcType=VARCHAR}, #{sysCode,jdbcType=VARCHAR}, 
+      #{typeId,jdbcType=BIGINT}, #{ruleId,jdbcType=BIGINT}, #{sellerId,jdbcType=BIGINT}, #{agentId,jdbcType=BIGINT}, 
+      #{status,jdbcType=INTEGER}, #{isDelivery,jdbcType=BIT}, #{deliveryTime,jdbcType=TIMESTAMP}, 
+      #{deliveryId,jdbcType=BIGINT}, #{locationLon,jdbcType=DECIMAL}, #{locationLat,jdbcType=DECIMAL}, 
+      #{locationAddress,jdbcType=VARCHAR}, #{locationDesc,jdbcType=VARCHAR}, #{createBy,jdbcType=BIGINT}, 
+      #{createTime,jdbcType=TIMESTAMP}, #{cabinetAlias,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" keyProperty="id" parameterType="vc.thinker.cabbage.se.model.Cabinet" useGeneratedKeys="true">
+    insert into se_cabinet
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="cabinetCode != null">
+        cabinet_code,
+      </if>
+      <if test="sysCode != null">
+        sys_code,
+      </if>
+      <if test="typeId != null">
+        type_id,
+      </if>
+      <if test="ruleId != null">
+        rule_id,
+      </if>
+      <if test="sellerId != null">
+        seller_id,
+      </if>
+      <if test="agentId != null">
+        agent_id,
+      </if>
+      <if test="status != null">
+        status,
+      </if>
+      <if test="isDelivery != null">
+        is_delivery,
+      </if>
+      <if test="deliveryTime != null">
+        delivery_time,
+      </if>
+      <if test="deliveryId != null">
+        delivery_id,
+      </if>
+      <if test="locationLon != null">
+        location_lon,
+      </if>
+      <if test="locationLat != null">
+        location_lat,
+      </if>
+      <if test="locationAddress != null">
+        location_address,
+      </if>
+      <if test="locationDesc != null">
+        location_desc,
+      </if>
+      <if test="createBy != null">
+        create_by,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="cabinetAlias != null">
+        cabinet_alias,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="cabinetCode != null">
+        #{cabinetCode,jdbcType=VARCHAR},
+      </if>
+      <if test="sysCode != null">
+        #{sysCode,jdbcType=VARCHAR},
+      </if>
+      <if test="typeId != null">
+        #{typeId,jdbcType=BIGINT},
+      </if>
+      <if test="ruleId != null">
+        #{ruleId,jdbcType=BIGINT},
+      </if>      
+      <if test="sellerId != null">
+        #{sellerId,jdbcType=BIGINT},
+      </if>
+      <if test="agentId != null">
+        #{agentId,jdbcType=BIGINT},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=INTEGER},
+      </if>
+      <if test="isDelivery != null">
+        #{isDelivery,jdbcType=BIT},
+      </if>
+      <if test="deliveryTime != null">
+        #{deliveryTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="deliveryId != null">
+        #{deliveryId,jdbcType=BIGINT},
+      </if>
+      <if test="locationLon != null">
+        #{locationLon,jdbcType=DECIMAL},
+      </if>
+      <if test="locationLat != null">
+        #{locationLat,jdbcType=DECIMAL},
+      </if>
+      <if test="locationAddress != null">
+        #{locationAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="locationDesc != null">
+        #{locationDesc,jdbcType=VARCHAR},
+      </if>
+      <if test="createBy != null">
+        #{createBy,jdbcType=BIGINT},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="cabinetAlias != null">
+        #{cabinetAlias,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="vc.thinker.cabbage.se.model.CabinetExample" resultType="java.lang.Integer">
+    select count(*) from se_cabinet
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update se_cabinet
+    <set>
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=BIGINT},
+      </if>
+      <if test="record.cabinetCode != null">
+        cabinet_code = #{record.cabinetCode,jdbcType=VARCHAR},
+      </if>
+      <if test="record.sysCode != null">
+        sys_code = #{record.sysCode,jdbcType=VARCHAR},
+      </if>
+      <if test="record.typeId != null">
+        type_id = #{record.typeId,jdbcType=BIGINT},
+      </if>
+      <if test="record.ruleId != null">
+        rule_id = #{record.ruleId,jdbcType=BIGINT},
+      </if>      
+      <if test="record.sellerId != null">
+        seller_id = #{record.sellerId,jdbcType=BIGINT},
+      </if>
+      <if test="record.agentId != null">
+        agent_id = #{record.agentId,jdbcType=BIGINT},
+      </if>
+      <if test="record.status != null">
+        status = #{record.status,jdbcType=INTEGER},
+      </if>
+      <if test="record.isDelivery != null">
+        is_delivery = #{record.isDelivery,jdbcType=BIT},
+      </if>
+      <if test="record.deliveryTime != null">
+        delivery_time = #{record.deliveryTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.deliveryId != null">
+        delivery_id = #{record.deliveryId,jdbcType=BIGINT},
+      </if>
+      <if test="record.locationLon != null">
+        location_lon = #{record.locationLon,jdbcType=DECIMAL},
+      </if>
+      <if test="record.locationLat != null">
+        location_lat = #{record.locationLat,jdbcType=DECIMAL},
+      </if>
+      <if test="record.locationAddress != null">
+        location_address = #{record.locationAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="record.locationDesc != null">
+        location_desc = #{record.locationDesc,jdbcType=VARCHAR},
+      </if>
+      <if test="record.createBy != null">
+        create_by = #{record.createBy,jdbcType=BIGINT},
+      </if>
+      <if test="record.createTime != null">
+        create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.cabinetAlias != null">
+        cabinet_alias = #{record.cabinetAlias,jdbcType=VARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update se_cabinet
+    set id = #{record.id,jdbcType=BIGINT},
+      cabinet_code = #{record.cabinetCode,jdbcType=VARCHAR},
+      sys_code = #{record.sysCode,jdbcType=VARCHAR},
+      type_id = #{record.typeId,jdbcType=BIGINT},
+      rule_id = #{record.ruleId,jdbcType=BIGINT},
+      seller_id = #{record.sellerId,jdbcType=BIGINT},
+      agent_id = #{record.agentId,jdbcType=BIGINT},
+      status = #{record.status,jdbcType=INTEGER},
+      is_delivery = #{record.isDelivery,jdbcType=BIT},
+      delivery_time = #{record.deliveryTime,jdbcType=TIMESTAMP},
+      delivery_id = #{record.deliveryId,jdbcType=BIGINT},
+      location_lon = #{record.locationLon,jdbcType=DECIMAL},
+      location_lat = #{record.locationLat,jdbcType=DECIMAL},
+      location_address = #{record.locationAddress,jdbcType=VARCHAR},
+      location_desc = #{record.locationDesc,jdbcType=VARCHAR},
+      create_by = #{record.createBy,jdbcType=BIGINT},
+      create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      cabinet_alias = #{record.cabinetAlias,jdbcType=VARCHAR}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="vc.thinker.cabbage.se.model.Cabinet">
+    update se_cabinet
+    <set>
+      <if test="cabinetCode != null">
+        cabinet_code = #{cabinetCode,jdbcType=VARCHAR},
+      </if>
+      <if test="sysCode != null">
+        sys_code = #{sysCode,jdbcType=VARCHAR},
+      </if>
+      <if test="typeId != null">
+        type_id = #{typeId,jdbcType=BIGINT},
+      </if>
+      <if test="ruleId != null">
+        rule_id = #{ruleId,jdbcType=BIGINT},
+      </if>      
+      <if test="sellerId != null">
+        seller_id = #{sellerId,jdbcType=BIGINT},
+      </if>
+      <if test="agentId != null">
+        agent_id = #{agentId,jdbcType=BIGINT},
+      </if>
+      <if test="status != null">
+        status = #{status,jdbcType=INTEGER},
+      </if>
+      <if test="isDelivery != null">
+        is_delivery = #{isDelivery,jdbcType=BIT},
+      </if>
+      <if test="deliveryTime != null">
+        delivery_time = #{deliveryTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="deliveryId != null">
+        delivery_id = #{deliveryId,jdbcType=BIGINT},
+      </if>
+      <if test="locationLon != null">
+        location_lon = #{locationLon,jdbcType=DECIMAL},
+      </if>
+      <if test="locationLat != null">
+        location_lat = #{locationLat,jdbcType=DECIMAL},
+      </if>
+      <if test="locationAddress != null">
+        location_address = #{locationAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="locationDesc != null">
+        location_desc = #{locationDesc,jdbcType=VARCHAR},
+      </if>
+      <if test="createBy != null">
+        create_by = #{createBy,jdbcType=BIGINT},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="cabinetAlias != null">
+        cabinet_alias = #{cabinetAlias,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="vc.thinker.cabbage.se.model.Cabinet">
+    update se_cabinet
+    set cabinet_code = #{cabinetCode,jdbcType=VARCHAR},
+      sys_code = #{sysCode,jdbcType=VARCHAR},
+      type_id = #{typeId,jdbcType=BIGINT},
+      rule_id = #{ruleId,jdbcType=BIGINT},
+      seller_id = #{sellerId,jdbcType=BIGINT},
+      agent_id = #{agentId,jdbcType=BIGINT},
+      status = #{status,jdbcType=INTEGER},
+      is_delivery = #{isDelivery,jdbcType=BIT},
+      delivery_time = #{deliveryTime,jdbcType=TIMESTAMP},
+      delivery_id = #{deliveryId,jdbcType=BIGINT},
+      location_lon = #{locationLon,jdbcType=DECIMAL},
+      location_lat = #{locationLat,jdbcType=DECIMAL},
+      location_address = #{locationAddress,jdbcType=VARCHAR},
+      location_desc = #{locationDesc,jdbcType=VARCHAR},
+      create_by = #{createBy,jdbcType=BIGINT},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      cabinet_alias = #{cabinetAlias,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

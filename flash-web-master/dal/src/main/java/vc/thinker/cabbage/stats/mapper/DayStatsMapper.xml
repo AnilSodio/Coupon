@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="vc.thinker.cabbage.stats.mapper.DayStatsMapper" >
+  <resultMap id="BaseResultMap" type="vc.thinker.cabbage.stats.model.DayStats" >
+    <id column="office_id" property="officeId" jdbcType="BIGINT" />
+    <id column="stats_date" property="statsDate" jdbcType="DATE" />
+    <result column="cabinet_num" property="cabinetNum" jdbcType="INTEGER" />
+    <result column="deposit" property="deposit" jdbcType="DECIMAL" />
+    <result column="pb_num" property="pbNum" jdbcType="INTEGER" />
+    <result column="type" property="type" jdbcType="INTEGER" />
+  </resultMap>
+  <resultMap id="BOResultMap" type="vc.thinker.cabbage.stats.bo.DayStatsBO" extends="BaseResultMap" />
+  <update id="updateByMonth">
+	   update se_stats
+	   	set type =1
+	  where  DATE_FORMAT(stats_date, '%Y-%m') = #{month}
+  </update>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    office_id, stats_date, cabinet_num, deposit, pb_num, type
+  </sql>
+  <select id="selectByExample" parameterType="vc.thinker.cabbage.stats.model.DayStatsExample" resultMap="BOResultMap" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from st_stats
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+    <if test="limit != null" >
+      limit ${limit}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="map" resultMap="BOResultMap" >
+    select 
+    <include refid="Base_Column_List" />
+    from st_stats
+    where office_id = #{officeId,jdbcType=BIGINT}
+      and stats_date = #{statsDate,jdbcType=DATE}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="map" >
+    delete from st_stats
+    where office_id = #{officeId,jdbcType=BIGINT}
+      and stats_date = #{statsDate,jdbcType=DATE}
+  </delete>
+  <delete id="deleteByExample" parameterType="vc.thinker.cabbage.stats.model.DayStatsExample" >
+    delete from st_stats
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="vc.thinker.cabbage.stats.model.DayStats" >
+    insert into st_stats (office_id, stats_date, cabinet_num, 
+      deposit, pb_num, type
+      )
+    values (#{officeId,jdbcType=BIGINT}, #{statsDate,jdbcType=DATE}, #{cabinetNum,jdbcType=INTEGER}, 
+      #{deposit,jdbcType=DECIMAL}, #{pbNum,jdbcType=INTEGER}, #{type,jdbcType=INTEGER}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="vc.thinker.cabbage.stats.model.DayStats" >
+    insert into st_stats
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="officeId != null" >
+        office_id,
+      </if>
+      <if test="statsDate != null" >
+        stats_date,
+      </if>
+      <if test="cabinetNum != null" >
+        cabinet_num,
+      </if>
+      <if test="deposit != null" >
+        deposit,
+      </if>
+      <if test="pbNum != null" >
+        pb_num,
+      </if>
+      <if test="type != null" >
+        type,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="officeId != null" >
+        #{officeId,jdbcType=BIGINT},
+      </if>
+      <if test="statsDate != null" >
+        #{statsDate,jdbcType=DATE},
+      </if>
+      <if test="cabinetNum != null" >
+        #{cabinetNum,jdbcType=INTEGER},
+      </if>
+      <if test="deposit != null" >
+        #{deposit,jdbcType=DECIMAL},
+      </if>
+      <if test="pbNum != null" >
+        #{pbNum,jdbcType=INTEGER},
+      </if>
+      <if test="type != null" >
+        #{type,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="vc.thinker.cabbage.stats.model.DayStatsExample" resultType="java.lang.Integer" >
+    select count(*) from st_stats
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map" >
+    update st_stats
+    <set >
+      <if test="record.officeId != null" >
+        office_id = #{record.officeId,jdbcType=BIGINT},
+      </if>
+      <if test="record.statsDate != null" >
+        stats_date = #{record.statsDate,jdbcType=DATE},
+      </if>
+      <if test="record.cabinetNum != null" >
+        cabinet_num = #{record.cabinetNum,jdbcType=INTEGER},
+      </if>
+      <if test="record.deposit != null" >
+        deposit = #{record.deposit,jdbcType=DECIMAL},
+      </if>
+      <if test="record.pbNum != null" >
+        pb_num = #{record.pbNum,jdbcType=INTEGER},
+      </if>
+      <if test="record.type != null" >
+        type = #{record.type,jdbcType=INTEGER},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+    update st_stats
+    set office_id = #{record.officeId,jdbcType=BIGINT},
+      stats_date = #{record.statsDate,jdbcType=DATE},
+      cabinet_num = #{record.cabinetNum,jdbcType=INTEGER},
+      deposit = #{record.deposit,jdbcType=DECIMAL},
+      pb_num = #{record.pbNum,jdbcType=INTEGER},
+      type = #{record.type,jdbcType=INTEGER}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="vc.thinker.cabbage.stats.model.DayStats" >
+    update st_stats
+    <set >
+      <if test="cabinetNum != null" >
+        cabinet_num = #{cabinetNum,jdbcType=INTEGER},
+      </if>
+      <if test="deposit != null" >
+        deposit = #{deposit,jdbcType=DECIMAL},
+      </if>
+      <if test="pbNum != null" >
+        pb_num = #{pbNum,jdbcType=INTEGER},
+      </if>
+      <if test="type != null" >
+        type = #{type,jdbcType=INTEGER},
+      </if>
+    </set>
+    where office_id = #{officeId,jdbcType=BIGINT}
+      and stats_date = #{statsDate,jdbcType=DATE}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="vc.thinker.cabbage.stats.model.DayStats" >
+    update st_stats
+    set cabinet_num = #{cabinetNum,jdbcType=INTEGER},
+      deposit = #{deposit,jdbcType=DECIMAL},
+      pb_num = #{pbNum,jdbcType=INTEGER},
+      type = #{type,jdbcType=INTEGER}
+    where office_id = #{officeId,jdbcType=BIGINT}
+      and stats_date = #{statsDate,jdbcType=DATE}
+  </update>
+</mapper>

@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<!--(C) COPYRIGHT International Business Machines Corp., 2013 -->
+<!-- All rights reserved * Licensed Materials - Property of IBM         -->
+<html lang="en">
+<head>
+<title>Web Messaging Utility</title>
+<meta http-equiv="Content-Type" content="text/html" charset="UTF-8" />
+<script src="https://cdn.rawgit.com/dcodeIO/Long.js/master/dist/long.min.js"></script>
+<script src="https://cdn.rawgit.com/dcodeIO/bytebuffer.js/master/dist/bytebuffer.min.js"></script>
+<script src="https://cdn.rawgit.com/dcodeIO/ProtoBuf.js/master/dist/protobuf.js"></script>
+
+
+<style>
+#keyboard {
+    border-radius: 25px;
+    background: #8AC007;
+    margin-top: 100px;
+    width: 100px;
+    height:80px;
+    text-align:center;
+    display:none;
+}
+#console{
+	color:red;
+	font:italic arial,sans-serif;
+}
+</style>
+</head>
+
+<body class="oneui claro">
+<div id="console" style="font-size:9px;">
+
+</div>
+<div><input id="input"></div>
+<script type="text/javascript" src='js/jquery-1.11.3.min.js'></script>
+
+<script type="text/javascript" src='js/mqttws31.js'></script>
+<script type="text/javascript">
+if (typeof dcodeIO === 'undefined' || !dcodeIO.ProtoBuf) {
+    throw(new Error("ProtoBuf.js is not present. Please see www/index.html for manual setup instructions."));
+}
+// Initialize ProtoBuf.js
+var ProtoBuf = dcodeIO.ProtoBuf;
+var Message = ProtoBuf.loadProtoFile("./message.proto").build("ProtoMessage");
+var SystemMessage = ProtoBuf.loadProtoFile("./systemmessage.proto").build("ProtoSystemMessage");
+
+// Create a client instance
+//uid 29
+var access_token = "1cd62327-f0e8-4895-b1f8-82890dc7b660";
+var CLIENT_ID = 'T_'+access_token;
+client = new Paho.MQTT.Client("192.168.1.250", Number(8083), CLIENT_ID);
+
+// set callback handlers
+client.onConnectionLost = onConnectionLost;
+client.onMessageArrived = onMessageArrived;
+
+// connect the client
+client.connect({onSuccess:onConnect});
+
+function print(text){
+	var cons = $("#console");
+	cons.append('<br/>').append(text);
+}
+// called when the client connects
+function onConnect() {
+  // Once a connection has been made, make a subscription and send a message.
+  console.log("onConnect");
+  print('连接成功');
+  client.subscribe(access_token + "_topic");
+  client.subscribe(access_token+ "_systopic");
+   print('订阅topic和systopic');
+
+}
+
+// called when the client loses its connection
+function onConnectionLost(responseObject) {
+  if (responseObject.errorCode !== 0) {
+    console.log("onConnectionLost:"+responseObject.errorMessage);
+  }
+}
+
+
+
+
+// called when a message arrives
+function onMessageArrived(message) {
+
+    var topic = message.destinationName;
+	var isSystemTopic  = topic.indexOf("_systopic")>-1;
+   	var MSG = isSystemTopic?SystemMessage:Message;
+	var msg = MSG.decode(message.payloadBytes);
+    //alert(JSON.stringify(msg));
+    var text = "";
+    if(isSystemTopic){
+    	text = "请问我有什么可以帮助您的？";
+    }else{
+	    if(msg.message.msgType==0){
+	    	text = msg.message.timestamp.toString();
+	    }else{
+	    	text = msg.message.content.text;
+	    }
+    }
+    print(text);
+
+}
+
+function sendMsg(text){
+	var msg = new Message();
+	msg.accessToken = access_token;
+	var location = {"x": 113.949203,"y": 22.554506};
+	var mm = {};
+	var content = {};
+	content.type = "TEXT";
+	content.text = text;
+	mm.content = content;
+	msg.location=location;
+	msg.message = mm;
+
+	var message = new Paho.MQTT.Message(msg.toArrayBuffer());
+	message.destinationName = "WEME_SERVICE_TOPIC";
+	print(text);
+	client.send(message);
+}
+$(document.body).ready(function(){
+	$("#input").keyup(function(event){
+		var key = event.which;
+		if(key==13){
+			//发送消息
+			var text = $(this).val();
+			$(this).val('');
+			sendMsg(text);
+		}
+	});
+})
+</script>
+</body>
+</html>

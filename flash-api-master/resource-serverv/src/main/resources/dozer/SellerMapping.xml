@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mappings xmlns="http://dozer.sourceforge.net" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://dozer.sourceforge.net
+	http://dozer.sourceforge.net/schema/beanmapping.xsd">
+
+	<mapping>
+		<class-a>vc.thinker.cabbage.user.bo.SellerBO</class-a>
+		<class-b>vc.thinker.apiv2.bo.APISellerBO</class-b>
+		<field custom-converter="vc.thinker.apiv2.converter.JsonToListConverter">
+			<a>sellerCover</a>
+			<b>sellerCover</b>
+		</field>
+	</mapping>
+
+</mappings> 

@@ -1,0 +1,482 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="vc.thinker.cabbage.stats.mapper.RegisterStatsMapper">
+  <resultMap id="BaseResultMap" type="vc.thinker.cabbage.stats.model.RegisterStats">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="uid" jdbcType="BIGINT" property="uid" />
+    <result column="stats_date" jdbcType="TIMESTAMP" property="statsDate" />
+    <result column="area" jdbcType="VARCHAR" property="area" />
+    <result column="client_type" jdbcType="VARCHAR" property="clientType" />
+    <result column="sex" jdbcType="INTEGER" property="sex" />
+    <result column="age" jdbcType="INTEGER" property="age" />
+  </resultMap>
+  <resultMap extends="BaseResultMap" id="BOResultMap" type="vc.thinker.cabbage.stats.bo.RegisterStatsBO" />
+  <resultMap id="CountStatsMap" type="vc.thinker.cabbage.stats.bo.CountStatsBO" />
+  
+  <delete id="deleteByVo">
+  		delete from st_register_stats
+  		<where>
+		<if test="vo.statsType!=null and vo.statsType==&quot;1&quot; ">
+		DATE_FORMAT(create_time, '%Y') = #{vo.time}
+		</if>
+		<if test="vo.statsType!=null and vo.statsType==&quot;2&quot; ">
+		DATE_FORMAT(create_time, '%Y-%m') = #{vo.time}
+		</if>
+  		</where>
+  </delete>
+  	
+  <select id="findUserStats" resultMap="CountStatsMap">
+  		SELECT
+		<if test="vo.statsType!=null and vo.statsType==&quot;1&quot; ">
+			DATE_FORMAT(create_time, '%m') AS statsTime,
+		</if>
+		<if test="vo.statsType!=null and vo.statsType==&quot;2&quot; ">
+			DATE_FORMAT(create_time, '%d') AS statsTime,
+		</if>
+		count(*) AS userNums
+		FROM
+		user_member
+		WHERE
+		<if test="vo.statsType!=null and vo.statsType==&quot;1&quot; ">
+			DATE_FORMAT(create_time, '%Y') = #{vo.time}
+		</if>
+		<if test="vo.statsType!=null and vo.statsType==&quot;2&quot; ">
+			DATE_FORMAT(create_time, '%Y-%m') = #{vo.time}
+		</if>
+		GROUP BY
+		statsTime
+		ORDER BY
+		statsTime
+  </select>
+  	
+  <select id="countUserByAge" resultMap="BOResultMap">
+  		select 
+  			ageDesc,count(1) totalNum 
+  		from (
+  			select 
+				case 
+				when age <![CDATA[ > ]]> 1 and age <![CDATA[ <= ]]> 20 then '1-20岁'
+				when age <![CDATA[ > ]]> 20 and age <![CDATA[ <= ]]> 30 then '20-30岁'
+				when age <![CDATA[ > ]]> 30 and age <![CDATA[ <= ]]> 40 then '30-40岁'
+				when age <![CDATA[ > ]]> 40 then '40岁以上'
+				else 'unknow' 
+				end ageDesc
+			from st_register_stats
+  		)a 
+  		group by a.ageDesc 
+  </select>
+  
+  <select id="statsBySex" resultMap="BOResultMap">
+	  	select 
+	  		 case when sex = 1 then '男'
+			 when sex = 2 then '女'
+			 else '未知'
+			 end ageDesc ,
+			 count(1) totalNum  
+		from 
+			st_register_stats 
+		group by age  
+  </select>
+  
+  <select id="countByDate" resultType="java.math.BigDecimal">
+  select count(*) from st_register_stats
+  where 1=1
+ 	<if test="date != null and date != ''">
+	AND DATE_FORMAT(stats_date,'%Y-%m-%d') <![CDATA[ = ]]> DATE_FORMAT(#{date},'%Y-%m-%d')
+	</if>
+  </select>
+
+  <select id="getAllActiveUser" resultMap="BOResultMap">
+    select * from st_register_stats;
+  </select>
+ <delete id="deleteByDate">
+        delete
+        from st_register_stats
+        where 1=1
+        <if test="beginDate != null and beginDate != ''">
+            AND DATE_FORMAT(stats_date,'%Y-%m-%d') <![CDATA[ >= ]]> DATE_FORMAT(#{beginDate},'%Y-%m-%d')
+        </if>
+         <if test="endDate != null and endDate != ''">
+            AND DATE_FORMAT(stats_date,'%Y-%m-%d') <![CDATA[ <= ]]> DATE_FORMAT(#{endDate},'%Y-%m-%d')
+        </if>
+    </delete>
+  <insert id="saveOrUpdate" parameterType="vc.thinker.cabbage.stats.model.RegisterStats">
+    insert into st_register_stats
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+
+      <if test="uid != null">
+        uid,
+      </if>
+      <if test="statsDate != null">
+        stats_date,
+      </if>
+      <if test="area != null">
+        area,
+      </if>
+      <if test="clientType != null">
+        client_type,
+      </if>
+      <if test="sex != null">
+        sex,
+      </if>
+      <if test="age != null">
+        age,
+      </if>
+
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+
+      <if test="uid != null">
+        #{uid,jdbcType=BIGINT},
+      </if>
+      <if test="statsDate != null">
+        #{statsDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="area != null">
+        #{area,jdbcType=VARCHAR},
+      </if>
+      <if test="clientType != null">
+        #{clientType,jdbcType=VARCHAR},
+      </if>
+      <if test="sex != null">
+        #{sex,jdbcType=INTEGER},
+      </if>
+      <if test="age != null">
+        #{age,jdbcType=INTEGER},
+      </if>
+
+    </trim>
+      ON DUPLICATE KEY UPDATE
+
+    <trim prefix=" " suffix=" " suffixOverrides=",">
+
+    <if test="uid != null">
+      uid= VALUES(uid),
+    </if>
+    <if test="statsDate != null">
+      stats_date= VALUES(stats_date),
+    </if>
+    <if test="area != null">
+      #{area,jdbcType=VARCHAR},
+    </if>
+    <if test="clientType != null">
+      client_type= VALUES(client_type),
+    </if>
+    <if test="sex != null">
+      sex= VALUES(sex),
+    </if>
+    <if test="age != null">
+      age= VALUES(age),
+    </if>
+
+    </trim>
+
+  </insert>
+
+
+   <select id="findTotalByTime" resultType="java.math.BigDecimal">
+  select count(*) from st_register_stats
+  where 1=1
+ 	<if test="year!=null and year!=''">
+  	AND DATE_FORMAT(stats_date,'%Y') <![CDATA[ = ]]> #{year}
+  	</if>
+  	<if test="month!=null and month!=''">
+  	AND DATE_FORMAT(stats_date,'%m') <![CDATA[ = ]]> #{month}
+  	</if>
+  </select>
+  <select id="countAvgByDate" resultType="java.math.BigDecimal">
+  select 
+  ROUND(count(*)/(to_days(#{endDate}) - to_days(#{beginDate})+1), 2)
+  from st_register_stats
+  where 1=1
+ 	<if test="beginDate != null and beginDate != ''">
+	AND DATE_FORMAT(stats_date,'%Y-%m-%d') <![CDATA[ >= ]]> DATE_FORMAT(#{beginDate},'%Y-%m-%d')
+	</if>
+	<if test="endDate != null and endDate != ''">
+	AND DATE_FORMAT(stats_date,'%Y-%m-%d') <![CDATA[ <= ]]> DATE_FORMAT(#{endDate},'%Y-%m-%d')
+	</if>
+  </select>
+   <select id="findRegistInfoByGroupType" resultType="vc.thinker.cabbage.stats.bo.RealTimeGroupStatsBO" statementType="STATEMENT">
+  	select 
+	${groupType} groupName,
+	count(*) 
+	value
+	from st_register_stats
+ 	where 1=1
+ 	<if test="date != null and date != ''">
+	AND DATE_FORMAT(stats_date,'%Y-%m-%d') <![CDATA[ = ]]> DATE_FORMAT('${date}','%Y-%m-%d')
+	</if>
+	 group by
+	 ${groupType}
+  </select>
+    <select id="findRegistByTimeRange" resultType="java.math.BigDecimal">
+  select 
+	count(*) 
+   from st_register_stats
+ 	where 1=1
+ 	 <choose>
+        	<when test="day=='total'">
+        		<if test="time1 != null and time1 != ''">
+		            AND DATE_FORMAT(stats_date,'%H:%i:%s') <![CDATA[ >= ]]> #{time1}
+		        </if>
+		        <if test="time2 != null and time2 != ''">
+		            AND DATE_FORMAT(stats_date,'%H:%i:%s') <![CDATA[ <= ]]> #{time2}
+		        </if>
+        	</when>
+        	<otherwise>
+        		<if test="time1 != null and time1 != ''">
+		            AND DATE_FORMAT(stats_date,'%Y-%m-%d%H%i%s') <![CDATA[ >= ]]> DATE_FORMAT(#{time1},'%Y-%m-%d%H%i%s')
+		        </if>
+		        <if test="time2 != null and time2 != ''">
+		            AND DATE_FORMAT(stats_date,'%Y-%m-%d%H%i%s') <![CDATA[ <= ]]> DATE_FORMAT(#{time2},'%Y-%m-%d%H%i%s')
+		        </if>        	
+        	</otherwise>
+        </choose>
+  </select>
+  <select id="findRegistByAgeRange" resultType="java.math.BigDecimal">
+  	select count(*)  from st_register_stats 
+ 	where 1=1
+ 	<if test="date != null and date != ''">
+	AND DATE_FORMAT(stats_date,'%Y-%m-%d') <![CDATA[ = ]]> DATE_FORMAT('${date}','%Y-%m-%d')
+	</if>
+ 	<if test="age1 != null ">
+	AND age <![CDATA[ >= ]]>#{age1}
+	</if>
+	<if test="age2 != null ">
+	AND age <![CDATA[ <= ]]>#{age2}
+	</if>
+  </select>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    id, uid, stats_date, area, client_type, sex, age
+  </sql>
+  <select id="selectByExample" parameterType="vc.thinker.cabbage.stats.model.RegisterStatsExample" resultMap="BOResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from st_register_stats
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+    <if test="limit != null">
+      limit ${limit}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BOResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from st_register_stats
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from st_register_stats
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteByExample" parameterType="vc.thinker.cabbage.stats.model.RegisterStatsExample">
+    delete from st_register_stats
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" keyProperty="id" parameterType="vc.thinker.cabbage.stats.model.RegisterStats" useGeneratedKeys="true">
+    insert into st_register_stats (id, uid, stats_date, 
+      area, client_type, sex, 
+      age)
+    values (#{id,jdbcType=BIGINT}, #{uid,jdbcType=BIGINT}, #{statsDate,jdbcType=TIMESTAMP}, 
+      #{area,jdbcType=VARCHAR}, #{clientType,jdbcType=VARCHAR}, #{sex,jdbcType=INTEGER}, 
+      #{age,jdbcType=INTEGER})
+  </insert>
+  <insert id="insertSelective" keyProperty="id" parameterType="vc.thinker.cabbage.stats.model.RegisterStats" useGeneratedKeys="true">
+    insert into st_register_stats
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="uid != null">
+        uid,
+      </if>
+      <if test="statsDate != null">
+        stats_date,
+      </if>
+      <if test="area != null">
+        area,
+      </if>
+      <if test="clientType != null">
+        client_type,
+      </if>
+      <if test="sex != null">
+        sex,
+      </if>
+      <if test="age != null">
+        age,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="uid != null">
+        #{uid,jdbcType=BIGINT},
+      </if>
+      <if test="statsDate != null">
+        #{statsDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="area != null">
+        #{area,jdbcType=VARCHAR},
+      </if>
+      <if test="clientType != null">
+        #{clientType,jdbcType=VARCHAR},
+      </if>
+      <if test="sex != null">
+        #{sex,jdbcType=INTEGER},
+      </if>
+      <if test="age != null">
+        #{age,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="vc.thinker.cabbage.stats.model.RegisterStatsExample" resultType="java.lang.Integer">
+    select count(*) from st_register_stats
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update st_register_stats
+    <set>
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=BIGINT},
+      </if>
+      <if test="record.uid != null">
+        uid = #{record.uid,jdbcType=BIGINT},
+      </if>
+      <if test="record.statsDate != null">
+        stats_date = #{record.statsDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.area != null">
+        area = #{record.area,jdbcType=VARCHAR},
+      </if>
+      <if test="record.clientType != null">
+        client_type = #{record.clientType,jdbcType=VARCHAR},
+      </if>
+      <if test="record.sex != null">
+        sex = #{record.sex,jdbcType=INTEGER},
+      </if>
+      <if test="record.age != null">
+        age = #{record.age,jdbcType=INTEGER},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update st_register_stats
+    set id = #{record.id,jdbcType=BIGINT},
+      uid = #{record.uid,jdbcType=BIGINT},
+      stats_date = #{record.statsDate,jdbcType=TIMESTAMP},
+      area = #{record.area,jdbcType=VARCHAR},
+      client_type = #{record.clientType,jdbcType=VARCHAR},
+      sex = #{record.sex,jdbcType=INTEGER},
+      age = #{record.age,jdbcType=INTEGER}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="vc.thinker.cabbage.stats.model.RegisterStats">
+    update st_register_stats
+    <set>
+      <if test="uid != null">
+        uid = #{uid,jdbcType=BIGINT},
+      </if>
+      <if test="statsDate != null">
+        stats_date = #{statsDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="area != null">
+        area = #{area,jdbcType=VARCHAR},
+      </if>
+      <if test="clientType != null">
+        client_type = #{clientType,jdbcType=VARCHAR},
+      </if>
+      <if test="sex != null">
+        sex = #{sex,jdbcType=INTEGER},
+      </if>
+      <if test="age != null">
+        age = #{age,jdbcType=INTEGER},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="vc.thinker.cabbage.stats.model.RegisterStats">
+    update st_register_stats
+    set uid = #{uid,jdbcType=BIGINT},
+      stats_date = #{statsDate,jdbcType=TIMESTAMP},
+      area = #{area,jdbcType=VARCHAR},
+      client_type = #{clientType,jdbcType=VARCHAR},
+      sex = #{sex,jdbcType=INTEGER},
+      age = #{age,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

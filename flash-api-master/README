@@ -1,0 +1,11 @@
+新科聚合API开发框架
+
+登录测试
+http://127.0.0.1:8082/oauth/token
+Content-Type:application/x-www-form-urlencoded
+request body
+username=13520894287&client_secret=92aa5479e9b3fc62c4f7faff7d415310&grant_type=password&client_id=3000001&password=123456
+
+
+获取平台的client的token
+client_secret=92aa5479e9b3fc62c4f7faff7d415310&grant_type=client_credentials&client_id=3000001

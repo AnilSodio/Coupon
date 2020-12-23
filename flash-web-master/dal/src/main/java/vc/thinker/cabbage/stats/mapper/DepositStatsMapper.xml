@@ -1,0 +1,282 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="vc.thinker.cabbage.stats.mapper.DepositStatsMapper">
+  <resultMap id="BaseResultMap" type="vc.thinker.cabbage.stats.model.DepositStats">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="current_day" jdbcType="VARCHAR" property="currentDay" />
+    <result column="deposit" jdbcType="DECIMAL" property="deposit" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="currency" jdbcType="VARCHAR" property="currency" />
+  </resultMap>
+  <resultMap extends="BaseResultMap" id="BOResultMap" type="vc.thinker.cabbage.stats.bo.DepositStatsBO" />
+  
+  <resultMap id="CountStatsMap" type="vc.thinker.cabbage.stats.bo.CountStatsBO" />
+  
+  <select id="statisticsCurrentDeposit" resultMap="CountStatsMap">
+  		select
+			<if test="vo.statsType!=null and vo.statsType==&quot;1&quot; ">
+				DATE_FORMAT(create_time, '%m') AS statsTime,
+			</if>
+			<if test="vo.statsType!=null and vo.statsType==&quot;2&quot; ">
+				DATE_FORMAT(create_time, '%d') AS statsTime,
+			</if>
+			sum(deposit) deposit,currency
+		FROM
+			st_deposit_stats
+		WHERE
+			<if test="vo.statsType!=null and vo.statsType==&quot;1&quot; ">
+				DATE_FORMAT(create_time, '%Y') = #{vo.time}
+			</if>
+			<if test="vo.statsType!=null and vo.statsType==&quot;2&quot; ">
+				DATE_FORMAT(create_time, '%Y-%m') = #{vo.time}
+			</if>
+		 
+		 group by statsTime ,currency
+  </select>
+  
+  <select id="sumByDateGouupByCurrency" resultMap="BOResultMap">
+  		select currency,sum(amount) deposit,currency from user_deposit_log 
+	  	where type = 1
+	 	<if test="date != null and date != ''">
+		AND DATE_FORMAT(create_time,'%Y-%m-%d') <![CDATA[ = ]]> DATE_FORMAT(#{date},'%Y-%m-%d')
+		</if>
+		group by currency
+  </select>
+  
+  <select id="sumAvgByDateGroupByCurrency" resultMap="BOResultMap">
+  		select 
+	  	ROUND(sum(amount)/(to_days(#{endDate}) - to_days(#{beginDate})+1), 2) deposit,currency
+	  	 from user_deposit_log 
+	  	where  type=1
+	 	<if test="beginDate != null and beginDate != ''">
+		AND DATE_FORMAT(create_time,'%Y-%m-%d') <![CDATA[ >= ]]> DATE_FORMAT(#{beginDate},'%Y-%m-%d')
+		</if>
+		<if test="endDate != null and endDate != ''">
+		AND DATE_FORMAT(create_time,'%Y-%m-%d') <![CDATA[ <= ]]> DATE_FORMAT(#{endDate},'%Y-%m-%d')
+		</if>
+		 group by currency
+  </select>
+  	
+  <select id="sumByDate" resultType="java.math.BigDecimal">
+  	select sum(amount) from user_deposit_pay_log 
+  	where status = 2 
+ 	<if test="date != null and date != ''">
+	AND DATE_FORMAT(pay_time,'%Y-%m-%d') <![CDATA[ = ]]> DATE_FORMAT(#{date},'%Y-%m-%d')
+	</if>
+  </select>
+    <select id="sumAvgByDate" resultType="java.math.BigDecimal">
+  	select 
+  	ROUND(sum(amount)/(to_days(#{endDate}) - to_days(#{beginDate})+1), 2)
+  	 from user_deposit_log 
+  	where 1=1 and type=1
+ 	<if test="beginDate != null and beginDate != ''">
+	AND DATE_FORMAT(create_time,'%Y-%m-%d') <![CDATA[ >= ]]> DATE_FORMAT(#{beginDate},'%Y-%m-%d')
+	</if>
+	<if test="endDate != null and endDate != ''">
+	AND DATE_FORMAT(create_time,'%Y-%m-%d') <![CDATA[ <= ]]> DATE_FORMAT(#{endDate},'%Y-%m-%d')
+	</if>
+  </select>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    id, current_day, deposit, create_time, currency
+  </sql>
+  <select id="selectByExample" parameterType="vc.thinker.cabbage.stats.model.DepositStatsExample" resultMap="BOResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from st_deposit_stats
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+    <if test="limit != null">
+      limit ${limit}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BOResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from st_deposit_stats
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from st_deposit_stats
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteByExample" parameterType="vc.thinker.cabbage.stats.model.DepositStatsExample">
+    delete from st_deposit_stats
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" keyProperty="id" parameterType="vc.thinker.cabbage.stats.model.DepositStats" useGeneratedKeys="true">
+    insert into st_deposit_stats (id, current_day, deposit, 
+      create_time, currency)
+    values (#{id,jdbcType=BIGINT}, #{currentDay,jdbcType=VARCHAR}, #{deposit,jdbcType=DECIMAL}, 
+      #{createTime,jdbcType=TIMESTAMP}, #{currency,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" keyProperty="id" parameterType="vc.thinker.cabbage.stats.model.DepositStats" useGeneratedKeys="true">
+    insert into st_deposit_stats
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="currentDay != null">
+        current_day,
+      </if>
+      <if test="deposit != null">
+        deposit,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="currency != null">
+        currency,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="currentDay != null">
+        #{currentDay,jdbcType=VARCHAR},
+      </if>
+      <if test="deposit != null">
+        #{deposit,jdbcType=DECIMAL},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="currency != null">
+        #{currency,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="vc.thinker.cabbage.stats.model.DepositStatsExample" resultType="java.lang.Integer">
+    select count(*) from st_deposit_stats
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update st_deposit_stats
+    <set>
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=BIGINT},
+      </if>
+      <if test="record.currentDay != null">
+        current_day = #{record.currentDay,jdbcType=VARCHAR},
+      </if>
+      <if test="record.deposit != null">
+        deposit = #{record.deposit,jdbcType=DECIMAL},
+      </if>
+      <if test="record.createTime != null">
+        create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.currency != null">
+        currency = #{record.currency,jdbcType=VARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update st_deposit_stats
+    set id = #{record.id,jdbcType=BIGINT},
+      current_day = #{record.currentDay,jdbcType=VARCHAR},
+      deposit = #{record.deposit,jdbcType=DECIMAL},
+      create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      currency = #{record.currency,jdbcType=VARCHAR}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="vc.thinker.cabbage.stats.model.DepositStats">
+    update st_deposit_stats
+    <set>
+      <if test="currentDay != null">
+        current_day = #{currentDay,jdbcType=VARCHAR},
+      </if>
+      <if test="deposit != null">
+        deposit = #{deposit,jdbcType=DECIMAL},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="currency != null">
+        currency = #{currency,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="vc.thinker.cabbage.stats.model.DepositStats">
+    update st_deposit_stats
+    set current_day = #{currentDay,jdbcType=VARCHAR},
+      deposit = #{deposit,jdbcType=DECIMAL},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      currency = #{currency,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

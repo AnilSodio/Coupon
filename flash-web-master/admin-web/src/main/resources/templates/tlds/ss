@@ -1,0 +1,36 @@
+call insertResource_en_zh('sys.userGrowthTrendCharts','User growth trend charts','用户增长趋势图','analysis');
+call insertResource_en_zh('sys.userNumber','User number','用户数','analysis');
+call insertResource_en_zh('sys.totalIncome','Total Income','总收入','analysis');
+call insertResource_en_zh('sys.currentIncome','Current income','当期收入','analysis');
+call insertResource_en_zh('sys.ofChinaIntroducerIncome','of China Introducer Income','中国介绍员收入','analysis');
+call insertResource_en_zh('sys.ofMalaysiaIntroducerIncome','of Malaysia Introducer Income','马来西亚介绍者收入','analysis');
+call insertResource_en_zh('sys.ofSingaporeIntroducerIncome','of Singapore Introducer Income','新加坡介绍者收入','analysis');
+
+
+call insertResource_en_zh('sys.ofChinaMerchantsIncome','of China Merchants Income','中国招商收入','analysis');
+call insertResource_en_zh('sys.ofMalaysiaMerchantsIncome','of Malaysia Merchants Income','马来西亚招商收入','analysis');
+call insertResource_en_zh('sys.ofSingaporeMerchantsIncome','of Singapore Merchants Income','新加坡招商收入','analysis');
+call insertResource_en_zh('sys.feedbackTrend','Feedback trend','反馈趋势','analysis');
+call insertResource_en_zh('sys.using','Using','使用','analysis');
+call insertResource_en_zh('sys.done','done','完成','analysis');
+call insertResource_en_zh('sys.home','Home','家','analysis');
+call insertResource_en_zh('sys.total','total','总数','sys settings');
+call insertResource_en_zh('sys.powerBankGrowthTrend','PowerBank growth trend','电力银行成长趋势','sys settings');
+call insertResource_en_zh('sys.totalDepositGrowthTrendChart','Total depositGrowth trend chart','总存款增长趋势图','sys settings');
+call insertResource_en_zh('sys.growthTrend','Growth trend','增长趋势','sys settings');
+
+call insertResource_en_zh('sys.theCurrentDepositTrend','The current deposit trend','活期存款趋势','analysis');
+call insertResource_en_zh('sys.totalDeposit','Total deposit','总存款','analysis');
+call insertResource_en_zh('sys.powerBank','power bank','电力银行','analysis');
+call insertResource_en_zh('sys.NOMOBoxTotalGrowth','NOMO box total growth','NOMO box 总增长量','analysis');
+call insertResource_en_zh('sys.nomoBoxTotal','NOMO box total','NOMO box 总数','analysis');
+call insertResource_en_zh('sys.theNumberOfCurrent','The number of current','电流数','analysis');
+
+call insertResource_en_zh('sys.balanceConsumption','balance consumption','平衡消费','analysis');
+call insertResource_en_zh('sys.ofChinaAgentIncome','of China Agent Income','中国代理收入','analysis');
+call insertResource_en_zh('sys.ofMalaysiaAgentIncome','of Malaysia Agent Income','马来西亚代理收入','analysis');
+call insertResource_en_zh('sys.ofSingaporeAgentIncome','of Singapore Agent Income','新加坡代理收入','analysis');
+
+call insertResource_en_zh('sys.effective','Effective','有效的','analysis');
+call insertResource_en_zh('sys.notActive','Not active','不活跃','analysis');
+call insertResource_en_zh('sys.expired','expired','过期','analysis');

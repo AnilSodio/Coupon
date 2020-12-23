@@ -1,0 +1,469 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="vc.thinker.cabbage.user.mapper.AdminMapper" >
+  <resultMap id="BaseResultMap" type="vc.thinker.cabbage.user.model.Admin" >
+    <id column="uid" property="uid" jdbcType="BIGINT" />
+    <result column="no" property="no" jdbcType="VARCHAR" />
+    <result column="name" property="name" jdbcType="VARCHAR" />
+    <result column="email" property="email" jdbcType="VARCHAR" />
+    <result column="phone" property="phone" jdbcType="VARCHAR" />
+    <result column="mobile" property="mobile" jdbcType="VARCHAR" />
+    <result column="user_type" property="userType" jdbcType="CHAR" />
+    <result column="create_by" property="createBy" jdbcType="VARCHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="update_by" property="updateBy" jdbcType="VARCHAR" />
+    <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+    <result column="remarks" property="remarks" jdbcType="VARCHAR" />
+    <result column="is_del" property="isDel" jdbcType="BIT" />
+    <result column="id_card" property="idCard" jdbcType="VARCHAR" />
+    <result column="sell_code" property="sellCode" jdbcType="VARCHAR" />
+  </resultMap>
+  
+  <resultMap id="BOResultMap" type="vc.thinker.cabbage.user.bo.AdminBO" extends="BaseResultMap">
+	<result column="company_name" property="company.name" />
+	<result column="login_name" property="loginName" />
+	<result column="office_name" property="office.name"  />
+    <result column="company_id" property="company.id" />
+    <result column="company_parent_ids" property="company.parentIds" />
+    <result column="company_parent_id" property="company.parentId" />
+    <result column="office_id" property="office.id"/>
+    <result column="office_parent_ids" property="office.parentIds"/>
+    <result column="office_parent_id" property="office.parentId"/>
+    <result column="office_area_id" property="office.areaId"/>
+  </resultMap>
+  
+  <select id="findDetailsById" resultMap="BOResultMap" parameterType="map" >
+	select  ua.*,co.`name` as company_name ,oo.`name` as office_name,oo.area_id as office_area_id,
+	co.parent_ids as company_parent_ids,co.parent_id as company_parent_id,
+	oo.parent_ids as office_parent_ids,oo.parent_id as office_parent_id
+	from user_admin ua  INNER JOIN sys_user u on u.id=ua.uid
+	left join sys_office co on u.company_id = co.id
+	left join sys_office oo on u.office_id = oo.id
+	where u.id = #{id}
+  </select>
+  
+  <select id="findByRole" parameterType="map" resultMap="BOResultMap">
+  	select 
+  	u.*,co.`name` as company_name ,oo.`name` as office_name,oo.area_id as office_area_id
+	from user_admin u INNER JOIN sys_user_role ur on ur.user_id=u.uid
+	left join sys_office co on u.company_id = co.id
+	left join sys_office oo on u.office_id = oo.id
+	where u.is_del=0 and ur.role_id=#{roleId}
+	ORDER BY u.uid
+  </select>
+  
+  <select id="findByOffice" parameterType="map" resultMap="BOResultMap">
+  	select u.*
+	from user_admin ua INNER JOIN sys_user u on u.id=ua.uid
+	where u.is_del=0 and u.office_id=#{officeId}
+	ORDER BY u.uid
+  </select>
+  
+  <select id="findByPage" parameterType="map" resultMap="BOResultMap">
+	select  ua.*,co.`name` as company_name ,oo.`name` as office_name,sua.login_name
+	from user_admin ua  INNER JOIN sys_user u on u.id=ua.uid
+	left join sys_office co on u.company_id = co.id
+	left join sys_office oo on u.office_id = oo.id
+	left join sys_user_account sua on sua.uid = ua.uid and sua.account_type=1
+	<where>
+  		ua.is_del=0
+  		<if test="vo.officeId != null">
+	  		and (u.office_id=#{vo.officeId} or oo.parent_ids like CONCAT("%,",#{vo.officeId},",%") )
+  		</if>
+  		<if test="vo.isAdmin != null and !vo.isAdmin">
+	  		and u.id != 1
+  		</if>
+  		<if test="vo.loginName != null and vo.loginName != ''">
+	  		and sua.login_name like CONCAT("%",#{vo.loginName},"%")
+  		</if>
+  		<if test="vo.name != null and vo.name != ''">
+	  		and ua.name like CONCAT("%",#{vo.name},"%")
+  		</if>
+  		<if test="vo.companyId != null">
+	  		and u.company_id=#{vo.companyId}
+  		</if>
+  	</where>
+	order by ua.create_time desc
+  </select>
+  
+  <select id="selectByType" resultMap="BOResultMap" parameterType="String" >
+    select 
+	    <include refid="My_Base_Column_List" />
+	from user_admin t
+	where t.user_type = #{userType,jdbcType=CHAR}
+	and t.is_del = 0
+	and t.office_id in 
+	(SELECT id FROM sys_office where (id=#{officeId,jdbcType=CHAR} 
+	or parent_id=#{officeId,jdbcType=CHAR} 
+	or parent_ids like CONCAT('%,',#{officeId,jdbcType=CHAR},',%')) and del_flag='0')
+	order by t.create_date desc
+  </select>
+  
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+ <sql id="Base_Column_List" >
+    uid, no, name, email, phone, mobile, user_type, create_by, create_time, update_by, 
+    update_time, remarks, is_del, id_card, sell_code
+  </sql>
+  <sql id="My_Base_Column_List" >
+    t.uid, t.no, t.name, t.email, t.phone, t.mobile, t.user_type, t.create_by, 
+    t.create_time, t.update_by, t.update_time, t.remarks, t.is_del, t.id_card, t.sell_code, t.status
+  </sql>
+  <select id="selectByExample" parameterType="vc.thinker.cabbage.user.model.AdminExample" resultMap="BOResultMap" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from user_admin
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BOResultMap" >
+    select 
+    	*
+    from user_admin
+    where uid = #{uid,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from user_admin
+    where uid = #{uid,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteByExample" parameterType="vc.thinker.cabbage.user.model.AdminExample" >
+    delete from user_admin
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="vc.thinker.cabbage.user.model.Admin" >
+    insert into user_admin (uid, no, name, 
+      email, phone, mobile, 
+      user_type, create_by, create_time, 
+      update_by, update_time, remarks, 
+      is_del, id_card, sell_code, status
+      )
+    values (#{uid,jdbcType=BIGINT}, #{no,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, 
+      #{email,jdbcType=VARCHAR}, #{phone,jdbcType=VARCHAR}, #{mobile,jdbcType=VARCHAR}, 
+      #{userType,jdbcType=CHAR}, #{createBy,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, 
+      #{updateBy,jdbcType=VARCHAR}, #{updateTime,jdbcType=TIMESTAMP}, #{remarks,jdbcType=VARCHAR}, 
+      #{isDel,jdbcType=BIT}, #{idCard,jdbcType=VARCHAR}, #{sellCode,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="vc.thinker.cabbage.user.model.Admin" >
+    insert into user_admin
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="uid != null" >
+        uid,
+      </if>
+      <if test="no != null" >
+        no,
+      </if>
+      <if test="name != null" >
+        name,
+      </if>
+      <if test="email != null" >
+        email,
+      </if>
+      <if test="phone != null" >
+        phone,
+      </if>
+      <if test="mobile != null" >
+        mobile,
+      </if>
+      <if test="userType != null" >
+        user_type,
+      </if>
+      <if test="createBy != null" >
+        create_by,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="updateBy != null" >
+        update_by,
+      </if>
+      <if test="updateTime != null" >
+        update_time,
+      </if>
+      <if test="remarks != null" >
+        remarks,
+      </if>
+      <if test="isDel != null" >
+        is_del,
+      </if>
+      <if test="idCard != null" >
+        id_card,
+      </if>
+      <if test="sellCode != null" >
+        sell_code,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="uid != null" >
+        #{uid,jdbcType=BIGINT},
+      </if>
+      <if test="no != null" >
+        #{no,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null" >
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="email != null" >
+        #{email,jdbcType=VARCHAR},
+      </if>
+      <if test="phone != null" >
+        #{phone,jdbcType=VARCHAR},
+      </if>
+      <if test="mobile != null" >
+        #{mobile,jdbcType=VARCHAR},
+      </if>
+      <if test="userType != null" >
+        #{userType,jdbcType=CHAR},
+      </if>
+      <if test="createBy != null" >
+        #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateBy != null" >
+        #{updateBy,jdbcType=VARCHAR},
+      </if>
+      <if test="updateTime != null" >
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="remarks != null" >
+        #{remarks,jdbcType=VARCHAR},
+      </if>
+      <if test="isDel != null" >
+        #{isDel,jdbcType=BIT},
+      </if>
+      <if test="idCard != null" >
+        #{idCard,jdbcType=VARCHAR},
+      </if>
+      <if test="sellCode != null" >
+        #{sellCode,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="vc.thinker.cabbage.user.model.AdminExample" resultType="java.lang.Integer" >
+    select count(*) from user_admin
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map" >
+    update user_admin
+    <set >
+      <if test="record.uid != null" >
+        uid = #{record.uid,jdbcType=BIGINT},
+      </if>
+      <if test="record.no != null" >
+        no = #{record.no,jdbcType=VARCHAR},
+      </if>
+      <if test="record.name != null" >
+        name = #{record.name,jdbcType=VARCHAR},
+      </if>
+      <if test="record.email != null" >
+        email = #{record.email,jdbcType=VARCHAR},
+      </if>
+      <if test="record.phone != null" >
+        phone = #{record.phone,jdbcType=VARCHAR},
+      </if>
+      <if test="record.mobile != null" >
+        mobile = #{record.mobile,jdbcType=VARCHAR},
+      </if>
+      <if test="record.userType != null" >
+        user_type = #{record.userType,jdbcType=CHAR},
+      </if>
+      <if test="record.createBy != null" >
+        create_by = #{record.createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="record.createTime != null" >
+        create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.updateBy != null" >
+        update_by = #{record.updateBy,jdbcType=VARCHAR},
+      </if>
+      <if test="record.updateTime != null" >
+        update_time = #{record.updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.remarks != null" >
+        remarks = #{record.remarks,jdbcType=VARCHAR},
+      </if>
+      <if test="record.isDel != null" >
+        is_del = #{record.isDel,jdbcType=BIT},
+      </if>
+      <if test="record.idCard != null" >
+        id_card = #{record.idCard,jdbcType=VARCHAR},
+      </if>
+      <if test="record.sellCode != null" >
+        sell_code = #{record.sellCode,jdbcType=VARCHAR},
+      </if>
+      <if test="record.status != null" >
+        status = #{record.status,jdbcType=VARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+    update user_admin
+    set uid = #{record.uid,jdbcType=BIGINT},
+      no = #{record.no,jdbcType=VARCHAR},
+      name = #{record.name,jdbcType=VARCHAR},
+      email = #{record.email,jdbcType=VARCHAR},
+      phone = #{record.phone,jdbcType=VARCHAR},
+      mobile = #{record.mobile,jdbcType=VARCHAR},
+      user_type = #{record.userType,jdbcType=CHAR},
+      create_by = #{record.createBy,jdbcType=VARCHAR},
+      create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      update_by = #{record.updateBy,jdbcType=VARCHAR},
+      update_time = #{record.updateTime,jdbcType=TIMESTAMP},
+      remarks = #{record.remarks,jdbcType=VARCHAR},
+      is_del = #{record.isDel,jdbcType=BIT},
+      id_card = #{record.idCard,jdbcType=VARCHAR},
+      sell_code = #{record.sellCode,jdbcType=VARCHAR},
+      status = #{record.status,jdbcType=VARCHAR}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="vc.thinker.cabbage.user.model.Admin" >
+    update user_admin
+    <set >
+      <if test="no != null" >
+        no = #{no,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null" >
+        name = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="email != null" >
+        email = #{email,jdbcType=VARCHAR},
+      </if>
+      <if test="phone != null" >
+        phone = #{phone,jdbcType=VARCHAR},
+      </if>
+      <if test="mobile != null" >
+        mobile = #{mobile,jdbcType=VARCHAR},
+      </if>
+      <if test="userType != null" >
+        user_type = #{userType,jdbcType=CHAR},
+      </if>
+      <if test="createBy != null" >
+        create_by = #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateBy != null" >
+        update_by = #{updateBy,jdbcType=VARCHAR},
+      </if>
+      <if test="updateTime != null" >
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="remarks != null" >
+        remarks = #{remarks,jdbcType=VARCHAR},
+      </if>
+      <if test="isDel != null" >
+        is_del = #{isDel,jdbcType=BIT},
+      </if>
+      <if test="idCard != null" >
+        id_card = #{idCard,jdbcType=VARCHAR},
+      </if>
+      <if test="sellCode != null" >
+        sell_code = #{sellCode,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where uid = #{uid,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="vc.thinker.cabbage.user.model.Admin" >
+    update user_admin
+    set no = #{no,jdbcType=VARCHAR},
+      name = #{name,jdbcType=VARCHAR},
+      email = #{email,jdbcType=VARCHAR},
+      phone = #{phone,jdbcType=VARCHAR},
+      mobile = #{mobile,jdbcType=VARCHAR},
+      user_type = #{userType,jdbcType=CHAR},
+      create_by = #{createBy,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      update_by = #{updateBy,jdbcType=VARCHAR},
+      update_time = #{updateTime,jdbcType=TIMESTAMP},
+      remarks = #{remarks,jdbcType=VARCHAR},
+      is_del = #{isDel,jdbcType=BIT},
+      id_card = #{idCard,jdbcType=VARCHAR},
+      sell_code = #{sellCode,jdbcType=VARCHAR},
+      status = #{status,jdbcType=VARCHAR}
+    where uid = #{uid,jdbcType=BIGINT}
+  </update>
+</mapper>

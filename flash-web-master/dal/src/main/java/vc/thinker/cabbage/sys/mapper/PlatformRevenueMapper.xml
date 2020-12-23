@@ -1,0 +1,414 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="vc.thinker.cabbage.sys.mapper.PlatformRevenueMapper" >
+  <resultMap id="BaseResultMap" type="vc.thinker.cabbage.sys.model.PlatformRevenue" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="source_id" property="sourceId" jdbcType="BIGINT" />
+    <result column="log_type" property="logType" jdbcType="VARCHAR" />
+    <result column="log_amount" property="logAmount" jdbcType="DECIMAL" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="is_deleted" property="isDeleted" jdbcType="BIT" />
+    <result column="old_log_amount" property="oldLogAmount" jdbcType="DECIMAL" />
+    <result column="old_log_currency" property="oldLogCurrency" jdbcType="VARCHAR" />
+    <result column="exchange_rate" property="exchangeRate" jdbcType="DECIMAL" />
+    <result column="log_currency" property="logCurrency" jdbcType="VARCHAR" />
+  </resultMap>
+  <resultMap id="BOResultMap" type="vc.thinker.cabbage.sys.bo.PlatformRevenueBO" extends="BaseResultMap" />
+  <resultMap id="ResultMapWithBLOBs" type="vc.thinker.cabbage.sys.model.PlatformRevenue" extends="BaseResultMap" >
+    <result column="log_info" property="logInfo" jdbcType="LONGVARCHAR" />
+  </resultMap>
+  
+  <resultMap id="CountStatsMap" type="vc.thinker.cabbage.stats.bo.CountStatsBO" />
+  
+  <select id="findIncomeByStats" resultMap="CountStatsMap">
+  		select
+			<if test="vo.statsType!=null and vo.statsType==&quot;1&quot; ">
+				DATE_FORMAT(create_time, '%m') AS statsTime,
+			</if>
+			<if test="vo.statsType!=null and vo.statsType==&quot;2&quot; ">
+				DATE_FORMAT(create_time, '%d') AS statsTime,
+			</if>
+			sum(log_amount) deposit
+		FROM
+			sys_platform_revenue
+		WHERE
+			<if test="vo.statsType!=null and vo.statsType==&quot;1&quot; ">
+				DATE_FORMAT(create_time, '%Y') = #{vo.time}
+			</if>
+			<if test="vo.statsType!=null and vo.statsType==&quot;2&quot; ">
+				DATE_FORMAT(create_time, '%Y-%m') = #{vo.time}
+			</if>
+		 group by statsTime 
+  </select>
+  
+  <select id="sumByDate" resultType="java.math.BigDecimal">
+  		select sum(log_amount) from sys_platform_revenue
+  		<where>
+  			  <if test="date != null and date != ''">
+	            AND DATE_FORMAT(create_time,'%Y-%m-%d') <![CDATA[ = ]]> DATE_FORMAT(#{date},'%Y-%m-%d')
+	        </if>
+  		</where>
+  </select>
+  
+  <select id="findPageByVo" resultMap="BOResultMap">
+  		select 
+  			 <include refid="Base_Column_List" />,<include refid="Blob_Column_List" />
+		from 
+			sys_platform_revenue
+		<where>
+			<if test="null != vo.logType and '' != vo.logType">
+				and log_type = #{vo.logType}
+			</if>
+			<if test="vo.startTime != null and vo.startTime != ''">
+	    		and DATE_FORMAT(create_time ,'%Y-%m-%d') <![CDATA[ >= ]]> DATE_FORMAT(#{vo.startTime} ,'%Y-%m-%d')
+	    	</if>
+	    	<if test="vo.endTime != null and vo.endTime != ''">
+	    		and DATE_FORMAT(create_time ,'%Y-%m-%d') <![CDATA[ <= ]]> DATE_FORMAT(#{vo.endTime} ,'%Y-%m-%d')
+	    	</if>
+		</where>
+		order by create_time desc 
+  </select>
+  
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    id, source_id, log_type, log_amount, create_time, is_deleted, old_log_amount, old_log_currency, 
+    exchange_rate, log_currency
+  </sql>
+  <sql id="Blob_Column_List" >
+    log_info
+  </sql>
+  <select id="selectByExampleWithBLOBs" parameterType="vc.thinker.cabbage.sys.model.PlatformRevenueExample" resultMap="BOResultMap" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from sys_platform_revenue
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByExample" parameterType="vc.thinker.cabbage.sys.model.PlatformRevenueExample" resultMap="BOResultMap" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from sys_platform_revenue
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+    <if test="limit != null" >
+      limit ${limit}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BOResultMap" >
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from sys_platform_revenue
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from sys_platform_revenue
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteByExample" parameterType="vc.thinker.cabbage.sys.model.PlatformRevenueExample" >
+    delete from sys_platform_revenue
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="vc.thinker.cabbage.sys.model.PlatformRevenue" useGeneratedKeys="true" keyProperty="id" >
+    insert into sys_platform_revenue (id, source_id, log_type, 
+      log_amount, create_time, is_deleted, 
+      old_log_amount, old_log_currency, exchange_rate, 
+      log_currency, log_info)
+    values (#{id,jdbcType=BIGINT}, #{sourceId,jdbcType=BIGINT}, #{logType,jdbcType=VARCHAR}, 
+      #{logAmount,jdbcType=DECIMAL}, #{createTime,jdbcType=TIMESTAMP}, #{isDeleted,jdbcType=BIT}, 
+      #{oldLogAmount,jdbcType=DECIMAL}, #{oldLogCurrency,jdbcType=VARCHAR}, #{exchangeRate,jdbcType=DECIMAL}, 
+      #{logCurrency,jdbcType=VARCHAR}, #{logInfo,jdbcType=LONGVARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="vc.thinker.cabbage.sys.model.PlatformRevenue" useGeneratedKeys="true" keyProperty="id" >
+    insert into sys_platform_revenue
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="sourceId != null" >
+        source_id,
+      </if>
+      <if test="logType != null" >
+        log_type,
+      </if>
+      <if test="logAmount != null" >
+        log_amount,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="isDeleted != null" >
+        is_deleted,
+      </if>
+      <if test="oldLogAmount != null" >
+        old_log_amount,
+      </if>
+      <if test="oldLogCurrency != null" >
+        old_log_currency,
+      </if>
+      <if test="exchangeRate != null" >
+        exchange_rate,
+      </if>
+      <if test="logCurrency != null" >
+        log_currency,
+      </if>
+      <if test="logInfo != null" >
+        log_info,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="sourceId != null" >
+        #{sourceId,jdbcType=BIGINT},
+      </if>
+      <if test="logType != null" >
+        #{logType,jdbcType=VARCHAR},
+      </if>
+      <if test="logAmount != null" >
+        #{logAmount,jdbcType=DECIMAL},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDeleted != null" >
+        #{isDeleted,jdbcType=BIT},
+      </if>
+      <if test="oldLogAmount != null" >
+        #{oldLogAmount,jdbcType=DECIMAL},
+      </if>
+      <if test="oldLogCurrency != null" >
+        #{oldLogCurrency,jdbcType=VARCHAR},
+      </if>
+      <if test="exchangeRate != null" >
+        #{exchangeRate,jdbcType=DECIMAL},
+      </if>
+      <if test="logCurrency != null" >
+        #{logCurrency,jdbcType=VARCHAR},
+      </if>
+      <if test="logInfo != null" >
+        #{logInfo,jdbcType=LONGVARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="vc.thinker.cabbage.sys.model.PlatformRevenueExample" resultType="java.lang.Integer" >
+    select count(*) from sys_platform_revenue
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map" >
+    update sys_platform_revenue
+    <set >
+      <if test="record.id != null" >
+        id = #{record.id,jdbcType=BIGINT},
+      </if>
+      <if test="record.sourceId != null" >
+        source_id = #{record.sourceId,jdbcType=BIGINT},
+      </if>
+      <if test="record.logType != null" >
+        log_type = #{record.logType,jdbcType=VARCHAR},
+      </if>
+      <if test="record.logAmount != null" >
+        log_amount = #{record.logAmount,jdbcType=DECIMAL},
+      </if>
+      <if test="record.createTime != null" >
+        create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.isDeleted != null" >
+        is_deleted = #{record.isDeleted,jdbcType=BIT},
+      </if>
+      <if test="record.oldLogAmount != null" >
+        old_log_amount = #{record.oldLogAmount,jdbcType=DECIMAL},
+      </if>
+      <if test="record.oldLogCurrency != null" >
+        old_log_currency = #{record.oldLogCurrency,jdbcType=VARCHAR},
+      </if>
+      <if test="record.exchangeRate != null" >
+        exchange_rate = #{record.exchangeRate,jdbcType=DECIMAL},
+      </if>
+      <if test="record.logCurrency != null" >
+        log_currency = #{record.logCurrency,jdbcType=VARCHAR},
+      </if>
+      <if test="record.logInfo != null" >
+        log_info = #{record.logInfo,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExampleWithBLOBs" parameterType="map" >
+    update sys_platform_revenue
+    set id = #{record.id,jdbcType=BIGINT},
+      source_id = #{record.sourceId,jdbcType=BIGINT},
+      log_type = #{record.logType,jdbcType=VARCHAR},
+      log_amount = #{record.logAmount,jdbcType=DECIMAL},
+      create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      is_deleted = #{record.isDeleted,jdbcType=BIT},
+      old_log_amount = #{record.oldLogAmount,jdbcType=DECIMAL},
+      old_log_currency = #{record.oldLogCurrency,jdbcType=VARCHAR},
+      exchange_rate = #{record.exchangeRate,jdbcType=DECIMAL},
+      log_currency = #{record.logCurrency,jdbcType=VARCHAR},
+      log_info = #{record.logInfo,jdbcType=LONGVARCHAR}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+    update sys_platform_revenue
+    set id = #{record.id,jdbcType=BIGINT},
+      source_id = #{record.sourceId,jdbcType=BIGINT},
+      log_type = #{record.logType,jdbcType=VARCHAR},
+      log_amount = #{record.logAmount,jdbcType=DECIMAL},
+      create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      is_deleted = #{record.isDeleted,jdbcType=BIT},
+      old_log_amount = #{record.oldLogAmount,jdbcType=DECIMAL},
+      old_log_currency = #{record.oldLogCurrency,jdbcType=VARCHAR},
+      exchange_rate = #{record.exchangeRate,jdbcType=DECIMAL},
+      log_currency = #{record.logCurrency,jdbcType=VARCHAR}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="vc.thinker.cabbage.sys.model.PlatformRevenue" >
+    update sys_platform_revenue
+    <set >
+      <if test="sourceId != null" >
+        source_id = #{sourceId,jdbcType=BIGINT},
+      </if>
+      <if test="logType != null" >
+        log_type = #{logType,jdbcType=VARCHAR},
+      </if>
+      <if test="logAmount != null" >
+        log_amount = #{logAmount,jdbcType=DECIMAL},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDeleted != null" >
+        is_deleted = #{isDeleted,jdbcType=BIT},
+      </if>
+      <if test="oldLogAmount != null" >
+        old_log_amount = #{oldLogAmount,jdbcType=DECIMAL},
+      </if>
+      <if test="oldLogCurrency != null" >
+        old_log_currency = #{oldLogCurrency,jdbcType=VARCHAR},
+      </if>
+      <if test="exchangeRate != null" >
+        exchange_rate = #{exchangeRate,jdbcType=DECIMAL},
+      </if>
+      <if test="logCurrency != null" >
+        log_currency = #{logCurrency,jdbcType=VARCHAR},
+      </if>
+      <if test="logInfo != null" >
+        log_info = #{logInfo,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="vc.thinker.cabbage.sys.model.PlatformRevenue" >
+    update sys_platform_revenue
+    set source_id = #{sourceId,jdbcType=BIGINT},
+      log_type = #{logType,jdbcType=VARCHAR},
+      log_amount = #{logAmount,jdbcType=DECIMAL},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      is_deleted = #{isDeleted,jdbcType=BIT},
+      old_log_amount = #{oldLogAmount,jdbcType=DECIMAL},
+      old_log_currency = #{oldLogCurrency,jdbcType=VARCHAR},
+      exchange_rate = #{exchangeRate,jdbcType=DECIMAL},
+      log_currency = #{logCurrency,jdbcType=VARCHAR},
+      log_info = #{logInfo,jdbcType=LONGVARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="vc.thinker.cabbage.sys.model.PlatformRevenue" >
+    update sys_platform_revenue
+    set source_id = #{sourceId,jdbcType=BIGINT},
+      log_type = #{logType,jdbcType=VARCHAR},
+      log_amount = #{logAmount,jdbcType=DECIMAL},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      is_deleted = #{isDeleted,jdbcType=BIT},
+      old_log_amount = #{oldLogAmount,jdbcType=DECIMAL},
+      old_log_currency = #{oldLogCurrency,jdbcType=VARCHAR},
+      exchange_rate = #{exchangeRate,jdbcType=DECIMAL},
+      log_currency = #{logCurrency,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

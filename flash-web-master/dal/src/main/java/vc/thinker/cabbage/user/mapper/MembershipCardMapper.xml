@@ -1,0 +1,357 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="vc.thinker.cabbage.user.mapper.MembershipCardMapper">
+  <resultMap id="BaseResultMap" type="vc.thinker.cabbage.user.model.MembershipCard">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="card_name" jdbcType="VARCHAR" property="cardName" />
+    <result column="card_amount" jdbcType="DECIMAL" property="cardAmount" />
+    <result column="card_effective_time" jdbcType="INTEGER" property="cardEffectiveTime" />
+    <result column="card_unit" jdbcType="VARCHAR" property="cardUnit" />
+    <result column="discount" jdbcType="DECIMAL" property="discount" />
+    <result column="card_desc" jdbcType="VARCHAR" property="cardDesc" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="create_by" jdbcType="BIGINT" property="createBy" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    <result column="update_by" jdbcType="BIGINT" property="updateBy" />
+    <result column="sort" jdbcType="INTEGER" property="sort" />
+    <result column="currency" jdbcType="VARCHAR" property="currency" />
+  </resultMap>
+  <resultMap extends="BaseResultMap" id="BOResultMap" type="vc.thinker.cabbage.user.bo.MembershipCardBO" />
+  
+  <select id="findPageByVo" resultMap="BOResultMap">
+  		select 
+  			c.* ,a.name adminName,a.phone adminPhone
+  		from 
+  			user_membership_card c  
+  			left join user_admin a on c.create_by = a.uid 
+  		<where>
+  			<if test="null != vo.cardName and '' != vo.cardName">
+  				c.card_name like concat('%', #{vo.cardName}, '%')
+  			</if>
+  		</where>
+  		order by sort 
+  </select>
+  
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    id, card_name, card_amount, card_effective_time, card_unit, discount, card_desc, 
+    create_time, create_by, update_time, update_by, sort, currency
+  </sql>
+  <select id="selectByExample" parameterType="vc.thinker.cabbage.user.model.MembershipCardExample" resultMap="BOResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from user_membership_card
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+    <if test="limit != null">
+      limit ${limit}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BOResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from user_membership_card
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from user_membership_card
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteByExample" parameterType="vc.thinker.cabbage.user.model.MembershipCardExample">
+    delete from user_membership_card
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" keyProperty="id" parameterType="vc.thinker.cabbage.user.model.MembershipCard" useGeneratedKeys="true">
+    insert into user_membership_card (id, card_name, card_amount, 
+      card_effective_time, card_unit, discount, 
+      card_desc, create_time, create_by, 
+      update_time, update_by, sort, 
+      currency)
+    values (#{id,jdbcType=BIGINT}, #{cardName,jdbcType=VARCHAR}, #{cardAmount,jdbcType=DECIMAL}, 
+      #{cardEffectiveTime,jdbcType=INTEGER}, #{cardUnit,jdbcType=VARCHAR}, #{discount,jdbcType=DECIMAL}, 
+      #{cardDesc,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, #{createBy,jdbcType=BIGINT}, 
+      #{updateTime,jdbcType=TIMESTAMP}, #{updateBy,jdbcType=BIGINT}, #{sort,jdbcType=INTEGER}, 
+      #{currency,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" keyProperty="id" parameterType="vc.thinker.cabbage.user.model.MembershipCard" useGeneratedKeys="true">
+    insert into user_membership_card
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="cardName != null">
+        card_name,
+      </if>
+      <if test="cardAmount != null">
+        card_amount,
+      </if>
+      <if test="cardEffectiveTime != null">
+        card_effective_time,
+      </if>
+      <if test="cardUnit != null">
+        card_unit,
+      </if>
+      <if test="discount != null">
+        discount,
+      </if>
+      <if test="cardDesc != null">
+        card_desc,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="createBy != null">
+        create_by,
+      </if>
+      <if test="updateTime != null">
+        update_time,
+      </if>
+      <if test="updateBy != null">
+        update_by,
+      </if>
+      <if test="sort != null">
+        sort,
+      </if>
+      <if test="currency != null">
+        currency,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="cardName != null">
+        #{cardName,jdbcType=VARCHAR},
+      </if>
+      <if test="cardAmount != null">
+        #{cardAmount,jdbcType=DECIMAL},
+      </if>
+      <if test="cardEffectiveTime != null">
+        #{cardEffectiveTime,jdbcType=INTEGER},
+      </if>
+      <if test="cardUnit != null">
+        #{cardUnit,jdbcType=VARCHAR},
+      </if>
+      <if test="discount != null">
+        #{discount,jdbcType=DECIMAL},
+      </if>
+      <if test="cardDesc != null">
+        #{cardDesc,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createBy != null">
+        #{createBy,jdbcType=BIGINT},
+      </if>
+      <if test="updateTime != null">
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateBy != null">
+        #{updateBy,jdbcType=BIGINT},
+      </if>
+      <if test="sort != null">
+        #{sort,jdbcType=INTEGER},
+      </if>
+      <if test="currency != null">
+        #{currency,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="vc.thinker.cabbage.user.model.MembershipCardExample" resultType="java.lang.Integer">
+    select count(*) from user_membership_card
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update user_membership_card
+    <set>
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=BIGINT},
+      </if>
+      <if test="record.cardName != null">
+        card_name = #{record.cardName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.cardAmount != null">
+        card_amount = #{record.cardAmount,jdbcType=DECIMAL},
+      </if>
+      <if test="record.cardEffectiveTime != null">
+        card_effective_time = #{record.cardEffectiveTime,jdbcType=INTEGER},
+      </if>
+      <if test="record.cardUnit != null">
+        card_unit = #{record.cardUnit,jdbcType=VARCHAR},
+      </if>
+      <if test="record.discount != null">
+        discount = #{record.discount,jdbcType=DECIMAL},
+      </if>
+      <if test="record.cardDesc != null">
+        card_desc = #{record.cardDesc,jdbcType=VARCHAR},
+      </if>
+      <if test="record.createTime != null">
+        create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.createBy != null">
+        create_by = #{record.createBy,jdbcType=BIGINT},
+      </if>
+      <if test="record.updateTime != null">
+        update_time = #{record.updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.updateBy != null">
+        update_by = #{record.updateBy,jdbcType=BIGINT},
+      </if>
+      <if test="record.sort != null">
+        sort = #{record.sort,jdbcType=INTEGER},
+      </if>
+      <if test="record.currency != null">
+        currency = #{record.currency,jdbcType=VARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update user_membership_card
+    set id = #{record.id,jdbcType=BIGINT},
+      card_name = #{record.cardName,jdbcType=VARCHAR},
+      card_amount = #{record.cardAmount,jdbcType=DECIMAL},
+      card_effective_time = #{record.cardEffectiveTime,jdbcType=INTEGER},
+      card_unit = #{record.cardUnit,jdbcType=VARCHAR},
+      discount = #{record.discount,jdbcType=DECIMAL},
+      card_desc = #{record.cardDesc,jdbcType=VARCHAR},
+      create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      create_by = #{record.createBy,jdbcType=BIGINT},
+      update_time = #{record.updateTime,jdbcType=TIMESTAMP},
+      update_by = #{record.updateBy,jdbcType=BIGINT},
+      sort = #{record.sort,jdbcType=INTEGER},
+      currency = #{record.currency,jdbcType=VARCHAR}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="vc.thinker.cabbage.user.model.MembershipCard">
+    update user_membership_card
+    <set>
+      <if test="cardName != null">
+        card_name = #{cardName,jdbcType=VARCHAR},
+      </if>
+      <if test="cardAmount != null">
+        card_amount = #{cardAmount,jdbcType=DECIMAL},
+      </if>
+      <if test="cardEffectiveTime != null">
+        card_effective_time = #{cardEffectiveTime,jdbcType=INTEGER},
+      </if>
+      <if test="cardUnit != null">
+        card_unit = #{cardUnit,jdbcType=VARCHAR},
+      </if>
+      <if test="discount != null">
+        discount = #{discount,jdbcType=DECIMAL},
+      </if>
+      <if test="cardDesc != null">
+        card_desc = #{cardDesc,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createBy != null">
+        create_by = #{createBy,jdbcType=BIGINT},
+      </if>
+      <if test="updateTime != null">
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateBy != null">
+        update_by = #{updateBy,jdbcType=BIGINT},
+      </if>
+      <if test="sort != null">
+        sort = #{sort,jdbcType=INTEGER},
+      </if>
+      <if test="currency != null">
+        currency = #{currency,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="vc.thinker.cabbage.user.model.MembershipCard">
+    update user_membership_card
+    set card_name = #{cardName,jdbcType=VARCHAR},
+      card_amount = #{cardAmount,jdbcType=DECIMAL},
+      card_effective_time = #{cardEffectiveTime,jdbcType=INTEGER},
+      card_unit = #{cardUnit,jdbcType=VARCHAR},
+      discount = #{discount,jdbcType=DECIMAL},
+      card_desc = #{cardDesc,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      create_by = #{createBy,jdbcType=BIGINT},
+      update_time = #{updateTime,jdbcType=TIMESTAMP},
+      update_by = #{updateBy,jdbcType=BIGINT},
+      sort = #{sort,jdbcType=INTEGER},
+      currency = #{currency,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+
+
+    <script src="http://static.thinker.vc/static/wgt/jquery/jquery-1.9.1.min.js" type="text/javascript"></script>
+    <script src="http://static.thinker.vc/static/wgt/jquery/jquery-migrate-1.1.1.min.js" type="text/javascript"></script>
+    <link href="http://static.thinker.vc/static/wgt/jquery-validation/1.11.1/jquery.validate.min.css" type="text/css" rel="stylesheet" />
+    <script src="http://static.thinker.vc/static/wgt/jquery-validation/1.11.1/jquery.validate.min.js" type="text/javascript"></script>
+    <script src="http://static.thinker.vc/static/wgt/jquery-validation/1.11.1/jquery.validate.method.min.js" type="text/javascript"></script>
+    <script src="http://static.thinker.vc/static/wgt/jquery-form/jquery.form.min.js" type="text/javascript"></script>
+    <script src="http://static.thinker.vc/static/bootstrap/v3/bootstrap.min.js" type="text/javascript"></script>
+    <link href="http://static.thinker.vc/static/bootstrap/v3/bootstrap.min.css" type="text/css" rel="stylesheet"/>
+    <!--[if lte IE 6]><link href="http://static.thinker.vc/static/bootstrap/bsie/css/bootstrap-ie6.min.css" type="text/css" rel="stylesheet" />
+    <script src="http://static.thinker.vc/static/bootstrap/bsie/js/bootstrap-ie.min.js" type="text/javascript"></script><![endif]-->
+    <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <script src="http://static.thinker.vc/static/wgt/My97DatePicker/WdatePicker.js" type="text/javascript"></script>
+    <script src="http://static.thinker.vc/static/common/mustache.min.js" type="text/javascript"></script>
+    <script src="http://static.thinker.vc/static/wgt/list/list.min.js" type="text/javascript"></script>
+    <script src="http://static.thinker.vc/static/wgt/jquery-select2/3.4/select2.min.js"></script>
+    <link href="http://static.thinker.vc/static/wgt/jquery-select2/3.4/select2.css" rel="stylesheet"/>
+    <!--
+    <link href="http://static.thinker.vc/static/wgt/x-editable/css/bootstrap-editable.css" type="text/css" rel="stylesheet" />
+    <script src="http://static.thinker.vc/static/wgt/x-editable/js/bootstrap-editable.js" type="text/javascript"></script>
+    -->
+    <link href="http://static.thinker.vc/static/wgt/jquery-jbox/2.3/Skins/Bootstrap/jbox.css" rel="stylesheet" />
+    <script type="text/javascript" src="http://static.thinker.vc/static/wgt/jquery-jbox/2.3/jquery.jBox-2.3.min.js"></script>
+    <link type="text/css" rel="stylesheet" href="/resources/css/reg.css">
+    <link type="text/css" rel="stylesheet" href="/resources/css/main.css">
+    <script type="text/javascript" src="/resources/js/common.js"></script>
+
+
+</head>
+<body>
+
+<div class="nav">
+    <i class="icon icon-home"></i>您的位置：首页 > 服务商认证
+</div>
+
+<div class="main">
+    <div class="title-simple">服务商认证</div>
+
+    <div class="cert-box">
+        <div class="cert-step">
+            <div class="item active-02"></div>
+        </div>
+        <div class="cert-form">
+
+
+
+            <form enctype="multipart/form-data" method="post" id="thirdForm" name="thirdForm" action="/apply/forth" class="form-horizontal" novalidate="novalidate">
+                <input type="hidden" value="15012451869" name="mobile">
+                <input type="hidden" value="" name="uid">
+                <ul class="cert-upload-form">
+                    <li>
+                        <label class="title title-b" for="licenseLegalIdCardReachPath">手持身份证照片</label>
+                        <div class="cont">
+
+                            <p style="" class="help-block">
+                                身份证为本人持有，持有者需正面、免冠、未化妆、完整露出手臂 参考样式；照片未经任何软件编辑修改；并不得遮挡持有者面部，身份证全部信息需清晰可辨认。格式要求jpg、jpeg、png，不超过10MB
+                            </p>
+                            <div class="view-pic">
+                                <div class="cert-pic-example"><img src="images/cert-pic-01.png" /> <p>手持身份证照片</p></div>
+                                <img id="licenseLegalIdCardPic" src="http://test.f1.thinker.vc/4,02b2a2c39cc6_300x174">
+                            </div>
+                            <a class="btn btn-default btn-file-box" href="javascript:;"><input type="file" id="licenseLegalIdCardReachPath" name="licenseLegalIdCardReachPathStr" class="inp-file"> 选择文件 </a> <label class="error" for="licenseLegalIdCardReachPath"></label>
+
+                        </div>
+
+                    </li><li>
+                </li><li>
+                    <label class="title title-b" for="licenseLegalIdCardBackPath">身份证背面照片</label>
+                    <div class="cont">
+                        <p style="" class="help-block">
+                            照片未经任何软件编辑修改，全部信息需清晰可辨认。格式要求jpg、jpeg、png，不超过10MB
+                        </p>
+
+                        <div class="view-pic">
+                            <div class="cert-pic-example"><img src="images/cert-pic-02.png" /> <p>身份证背面照片</p></div>
+                            <img id="licenseLegalIdCardBackPic" src="http://test.f1.thinker.vc/7,02b3727cfd55_300x174">
+                        </div>
+                        <a class="btn btn-default btn-file-box" href="javascript:;"><input type="file" name="licenseLegalIdCardBackPathStr" id="licenseLegalIdCardBackPath" class="inp-file"> 选择文件 </a> <label class="error" for="licenseLegalIdCardBackPath"></label>
+
+                    </div>
+                </li>
+                    <li>
+                        <label class="title title-b" for="bankCardFrontPath">银行卡正面照片</label>
+                        <div class="cont">
+                            <p style="" class="help-block">
+                                照片未经任何软件编辑修改，全部信息需清晰可辨认。格式要求jpg、jpeg、png，不超过10MB
+                            </p>
+                            <div class="view-pic">
+                                <div class="cert-pic-example"><img src="images/cert-pic-03.png" /> <p>银行卡正面</p></div>
+                                <img id="bankCardFrontPic" src="images/cert-pic-null.png">
+                            </div>
+                            <a class="btn btn-default btn-file-box" href="javascript:;"><input type="file" name="bankCardFrontPathStr" id="bankCardFrontPath"> 选择文件 </a> <label class="error" for="bankCardFrontPath"></label>
+
+                        </div>
+                    </li>
+                    <li>
+                        <label class="title title-b" for="bankCardBackPath">银行卡反面照片</label>
+                        <div class="cont">
+                            <p style="" class="help-block">
+                                照片未经任何软件编辑修改，全部信息需清晰可辨认。格式要求jpg、jpeg、png，不超过10MB
+                            </p>
+
+                            <div class="view-pic">
+                                <div class="cert-pic-example"><img src="images/cert-pic-04.png" /> <p>银行卡反面照片</p></div>
+                                <img id="bankCardBackPic" src="http://test.f1.thinker.vc/5,02b5ce1da8ea_300x174">
+                            </div>
+                            <a class="btn btn-default btn-file-box" href="javascript:;"><input type="file" name="bankCardBackPathStr" id="bankCardBackPath"> 选择文件 </a> <label class="error" for="bankCardBackPath"></label>
+
+                        </div>
+                    </li>
+                    <li>
+                        <label class="title title-b" for="licenseImagePath">营业执照照片</label>
+                        <div class="cont">
+                            <p style="" class="help-block">
+                                照片未经任何软件编辑修改，全部信息需清晰可辨认。格式要求jpg、jpeg、png，不超过10MB
+                            </p>
+
+                            <div class="view-pic">
+                                <div class="cert-pic-example"><img src="images/cert-pic-05.png" /> <p>营业执照照片</p></div>
+                                <img id="licenseImagePic" src="http://test.f1.thinker.vc/1,02b6dcfde1f1_300x174">
+                            </div>
+                            <a class="btn btn-default btn-file-box" href="javascript:;"><input type="file" name="licenseImagePathStr" id="licenseImagePath"> 选择文件 </a> <label class="error" for="licenseImagePath"></label>
+                        </div>
+                    </li>
+                    <li>
+                        <label class="title title-b" for="businessPlacePhotoPath">经营场所证明照片</label>
+                        <div class="cont">
+                            <p style="" class="help-block">
+                                照片未经任何软件编辑修改，全部信息需清晰可辨认。格式要求jpg、jpeg、png，不超过10MB
+                            </p>
+                            <div class="view-pic">
+                                <div class="cert-pic-example"><img src="images/cert-pic-06.png" /> <p>经营场所证明照片</p></div>
+                                <img id="businessPlacePhotoPic" src="http://test.f1.thinker.vc/2,02b76c89b012_300x174">
+                            </div>
+                            <a class="btn btn-default btn-file-box" href="javascript:;"><input type="file" name="businessPlacePhotoPathStr" id="businessPlacePhotoPath"> 选择文件 </a> <label class="error" for="businessPlacePhotoPath"></label>
+                        </div>
+                    </li>
+                    <li>
+                        <label class="title title-b" for="otherPhotoPath">其他信息照片</label>
+                        <div class="cont">
+                            <p style="" class="help-block">
+                                照片未经任何软件编辑修改，全部信息需清晰可辨认。格式要求jpg、jpeg、png，不超过10MB
+                            </p>
+                            <div class="view-pic">
+                                <div class="cert-pic-example"><img src="images/cert-pic-07.png" /> <p>其他信息照片</p></div>
+                                <img id="otherPhotoPic" src="/resources/images/cert-pic-null.png">
+                            </div>
+                            <a class="btn btn-default btn-file-box" href="javascript:;"><input type="file" name="otherPhotoPathStr" id="otherPhotoPath"> 选择文件 </a>
+                        </div>
+                    </li>
+                </ul>
+
+                <div class="text-center reg-btn-bar">
+                    <button class="btn btn-primary" onclick="switchForm('/apply/secend');" type="button">上一步</button> &nbsp;&nbsp;&nbsp;&nbsp;
+                    <button class="btn btn-primary" type="submit">保存并下一步</button>
+                </div>
+
+            </form>
+
+
+        </div>
+
+    </div>
+</div>
+
+<script src="/resources/js/uploadPreview.js"></script>
+
+<script>
+    $("#thirdForm").validate({
+        ignore : "",
+        rules:{
+            id:"required"
+        },
+        messages:{
+            id:"错误"
+        }
+    });
+
+    $("#licenseLegalIdCardReachPath").uploadPreview({ Img: "licenseLegalIdCardPic", Width: 150 });
+    $("#licenseLegalIdCardBackPath").uploadPreview({ Img: "licenseLegalIdCardBackPic", Width: 150 });
+    $("#bankCardFrontPath").uploadPreview({ Img: "bankCardFrontPic", Width: 150 });
+    $("#bankCardBackPath").uploadPreview({ Img: "bankCardBackPic", Width: 150 });
+    $("#licenseImagePath").uploadPreview({ Img: "licenseImagePic", Width: 150 });
+    $("#businessPlacePhotoPath").uploadPreview({ Img: "businessPlacePhotoPic", Width: 150 });
+    $("#otherPhotoPath").uploadPreview({ Img: "otherPhotoPic", Width: 150 });
+
+
+
+
+    $("#agree").click(function() {
+        if($(this).is(":checked")) {
+            $("#submitStepAll").prop("disabled", false);
+        } else {
+            $("#submitStepAll").prop("disabled", true);
+        }
+    });
+    function switchForm(action)
+    {
+        $("#stepSwitchForm").attr("action", action).submit();
+    }
+
+
+
+</script>
+
+</body>
+</html>

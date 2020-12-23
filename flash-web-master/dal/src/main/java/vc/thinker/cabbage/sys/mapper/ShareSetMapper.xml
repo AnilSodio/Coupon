@@ -1,0 +1,336 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="vc.thinker.cabbage.sys.mapper.ShareSetMapper">
+  <resultMap id="BaseResultMap" type="vc.thinker.cabbage.sys.model.ShareSet">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="share_way" jdbcType="VARCHAR" property="shareWay" />
+    <result column="share_title" jdbcType="VARCHAR" property="shareTitle" />
+    <result column="share_content" jdbcType="VARCHAR" property="shareContent" />
+    <result column="invite_way" jdbcType="VARCHAR" property="inviteWay" />
+    <result column="invite_title" jdbcType="VARCHAR" property="inviteTitle" />
+    <result column="invite_content" jdbcType="VARCHAR" property="inviteContent" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    <result column="is_allow_share" jdbcType="BIT" property="isAllowShare" />
+    <result column="is_allow_invite" jdbcType="BIT" property="isAllowInvite" />
+    <result column="share_app_img" jdbcType="VARCHAR" property="shareAppImg" />
+  </resultMap>
+  <resultMap extends="BaseResultMap" id="BOResultMap" type="vc.thinker.cabbage.sys.bo.ShareSetBO" />
+  
+  <update id="updateNoAllowInvite">
+  		 update sys_share_set set invite_way = ""
+  </update>
+  
+  <update id="updateNoALlowShare">
+  		 update sys_share_set set share_way = ""
+  </update>
+  
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    id, share_way, share_title, share_content, invite_way, invite_title, invite_content, 
+    create_time, update_time, is_allow_share, is_allow_invite, share_app_img
+  </sql>
+  <select id="selectByExample" parameterType="vc.thinker.cabbage.sys.model.ShareSetExample" resultMap="BOResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from sys_share_set
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+    <if test="limit != null">
+      limit ${limit}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BOResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from sys_share_set
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from sys_share_set
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteByExample" parameterType="vc.thinker.cabbage.sys.model.ShareSetExample">
+    delete from sys_share_set
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" keyProperty="id" parameterType="vc.thinker.cabbage.sys.model.ShareSet" useGeneratedKeys="true">
+    insert into sys_share_set (id, share_way, share_title, 
+      share_content, invite_way, invite_title, 
+      invite_content, create_time, update_time, 
+      is_allow_share, is_allow_invite, share_app_img
+      )
+    values (#{id,jdbcType=BIGINT}, #{shareWay,jdbcType=VARCHAR}, #{shareTitle,jdbcType=VARCHAR}, 
+      #{shareContent,jdbcType=VARCHAR}, #{inviteWay,jdbcType=VARCHAR}, #{inviteTitle,jdbcType=VARCHAR}, 
+      #{inviteContent,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}, 
+      #{isAllowShare,jdbcType=BIT}, #{isAllowInvite,jdbcType=BIT}, #{shareAppImg,jdbcType=VARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" keyProperty="id" parameterType="vc.thinker.cabbage.sys.model.ShareSet" useGeneratedKeys="true">
+    insert into sys_share_set
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="shareWay != null">
+        share_way,
+      </if>
+      <if test="shareTitle != null">
+        share_title,
+      </if>
+      <if test="shareContent != null">
+        share_content,
+      </if>
+      <if test="inviteWay != null">
+        invite_way,
+      </if>
+      <if test="inviteTitle != null">
+        invite_title,
+      </if>
+      <if test="inviteContent != null">
+        invite_content,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="updateTime != null">
+        update_time,
+      </if>
+      <if test="isAllowShare != null">
+        is_allow_share,
+      </if>
+      <if test="isAllowInvite != null">
+        is_allow_invite,
+      </if>
+      <if test="shareAppImg != null">
+        share_app_img,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="shareWay != null">
+        #{shareWay,jdbcType=VARCHAR},
+      </if>
+      <if test="shareTitle != null">
+        #{shareTitle,jdbcType=VARCHAR},
+      </if>
+      <if test="shareContent != null">
+        #{shareContent,jdbcType=VARCHAR},
+      </if>
+      <if test="inviteWay != null">
+        #{inviteWay,jdbcType=VARCHAR},
+      </if>
+      <if test="inviteTitle != null">
+        #{inviteTitle,jdbcType=VARCHAR},
+      </if>
+      <if test="inviteContent != null">
+        #{inviteContent,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null">
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isAllowShare != null">
+        #{isAllowShare,jdbcType=BIT},
+      </if>
+      <if test="isAllowInvite != null">
+        #{isAllowInvite,jdbcType=BIT},
+      </if>
+      <if test="shareAppImg != null">
+        #{shareAppImg,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="vc.thinker.cabbage.sys.model.ShareSetExample" resultType="java.lang.Integer">
+    select count(*) from sys_share_set
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update sys_share_set
+    <set>
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=BIGINT},
+      </if>
+      <if test="record.shareWay != null">
+        share_way = #{record.shareWay,jdbcType=VARCHAR},
+      </if>
+      <if test="record.shareTitle != null">
+        share_title = #{record.shareTitle,jdbcType=VARCHAR},
+      </if>
+      <if test="record.shareContent != null">
+        share_content = #{record.shareContent,jdbcType=VARCHAR},
+      </if>
+      <if test="record.inviteWay != null">
+        invite_way = #{record.inviteWay,jdbcType=VARCHAR},
+      </if>
+      <if test="record.inviteTitle != null">
+        invite_title = #{record.inviteTitle,jdbcType=VARCHAR},
+      </if>
+      <if test="record.inviteContent != null">
+        invite_content = #{record.inviteContent,jdbcType=VARCHAR},
+      </if>
+      <if test="record.createTime != null">
+        create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.updateTime != null">
+        update_time = #{record.updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.isAllowShare != null">
+        is_allow_share = #{record.isAllowShare,jdbcType=BIT},
+      </if>
+      <if test="record.isAllowInvite != null">
+        is_allow_invite = #{record.isAllowInvite,jdbcType=BIT},
+      </if>
+      <if test="record.shareAppImg != null">
+        share_app_img = #{record.shareAppImg,jdbcType=VARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update sys_share_set
+    set id = #{record.id,jdbcType=BIGINT},
+      share_way = #{record.shareWay,jdbcType=VARCHAR},
+      share_title = #{record.shareTitle,jdbcType=VARCHAR},
+      share_content = #{record.shareContent,jdbcType=VARCHAR},
+      invite_way = #{record.inviteWay,jdbcType=VARCHAR},
+      invite_title = #{record.inviteTitle,jdbcType=VARCHAR},
+      invite_content = #{record.inviteContent,jdbcType=VARCHAR},
+      create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      update_time = #{record.updateTime,jdbcType=TIMESTAMP},
+      is_allow_share = #{record.isAllowShare,jdbcType=BIT},
+      is_allow_invite = #{record.isAllowInvite,jdbcType=BIT},
+      share_app_img = #{record.shareAppImg,jdbcType=VARCHAR}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="vc.thinker.cabbage.sys.model.ShareSet">
+    update sys_share_set
+    <set>
+      <if test="shareWay != null">
+        share_way = #{shareWay,jdbcType=VARCHAR},
+      </if>
+      <if test="shareTitle != null">
+        share_title = #{shareTitle,jdbcType=VARCHAR},
+      </if>
+      <if test="shareContent != null">
+        share_content = #{shareContent,jdbcType=VARCHAR},
+      </if>
+      <if test="inviteWay != null">
+        invite_way = #{inviteWay,jdbcType=VARCHAR},
+      </if>
+      <if test="inviteTitle != null">
+        invite_title = #{inviteTitle,jdbcType=VARCHAR},
+      </if>
+      <if test="inviteContent != null">
+        invite_content = #{inviteContent,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null">
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isAllowShare != null">
+        is_allow_share = #{isAllowShare,jdbcType=BIT},
+      </if>
+      <if test="isAllowInvite != null">
+        is_allow_invite = #{isAllowInvite,jdbcType=BIT},
+      </if>
+      <if test="shareAppImg != null">
+        share_app_img = #{shareAppImg,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="vc.thinker.cabbage.sys.model.ShareSet">
+    update sys_share_set
+    set share_way = #{shareWay,jdbcType=VARCHAR},
+      share_title = #{shareTitle,jdbcType=VARCHAR},
+      share_content = #{shareContent,jdbcType=VARCHAR},
+      invite_way = #{inviteWay,jdbcType=VARCHAR},
+      invite_title = #{inviteTitle,jdbcType=VARCHAR},
+      invite_content = #{inviteContent,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      update_time = #{updateTime,jdbcType=TIMESTAMP},
+      is_allow_share = #{isAllowShare,jdbcType=BIT},
+      is_allow_invite = #{isAllowInvite,jdbcType=BIT},
+      share_app_img = #{shareAppImg,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

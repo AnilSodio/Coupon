@@ -1,0 +1,5 @@
+package vc.thinker.apiv2.controller;
+
+public class OtpSummary {
+
+}

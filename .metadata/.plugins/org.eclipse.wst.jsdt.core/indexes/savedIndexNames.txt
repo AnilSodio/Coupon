@@ -1,0 +1,6 @@
+INDEX VERSION 1.4+E:\ssodio_Coupan\.metadata\.plugins\org.eclipse.wst.jsdt.core\indexes
+2279845775.index
+3391429293.index
+3132475654.index
+4001335447.index
+216353577.index
